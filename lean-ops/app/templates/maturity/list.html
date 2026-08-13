@@ -1,0 +1,249 @@
+﻿{% extends "base.html" %}
+{% block page_id %}maturity{% endblock %}
+{% block page_title %}鎴愮啛搴﹁瘎浼皗% endblock %}
+{% block content %}
+<div x-data="maturityList()" x-init="init()">
+
+  <div class="page-header">
+    <div class="page-header-info">
+      <h1>鎴愮啛搴﹁瘎浼?/h1>
+      <p>绮剧泭鎴愮啛搴﹁瘎浼颁笌鍘嗗彶鍒嗘瀽锛屾寔缁拷韪粍缁囩簿鐩婅兘鍔涜繘鍖?/p>
+    </div>
+    <div class="page-header-actions">
+      <button class="btn btn-primary" @click="newAssessment()">
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path d="M10 2v16m-8-8h16" stroke="currentColor" stroke-width="2" fill="none"/></svg>
+        鍙戣捣璇勪及
+      </button>
+    </div>
+  </div>
+
+  <div class="stat-grid" x-show="!loading">
+    <div class="stat-card">
+      <div class="stat-icon primary">
+        <svg width="22" height="22" viewBox="0 0 20 20" fill="currentColor"><path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 011 1v5H4V7zm0 7h12v2a1 1 0 01-1 1H5a1 1 0 01-1-1v-2z"/></svg>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value" x-text="stats.total || 0"></div>
+        <div class="stat-label">绱璇勪及娆℃暟</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon success">
+        <svg width="22" height="22" viewBox="0 0 20 20" fill="currentColor"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/></svg>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value" x-text="stats.avg_score || 0"></div>
+        <div class="stat-label">鏈€鏂版€诲垎</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon accent">
+        <svg width="22" height="22" viewBox="0 0 20 20" fill="currentColor"><path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v8a1 1 0 01-1 1H3a1 1 0 01-1-1v-8zm6-5a1 1 0 011-1h2a1 1 0 011 1v13a1 1 0 01-1 1H9a1 1 0 01-1-1V6zm6-3a1 1 0 011-1h2a1 1 0 011 1v16a1 1 0 01-1 1h-2a1 1 0 01-1-1V3z"/></svg>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value" x-text="topDimension || '--'"></div>
+        <div class="stat-label">鏈€楂樼淮搴?/div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon warning">
+        <svg width="22" height="22" viewBox="0 0 20 20" fill="currentColor"><path d="M10 2a8 8 0 100 16 8 8 0 000-16zm0 2a6 6 0 110 12 6 6 0 010-12zm1 8a1 1 0 01-2 0V9a1 1 0 012 0v3z"/></svg>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value" x-text="bottomDimension || '--'"></div>
+        <div class="stat-label">鏈€浣庣淮搴?/div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-2" style="margin-bottom: var(--space-6);">
+    <div class="table-container">
+      <div class="table-header">
+        <div class="table-title">璇勪及璁板綍</div>
+        <div class="table-actions">
+          <select class="form-select" style="width: auto;" x-model="filter.status" @change="loadData()">
+            <option value="">鍏ㄩ儴鐘舵€?/option>
+            <option value="draft">鑽夌</option>
+            <option value="in_progress">杩涜涓?/option>
+            <option value="completed">宸插畬鎴?/option>
+          </select>
+        </div>
+      </div>
+      <div class="loading-spinner" x-show="loading"><div class="spinner"></div></div>
+      <table class="data-table" x-show="!loading && items.length > 0">
+        <thead>
+          <tr><th>ID</th><th>璇勪及鏃ユ湡</th><th>璇勪及浜?/th><th>鎬诲垎</th><th>绾у埆</th><th>鐘舵€?/th><th>鎿嶄綔</th></tr>
+        </thead>
+        <tbody>
+          <template x-for="item in items" :key="item.id">
+            <tr>
+              <td style="color: var(--text-tertiary); font-size: var(--text-xs);" x-text="'#' + item.id"></td>
+              <td x-text="LeanOps.fmtDate(item.assessment_date)"></td>
+              <td x-text="item.assessor_name || '--'"></td>
+              <td>
+                <span x-text="item.total_score || '--'" style="font-weight: 600;"></span>
+                <span style="color: var(--text-tertiary); font-size: var(--text-xs);" x-text="' / ' + item.max_score"></span>
+              </td>
+              <td>
+                <span class="badge" :class="levelClass(item.overall_level)" x-text="item.overall_level || '--'"></span>
+              </td>
+              <td x-html="LeanOps.statusBadge(item.status, {draft:{label:'鑽夌',class:'badge-gray'},in_progress:{label:'杩涜涓?,class:'badge-primary'},completed:{label:'宸插畬鎴?,class:'badge-success'}})"></td>
+              <td>
+                <template x-if="item.status === 'completed'">
+                  <a :href="'/maturity/trends'" class="btn btn-secondary btn-sm">瓒嬪娍</a>
+                </template>
+                <template x-if="item.status !== 'completed'">
+                  <a :href="'/maturity/' + item.id" class="btn btn-primary btn-sm">鎵撳垎</a>
+                </template>
+              </td>
+            </tr>
+          </template>
+        </tbody>
+      </table>
+      <div class="empty-state" x-show="!loading && items.length === 0">
+        <div class="empty-state-icon"><svg width="48" height="48" viewBox="0 0 20 20" fill="currentColor"><path d="M10 2a8 8 0 100 16 8 8 0 000-16zm0 2a6 6 0 110 12 6 6 0 010-12z"/><path d="M10 6v4l3 2"/></svg></div>
+        <div class="empty-state-title">鏆傛棤璇勪及璁板綍</div>
+        <div class="empty-state-desc">鐐瑰嚮涓婃柟鎸夐挳鍙戣捣棣栨鎴愮啛搴﹁瘎浼?/div>
+      </div>
+      <div class="table-footer" x-show="!loading && items.length > 0">
+        <span x-text="'绗?' + pagination.page + ' / ' + pagination.total_pages + ' 椤?"></span>
+        <div class="pagination">
+          <button class="page-btn" :disabled="!pagination.has_prev" @click="changePage(pagination.page - 1)">
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"/></svg>
+          </button>
+          <button class="page-btn" :disabled="!pagination.has_next" @click="changePage(pagination.page + 1)">
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="display: flex; flex-direction: column; align-items: center; min-height: 300px;">
+      <div class="card-header" style="width: 100%;"><div class="card-title">缁村害闆疯揪鍥?/div></div>
+      <div x-show="latestAssessment" x-html="renderRadar()" style="width: 100%; display: flex; justify-content: center; flex: 1; align-items: center;"></div>
+      <div x-show="!latestAssessment" class="empty-state" style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+        <div class="empty-state-icon"><svg width="48" height="48" viewBox="0 0 20 20" fill="currentColor"><path d="M10 2a8 8 0 100 16 8 8 0 000-16zm0 2a6 6 0 110 12 6 6 0 010-12z"/></svg></div>
+        <div class="empty-state-desc">鏆傛棤璇勫垎鏁版嵁</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+function maturityList() {
+  return {
+    items: [], stats: {}, loading: false, latestAssessment: null,
+    topDimension: '--', bottomDimension: '--',
+    filter: { status: '' },
+    pagination: { page: 1, page_size: 20, total: 0, total_pages: 0, has_next: false, has_prev: false },
+    async init() {
+      await Promise.all([this.loadStats(), this.loadData()]);
+    },
+    async loadStats() {
+      try { this.stats = await LeanOps.api('/maturity/assessments/stats'); } catch (e) {}
+      if (this.items.length > 0) {
+        try {
+          const latest = await LeanOps.api('/maturity/assessments/' + this.items[0].id);
+          if (latest.data && latest.data.dimensions) {
+            this.latestAssessment = latest.data;
+            const dims = latest.data.dimensions;
+            let top = dims[0], bottom = dims[0];
+            dims.forEach(d => {
+              if ((d.score || 0) > (top.score || 0)) top = d;
+              if ((d.score || 0) < (bottom.score || 0)) bottom = d;
+            });
+            this.topDimension = top.dimension_name;
+            this.bottomDimension = bottom.dimension_name;
+          }
+        } catch (e) {}
+      }
+    },
+    async loadData() {
+      this.loading = true;
+      try {
+        const params = new URLSearchParams({ page: this.pagination.page, page_size: this.pagination.page_size });
+        if (this.filter.status) params.set('status', this.filter.status);
+        const data = await LeanOps.api('/maturity/assessments?' + params);
+        this.items = data.data || [];
+        this.pagination = data.pagination || {};
+      } catch (e) {
+        LeanOps.toast(e.detail || '鍔犺浇澶辫触', 'error');
+      } finally { this.loading = false; }
+    },
+    changePage(p) { if (p >= 1) { this.pagination.page = p; this.loadData(); } },
+    levelClass(l) {
+      if (!l) return 'badge-gray';
+      if (l.startsWith('L5') || l.includes('World-class')) return 'badge-success';
+      if (l.startsWith('L4') || l.includes('Proactive')) return 'badge-primary';
+      if (l.startsWith('L3') || l.includes('Systematic')) return 'badge-info';
+      if (l.startsWith('L2') || l.includes('Developing')) return 'badge-warning';
+      return 'badge-gray';
+    },
+    newAssessment() {
+      const type = prompt('璇勪及绫诲瀷 (overall / lean20):', 'overall');
+      const area = prompt('璇勪及鍖哄煙:', '鍏ㄥ巶');
+      if (!type || !area) return;
+      LeanOps.api('/maturity/assessments', {
+        method: 'POST',
+        body: JSON.stringify({ assessment_type: type, area_name: area, max_score: type === 'lean20' ? '5' : '100' }),
+        headers: { 'Content-Type': 'application/json' },
+      }).then(data => {
+        LeanOps.toast('璇勪及宸插垱寤?, 'success');
+        window.location.href = '/maturity/' + data.data.id;
+      }).catch(e => LeanOps.toast(e.detail || '鍒涘缓澶辫触', 'error'));
+    },
+    renderRadar() {
+      if (!this.latestAssessment || !this.latestAssessment.dimensions) return '';
+      const dims = this.latestAssessment.dimensions;
+      const cx = 140, cy = 140, maxR = 110, levels = 5;
+      const n = dims.length;
+      if (n < 3) return '';
+      const angle = (2 * Math.PI) / n;
+      let grid = '', data = '', labels = '';
+      for (let l = 1; l <= levels; l++) {
+        let pts = '';
+        for (let i = 0; i < n; i++) {
+          const a = angle * i - Math.PI / 2;
+          const r = (l / levels) * maxR;
+          const x = cx + r * Math.cos(a);
+          const y = cy + r * Math.sin(a);
+          pts += x + ',' + y + ' ';
+        }
+        grid += '<polygon points="' + pts.trim() + '" fill="none" stroke="var(--border-color)" stroke-width="1"/>';
+      }
+      for (let i = 0; i < n; i++) {
+        const a = angle * i - Math.PI / 2;
+        const x = cx + maxR * Math.cos(a);
+        const y = cy + maxR * Math.sin(a);
+        grid += '<line x1="' + cx + '" y1="' + cy + '" x2="' + x + '" y2="' + y + '" stroke="var(--border-color)" stroke-width="1"/>';
+        const lx = cx + (maxR + 22) * Math.cos(a);
+        const ly = cy + (maxR + 22) * Math.sin(a);
+        const label = dims[i].dimension_name.length > 4 ? dims[i].dimension_name.substring(0, 4) : dims[i].dimension_name;
+        labels += '<text x="' + lx + '" y="' + ly + '" text-anchor="middle" dominant-baseline="middle" font-size="12" fill="var(--text-secondary)">' + label + '</text>';
+      }
+      let dataPts = '';
+      for (let i = 0; i < n; i++) {
+        const a = angle * i - Math.PI / 2;
+        const pct = (dims[i].score || 0) / (dims[i].max_score || 100);
+        const r = pct * maxR;
+        const x = cx + r * Math.cos(a);
+        const y = cy + r * Math.sin(a);
+        dataPts += x + ',' + y + ' ';
+      }
+      data += '<polygon points="' + dataPts.trim() + '" fill="rgba(37, 99, 235, 0.15)" stroke="var(--color-primary-500)" stroke-width="2"/>';
+      for (let i = 0; i < n; i++) {
+        const a = angle * i - Math.PI / 2;
+        const pct = (dims[i].score || 0) / (dims[i].max_score || 100);
+        const r = pct * maxR;
+        const x = cx + r * Math.cos(a);
+        const y = cy + r * Math.sin(a);
+        data += '<circle cx="' + x + '" cy="' + y + '" r="3" fill="var(--color-primary-500)"/>';
+      }
+      return '<svg width="300" height="300" viewBox="0 0 280 280">' + grid + labels + data + '</svg>';
+    },
+  };
+}
+</script>
+{% endblock %}

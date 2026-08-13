@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+{% from "partials/_head.html" import head %}{{ head('项目详情') }}
+</head>
+<body class="min-h-screen" x-data="projectDetailPage()" x-init="init()">
+<div class="flex min-h-screen">
+{% set active_nav = 'projects' %}
+{% include "partials/_sidebar.html" %}
+<div class="flex-1 ml-56">
+    <header class="bg-white border-b border-[var(--border)] px-8 py-3 flex items-center justify-between sticky top-0 z-30">
+        <div class="flex items-center gap-3">
+            <a href="/projects" class="text-xs text-[var(--text-tertiary)] hover:text-[var(--text-primary)] transition-colors">&larr; Projects</a>
+            <span class="text-[var(--text-tertiary)]">/</span>
+            <h1 class="text-base font-semibold" x-text="project ? project.title : 'Project Details'"></h1>
+        </div>
+        <div class="flex items-center gap-2">
+            <template x-if="project">
+                <span class="pill" :class="statusPillClass(project.status)" x-text="project.status"></span>
+            </template>
+        </div>
+    </header>
+    <main class="p-8 space-y-6">
+        <!-- Loading -->
+        <div x-show="!project" class="text-center py-20 text-[var(--text-tertiary)] text-sm">
+            Loading project details...
+        </div>
+
+        <!-- Project Header Card -->
+        <div x-show="project" class="card p-6">
+            <div class="flex items-start justify-between">
+                <div class="flex-1">
+                    <h2 class="text-xl font-bold text-[var(--text-primary)] mb-2" x-text="project?.title"></h2>
+                    <p class="text-sm text-[var(--text-secondary)] mb-4" x-text="project?.description"></p>
+                    <div class="flex items-center gap-6 text-sm">
+                        <div>
+                            <span class="text-[var(--text-tertiary)]">Owner</span>
+                            <span class="ml-2 font-medium text-[var(--text-primary)]" x-text="project?.owner_name || 'Unassigned'"></span>
+                        </div>
+                        <div>
+                            <span class="text-[var(--text-tertiary)]">Start</span>
+                            <span class="ml-2 font-medium text-[var(--text-primary)] mono" x-text="project?.start_date || '-'"></span>
+                        </div>
+                        <div>
+                            <span class="text-[var(--text-tertiary)]">Target</span>
+                            <span class="ml-2 font-medium text-[var(--text-primary)] mono" x-text="project?.target_date || '-'"></span>
+                        </div>
+                        <div>
+                            <span class="text-[var(--text-tertiary)]">Budget</span>
+                            <span class="ml-2 font-medium text-[var(--text-primary)] mono" x-text="'¥' + (project?.budget || 0).toLocaleString()"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <div class="stat-num text-[var(--text-primary)]" x-text="progressPct + '%'"></div>
+                    <p class="text-xs text-[var(--text-tertiary)] mt-1">Progress</p>
+                    <div class="bar w-32 mt-2">
+                        <div :style="'width: ' + progressPct + '%; background: var(--accent);'"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div x-show="project" class="card">
+            <!-- Tab Bar -->
+            <div class="border-b border-[var(--border)] px-4 flex gap-1">
+                <button @click="activeTab = 'milestones'" class="tab" :class="activeTab === 'milestones' ? 'active' : ''">Milestones <span class="text-[var(--text-tertiary)] ml-1" x-text="milestones.length"></span></button>
+                <button @click="activeTab = 'tasks'" class="tab" :class="activeTab === 'tasks' ? 'active' : ''">Tasks <span class="text-[var(--text-tertiary)] ml-1" x-text="tasks.length"></span></button>
+                <button @click="activeTab = 'updates'" class="tab" :class="activeTab === 'updates' ? 'active' : ''">Updates <span class="text-[var(--text-tertiary)] ml-1" x-text="updates.length"></span></button>
+                <button @click="activeTab = 'risks'" class="tab" :class="activeTab === 'risks' ? 'active' : ''">Risks <span class="text-[var(--text-tertiary)] ml-1" x-text="risks.length"></span></button>
+                <button @click="activeTab = 'team'" class="tab" :class="activeTab === 'team' ? 'active' : ''">Team <span class="text-[var(--text-tertiary)] ml-1" x-text="members.length"></span></button>
+            </div>
+
+            <!-- Milestones Tab -->
+            <div x-show="activeTab === 'milestones'" x-cloak class="p-5">
+                <template x-for="m in milestones" :key="m.id">
+                    <div class="relative pl-8 pb-4">
+                        <div class="absolute left-1 top-1 w-3 h-3 rounded-full border-2 bg-white" :class="m.status === 'completed' ? 'border-[var(--positive)]' : m.status === 'in_progress' ? 'border-[var(--accent)]' : 'border-[var(--border)]'"></div>
+                        <div class="absolute left-[7px] top-5 bottom-0 w-px bg-[var(--border)] last:hidden"></div>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h4 class="font-semibold text-sm text-[var(--text-primary)]" x-text="m.name"></h4>
+                                <p class="text-xs text-[var(--text-secondary)]" x-text="m.description"></p>
+                            </div>
+                            <div class="text-right">
+                                <span class="pill" :class="m.status === 'completed' ? 'bg-green-50 text-[var(--positive)]' : m.status === 'in_progress' ? 'bg-[#f4f4f5] text-[var(--text-primary)]' : 'bg-[#f4f4f5] text-[var(--text-secondary)]'" x-text="m.status"></span>
+                                <p class="text-xs text-[var(--text-tertiary)] mt-1 mono" x-text="m.actual_date ? 'Done: ' + m.actual_date : 'Target: ' + m.target_date"></p>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+                <p x-show="milestones.length === 0" class="text-[var(--text-tertiary)] text-sm">No milestones recorded.</p>
+            </div>
+
+            <!-- Tasks Tab -->
+            <div x-show="activeTab === 'tasks'" x-cloak class="p-5">
+                <div class="flex gap-1 mb-4">
+                    <button @click="taskFilter = ''" class="tab" :class="taskFilter === '' ? 'active' : ''">All</button>
+                    <button @click="taskFilter = 'completed'" class="tab" :class="taskFilter === 'completed' ? 'active' : ''">Completed</button>
+                    <button @click="taskFilter = 'in_progress'" class="tab" :class="taskFilter === 'in_progress' ? 'active' : ''">In Progress</button>
+                    <button @click="taskFilter = 'planning'" class="tab" :class="taskFilter === 'planning' ? 'active' : ''">Planning</button>
+                </div>
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="border-b border-[var(--border)]">
+                            <th class="text-left py-2 px-3 text-xs font-medium text-[var(--text-tertiary)] uppercase tracking-wider">Task</th>
+                            <th class="text-left py-2 px-3 text-xs font-medium text-[var(--text-tertiary)] uppercase tracking-wider">Assignee</th>
+                            <th class="text-left py-2 px-3 text-xs font-medium text-[var(--text-tertiary)] uppercase tracking-wider">Priority</th>
+                            <th class="text-left py-2 px-3 text-xs font-medium text-[var(--text-tertiary)] uppercase tracking-wider">Due</th>
+                            <th class="text-left py-2 px-3 text-xs font-medium text-[var(--text-tertiary)] uppercase tracking-wider">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <template x-for="t in filteredTasks" :key="t.id">
+                            <tr class="border-b border-[var(--border)] hover:bg-[#fafafa] transition-colors">
+                                <td class="py-2 px-3">
+                                    <p class="font-medium text-[var(--text-primary)]" x-text="t.name"></p>
+                                    <p class="text-xs text-[var(--text-tertiary)]" x-text="t.description"></p>
+                                </td>
+                                <td class="py-2 px-3 text-[var(--text-secondary)]" x-text="t.assignee_id ? 'User #' + t.assignee_id : '-'"></td>
+                                <td class="py-2 px-3">
+                                    <span class="pill" :class="t.priority === 'high' ? 'bg-red-50 text-[var(--negative)]' : t.priority === 'medium' ? 'bg-orange-50 text-[var(--warning)]' : 'bg-[#f4f4f5] text-[var(--text-secondary)]'" x-text="t.priority"></span>
+                                </td>
+                                <td class="py-2 px-3 text-[var(--text-secondary)] mono" x-text="t.due_date || '-'"></td>
+                                <td class="py-2 px-3">
+                                    <span class="pill" :class="t.status === 'completed' ? 'bg-green-50 text-[var(--positive)]' : t.status === 'in_progress' ? 'bg-[#f4f4f5] text-[var(--text-primary)]' : 'bg-[#f4f4f5] text-[var(--text-secondary)]'" x-text="t.status"></span>
+                                </td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+                <p x-show="filteredTasks.length === 0" class="text-[var(--text-tertiary)] text-sm py-4">No tasks found.</p>
+            </div>
+
+            <!-- Updates Tab -->
+            <div x-show="activeTab === 'updates'" x-cloak class="p-5 space-y-4">
+                <template x-for="u in updates" :key="u.id">
+                    <div class="border-l-2 border-[var(--accent)] pl-4 py-2">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="font-medium text-sm text-[var(--text-primary)]" x-text="'User #' + u.author_id"></span>
+                            <span class="text-xs text-[var(--text-tertiary)] mono" x-text="u.update_date"></span>
+                        </div>
+                        <div class="flex items-center gap-2 mb-2">
+                            <div class="bar flex-1">
+                                <div :style="'width: ' + u.progress_pct + '%; background: var(--accent);'"></div>
+                            </div>
+                            <span class="text-sm font-medium text-[var(--text-primary)] mono" x-text="u.progress_pct + '%'"></span>
+                        </div>
+                        <div class="text-sm space-y-1">
+                            <p x-show="u.accomplishments"><span class="font-medium text-[var(--text-secondary)]">Accomplished:</span> <span class="text-[var(--text-primary)]" x-text="u.accomplishments"></span></p>
+                            <p x-show="u.plan_next_week"><span class="font-medium text-[var(--text-secondary)]">Next:</span> <span class="text-[var(--text-primary)]" x-text="u.plan_next_week"></span></p>
+                            <p x-show="u.risks_issues" class="text-[var(--negative)]"><span class="font-medium">Risk:</span> <span x-text="u.risks_issues"></span></p>
+                        </div>
+                    </div>
+                </template>
+                <p x-show="updates.length === 0" class="text-[var(--text-tertiary)] text-sm">No updates recorded.</p>
+            </div>
+
+            <!-- Risks Tab -->
+            <div x-show="activeTab === 'risks'" x-cloak class="p-5 space-y-3">
+                <template x-for="r in risks" :key="r.id">
+                    <div class="card p-4">
+                        <div class="flex items-start justify-between mb-2">
+                            <h4 class="font-semibold text-sm text-[var(--text-primary)]" x-text="r.title"></h4>
+                            <div class="flex gap-1.5">
+                                <span class="pill" :class="r.probability === 'high' ? 'bg-red-50 text-[var(--negative)]' : r.probability === 'medium' ? 'bg-orange-50 text-[var(--warning)]' : 'bg-green-50 text-[var(--positive)]'" x-text="'P: ' + r.probability"></span>
+                                <span class="pill" :class="r.impact === 'high' ? 'bg-red-50 text-[var(--negative)]' : r.impact === 'medium' ? 'bg-orange-50 text-[var(--warning)]' : 'bg-green-50 text-[var(--positive)]'" x-text="'I: ' + r.impact"></span>
+                            </div>
+                        </div>
+                        <p class="text-sm text-[var(--text-secondary)] mb-2" x-text="r.description"></p>
+                        <div class="grid grid-cols-2 gap-2 text-sm">
+                            <div><span class="text-[var(--text-tertiary)]">Response:</span> <span class="text-[var(--text-primary)]" x-text="r.response_plan"></span></div>
+                            <div><span class="text-[var(--text-tertiary)]">Mitigation:</span> <span class="text-[var(--text-primary)]" x-text="r.mitigation_actions"></span></div>
+                        </div>
+                    </div>
+                </template>
+                <p x-show="risks.length === 0" class="text-[var(--text-tertiary)] text-sm">No risks identified.</p>
+            </div>
+
+            <!-- Team Tab -->
+            <div x-show="activeTab === 'team'" x-cloak class="p-5">
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    <template x-for="m in members" :key="m.id">
+                        <div class="flex items-center gap-3 p-3 card">
+                            <div class="w-10 h-10 rounded-full bg-[var(--accent)] text-white flex items-center justify-center font-bold text-sm" x-text="'U' + m.user_id"></div>
+                            <div>
+                                <p class="font-medium text-sm text-[var(--text-primary)]" x-text="'User #' + m.user_id"></p>
+                                <span class="pill mt-1" :class="m.role === 'lead' ? 'bg-[var(--accent)] text-white' : 'bg-[#f4f4f5] text-[var(--text-secondary)]'" x-text="m.role"></span>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+                <p x-show="members.length === 0" class="text-[var(--text-tertiary)] text-sm">No team members assigned.</p>
+            </div>
+        </div>
+    </main>
+</div>
+</div>
+<script>
+function projectDetailPage() {
+    return {
+        projectId: new URLSearchParams(window.location.search).get('id') || 1,
+        project: null,
+        milestones: [],
+        tasks: [],
+        updates: [],
+        risks: [],
+        members: [],
+        activeTab: 'milestones',
+        taskFilter: '',
+
+        async init() {
+            await Promise.all([
+                this.loadProject(),
+                this.loadMilestones(),
+                this.loadTasks(),
+                this.loadUpdates(),
+                this.loadRisks(),
+                this.loadMembers()
+            ]);
+        },
+
+        async loadProject() {
+            try {
+                const res = await fetch('/api/v1/projects/' + this.projectId);
+                this.project = await res.json();
+            } catch(e) { console.error(e); }
+        },
+        async loadMilestones() {
+            try {
+                const res = await fetch(`/api/v1/projects/${this.projectId}/milestones`);
+                this.milestones = await res.json();
+            } catch(e) { console.error(e); }
+        },
+        async loadTasks() {
+            try {
+                const res = await fetch(`/api/v1/projects/${this.projectId}/tasks`);
+                this.tasks = await res.json();
+            } catch(e) { console.error(e); }
+        },
+        async loadUpdates() {
+            try {
+                const res = await fetch(`/api/v1/projects/${this.projectId}/updates`);
+                this.updates = await res.json();
+            } catch(e) { console.error(e); }
+        },
+        async loadRisks() {
+            try {
+                const res = await fetch(`/api/v1/projects/${this.projectId}/risks`);
+                this.risks = await res.json();
+            } catch(e) { console.error(e); }
+        },
+        async loadMembers() {
+            try {
+                const res = await fetch(`/api/v1/projects/${this.projectId}/members`);
+                this.members = await res.json();
+            } catch(e) { console.error(e); }
+        },
+
+        get filteredTasks() {
+            if (!this.taskFilter) return this.tasks;
+            return this.tasks.filter(t => t.status === this.taskFilter);
+        },
+
+        get progressPct() {
+            if (!this.tasks.length) return 0;
+            return Math.round(this.tasks.filter(t => t.status === 'completed').length / this.tasks.length * 100);
+        },
+
+        statusPillClass(status) {
+            const m = {
+                completed: 'bg-green-50 text-[var(--positive)]',
+                in_progress: 'bg-[#f4f4f5] text-[var(--text-primary)]',
+                on_hold: 'bg-orange-50 text-[var(--warning)]',
+                planning: 'bg-[#f4f4f5] text-[var(--text-secondary)]'
+            };
+            return m[status] || 'bg-[#f4f4f5] text-[var(--text-secondary)]';
+        }
+    }
+}
+</script>
+</body>
+</html>

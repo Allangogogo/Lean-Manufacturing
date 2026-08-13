@@ -1,0 +1,355 @@
+{% extends "base.html" %}
+{% block page_id %}projects{% endblock %}
+{% block page_title %}项目详情{% endblock %}
+
+{% block content %}
+<div x-data="projectDetail()" x-init="init()">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="page-header-info">
+      <div style="display: flex; align-items: center; gap: var(--space-3);">
+        <a href="/projects" class="btn btn-ghost btn-sm" style="padding: 2px 6px;">
+          <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path d="M12 5l-5 5 5 5" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+        </a>
+        <h1 x-text="project.name" style="margin: 0;">加载中...</h1>
+        <span x-html="LeanOps.statusBadge(project.status)"></span>
+      </div>
+    </div>
+    <div class="page-header-actions">
+      <a :href="'/project/' + projectId + '/gantt'" class="btn btn-secondary">
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path d="M2 4h4v3H2V4zm6 0h4v3H8V4zm6 0h4v3h-4V4zM2 9h4v3H2V9zm6 0h4v3H8V9zm6 0h4v3h-4V9zM2 14h4v3H2v-3zm6 0h4v3H8v-3z"/></svg>
+        甘特图
+      </a>
+      <a :href="'/project/' + projectId + '/dashboard'" class="btn btn-secondary">
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><rect x="2" y="2" width="7" height="16" rx="1"/><rect x="11" y="8" width="7" height="10" rx="1"/></svg>
+        KPI仪表板
+      </a>
+      <a :href="'/project/' + projectId + '/risks'" class="btn btn-secondary">
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path d="M10 1l9 4v6a9 9 0 01-4 7.5L10 19l-5-1.5A9 9 0 012 10V5l8-4zm0 2.5L4 6.5V10a7 7 0 003 5.7l3 1 3-1A7 7 0 0016 10V6.5l-6-3z"/></svg>
+        风险管理
+      </a>
+    </div>
+  </div>
+
+  <!-- Project Info Card -->
+  <div class="card" style="margin-bottom: var(--space-5);">
+    <p style="color: var(--text-secondary); font-size: var(--text-sm); margin-bottom: var(--space-4);" x-text="project.description || '暂无描述'"></p>
+    <div class="detail-grid">
+      <div class="detail-item">
+        <div class="detail-label">项目类型</div>
+        <div class="detail-value" x-text="typeMap[project.project_type] || project.project_type"></div>
+      </div>
+      <div class="detail-item">
+        <div class="detail-label">负责人</div>
+        <div class="detail-value" style="display: flex; align-items: center; gap: var(--space-2);">
+          <span class="avatar avatar-sm" x-text="LeanOps.initials(project.owner_name)"></span>
+          <span x-text="project.owner_name"></span>
+        </div>
+      </div>
+      <div class="detail-item">
+        <div class="detail-label">优先级</div>
+        <div class="detail-value" x-html="LeanOps.priorityBadge(project.priority)"></div>
+      </div>
+      <div class="detail-item">
+        <div class="detail-label">开始日期</div>
+        <div class="detail-value" x-text="project.start_date ? LeanOps.fmtDate(project.start_date) : '未设置'"></div>
+      </div>
+      <div class="detail-item">
+        <div class="detail-label">目标完成日期</div>
+        <div class="detail-value" x-text="project.target_end_date ? LeanOps.fmtDate(project.target_end_date) : '未设置'"></div>
+      </div>
+      <div class="detail-item">
+        <div class="detail-label">预算</div>
+        <div class="detail-value" x-text="LeanOps.fmtMoney(project.budget)"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab" :class="{ active: tab === 'overview' }" @click="tab = 'overview'">概览</button>
+    <button class="tab" :class="{ active: tab === 'tasks' }" @click="tab = 'tasks'">任务</button>
+    <button class="tab" :class="{ active: tab === 'milestones' }" @click="tab = 'milestones'">里程碑</button>
+    <button class="tab" :class="{ active: tab === 'activity' }" @click="tab = 'activity'">动态</button>
+  </div>
+
+  <!-- Main Content Area -->
+  <div style="display: flex; gap: var(--space-5);">
+    <!-- Left Content -->
+    <div style="flex: 1; min-width: 0;">
+
+      <!-- Overview Tab -->
+      <div x-show="tab === 'overview'">
+        <div class="card" style="margin-bottom: var(--space-5);">
+          <div class="card-header">
+            <h3 class="card-title">项目进度</h3>
+          </div>
+          <div class="card-body">
+            <div style="display: flex; justify-content: space-between; margin-bottom: var(--space-2); font-size: var(--text-sm);">
+              <span x-text="project.completed_tasks + '/' + project.task_count + ' 任务完成'"></span>
+              <span style="font-weight: 600;" x-text="(project.progress_pct || 0) + '%'"></span>
+            </div>
+            <div class="progress" style="height: 12px;">
+              <div class="progress-bar" :style="'width: ' + (project.progress_pct || 0) + '%'" :class="{ success: (project.progress_pct || 0) >= 100 }"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom: var(--space-5);">
+          <div class="card-header">
+            <h3 class="card-title">项目信息</h3>
+          </div>
+          <div class="detail-grid">
+            <div class="detail-item">
+              <div class="detail-label">目标</div>
+              <div class="detail-value" x-text="project.objectives || '未设置'"></div>
+            </div>
+            <div class="detail-item">
+              <div class="detail-label">范围</div>
+              <div class="detail-value" x-text="project.scope || '未设置'"></div>
+            </div>
+            <div class="detail-item">
+              <div class="detail-label">成功标准</div>
+              <div class="detail-value" x-text="project.success_criteria || '未设置'"></div>
+            </div>
+            <div class="detail-item">
+              <div class="detail-label">实际花费</div>
+              <div class="detail-value" x-text="LeanOps.fmtMoney(project.actual_cost)"></div>
+            </div>
+            <div class="detail-item">
+              <div class="detail-label">实际完成日期</div>
+              <div class="detail-value" x-text="project.actual_end_date ? LeanOps.fmtDate(project.actual_end_date) : '未完成'"></div>
+            </div>
+            <div class="detail-item">
+              <div class="detail-label">创建时间</div>
+              <div class="detail-value" x-text="project.created_at ? LeanOps.fmtDateTime(project.created_at) : '-'"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tasks Tab -->
+      <div x-show="tab === 'tasks'">
+        <div class="table-container" style="margin-bottom: var(--space-5);">
+          <div class="table-header">
+            <span class="table-title">任务列表</span>
+            <span class="badge badge-gray" x-text="(project.tasks || []).length + ' 个任务'"></span>
+          </div>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>任务名称</th>
+                <th>负责人</th>
+                <th>状态</th>
+                <th>优先级</th>
+                <th>截止日期</th>
+                <th>进度</th>
+              </tr>
+            </thead>
+            <tbody>
+              <template x-for="task in project.tasks || []" :key="task.id">
+                <tr>
+                  <td style="font-weight: 500;" x-text="task.name"></td>
+                  <td>
+                    <div style="display: flex; align-items: center; gap: var(--space-2);">
+                      <span class="avatar avatar-sm" x-text="LeanOps.initials(task.assigned_to_name)"></span>
+                      <span x-text="task.assigned_to_name || '未分配'"></span>
+                    </div>
+                  </td>
+                  <td x-html="taskStatusBadge(task.status)"></td>
+                  <td x-html="LeanOps.priorityBadge(task.priority)"></td>
+                  <td style="color: var(--text-tertiary); font-size: var(--text-xs);" x-text="task.due_date ? LeanOps.fmtDate(task.due_date) : '-'"></td>
+                  <td>
+                    <div style="display: flex; align-items: center; gap: var(--space-2);">
+                      <div class="progress" style="width: 60px;">
+                        <div class="progress-bar" :style="'width: ' + taskProgress(task.status) + '%'" :class="{ success: task.status === 'done' }"></div>
+                      </div>
+                      <span style="font-size: var(--text-xs); color: var(--text-tertiary);" x-text="taskProgress(task.status) + '%'"></span>
+                    </div>
+                  </td>
+                </tr>
+              </template>
+              <tr x-show="!project.tasks || project.tasks.length === 0">
+                <td colspan="6" style="text-align: center; padding: var(--space-8); color: var(--text-tertiary);">暂无任务</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Milestones Tab -->
+      <div x-show="tab === 'milestones'">
+        <div class="card" style="margin-bottom: var(--space-5);">
+          <div class="card-header">
+            <h3 class="card-title">项目里程碑</h3>
+            <span class="badge badge-gray" x-text="(project.milestones || []).length + ' 个里程碑'"></span>
+          </div>
+          <div class="card-body">
+            <div class="timeline">
+              <template x-for="(m, idx) in project.milestones || []" :key="m.id">
+                <div class="timeline-item">
+                  <div class="timeline-marker" :style="'background: ' + (m.status === 'completed' ? 'var(--color-success-500)' : 'var(--color-primary-500)')"></div>
+                  <div class="timeline-content">
+                    <div class="timeline-title" x-text="m.name"></div>
+                    <div class="timeline-time">
+                      <span>目标: </span>
+                      <span x-text="m.target_date ? LeanOps.fmtDate(m.target_date) : '未设置'"></span>
+                      <template x-if="m.actual_date">
+                        <span style="color: var(--color-success-600);"> → 实际完成: <span x-text="LeanOps.fmtDate(m.actual_date)"></span></span>
+                      </template>
+                    </div>
+                    <div class="timeline-desc" x-show="m.description" x-text="m.description"></div>
+                    <div style="display: flex; align-items: center; gap: var(--space-2); margin-top: var(--space-1);">
+                      <span x-html="LeanOps.statusBadge(m.status)"></span>
+                      <span style="font-size: var(--text-xs); color: var(--text-tertiary);" x-text="'任务: ' + m.completed_tasks + '/' + m.task_count"></span>
+                    </div>
+                  </div>
+                </div>
+              </template>
+              <div x-show="!project.milestones || project.milestones.length === 0" style="text-align: center; padding: var(--space-8); color: var(--text-tertiary);">暂无里程碑</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Activity Tab -->
+      <div x-show="tab === 'activity'">
+        <div class="card" style="margin-bottom: var(--space-5);">
+          <div class="card-header">
+            <h3 class="card-title">活动动态</h3>
+          </div>
+          <div class="card-body">
+            <div class="timeline">
+              <template x-for="u in project.updates || []" :key="u.id">
+                <div class="timeline-item">
+                  <div class="timeline-marker"></div>
+                  <div class="timeline-content">
+                    <div class="timeline-title">
+                      <span x-text="u.author_name"></span>
+                      <span style="font-weight: 400; color: var(--text-tertiary);"> 更新进度至 <strong style="color: var(--text-primary);" x-text="u.progress_pct + '%'"></strong></span>
+                    </div>
+                    <div class="timeline-time" x-text="u.created_at ? LeanOps.fmtDateTime(u.created_at) : ''"></div>
+                    <div class="timeline-desc" x-show="u.accomplishments" x-text="u.accomplishments"></div>
+                    <div class="timeline-desc" x-show="u.plan_next_week" style="color: var(--text-tertiary);">
+                      <span style="font-weight: 500;">下周计划: </span><span x-text="u.plan_next_week"></span>
+                    </div>
+                    <div class="timeline-desc" x-show="u.risks_issues" style="color: var(--color-warning-600);">
+                      <span style="font-weight: 500;">风险: </span><span x-text="u.risks_issues"></span>
+                    </div>
+                  </div>
+                </div>
+              </template>
+              <div x-show="!project.updates || project.updates.length === 0" style="text-align: center; padding: var(--space-8); color: var(--text-tertiary);">暂无活动动态</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Sidebar -->
+    <div style="width: 280px; flex-shrink: 0;">
+      <!-- Members -->
+      <div class="card" style="margin-bottom: var(--space-4);">
+        <div class="card-header">
+          <h3 class="card-title" style="font-size: var(--text-sm);">项目成员</h3>
+          <span class="badge badge-gray" x-text="(project.members || []).length + '人'"></span>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: var(--space-3);">
+          <template x-for="member in project.members || []" :key="member.id">
+            <div style="display: flex; align-items: center; gap: var(--space-2);">
+              <div class="avatar avatar-sm" x-text="LeanOps.initials(member.user_name)"></div>
+              <div style="min-width: 0;">
+                <div style="font-size: var(--text-sm); font-weight: 500; color: var(--text-primary);" x-text="member.user_name"></div>
+                <div style="font-size: var(--text-xs); color: var(--text-tertiary);" x-text="roleMap[member.role] || member.role"></div>
+              </div>
+            </div>
+          </template>
+          <div x-show="!project.members || project.members.length === 0" style="font-size: var(--text-xs); color: var(--text-tertiary);">暂无成员</div>
+        </div>
+      </div>
+
+      <!-- Key Metrics -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title" style="font-size: var(--text-sm);">关键指标</h3>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: var(--space-3);">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-size: var(--text-xs); color: var(--text-tertiary);">任务完成率</span>
+            <span style="font-size: var(--text-sm); font-weight: 600;" x-text="taskCompletionRate + '%'"></span>
+          </div>
+          <div class="progress" style="height: 6px;">
+            <div class="progress-bar" :style="'width: ' + taskCompletionRate + '%'" :class="{ success: taskCompletionRate >= 100 }"></div>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-size: var(--text-xs); color: var(--text-tertiary);">预算执行率</span>
+            <span style="font-size: var(--text-sm); font-weight: 600;" x-text="budgetUsage + '%'"></span>
+          </div>
+          <div class="progress" style="height: 6px;">
+            <div class="progress-bar" :class="{ success: budgetUsage <= 100, warning: budgetUsage > 100 && budgetUsage <= 120, danger: budgetUsage > 120 }" :style="'width: ' + Math.min(budgetUsage, 200) + '%'"></div>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-size: var(--text-xs); color: var(--text-tertiary);">总任务数</span>
+            <span style="font-size: var(--text-sm); font-weight: 600;" x-text="project.task_count || 0"></span>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-size: var(--text-xs); color: var(--text-tertiary);">已完成任务</span>
+            <span style="font-size: var(--text-sm); font-weight: 600; color: var(--color-success-600);" x-text="project.completed_tasks || 0"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function projectDetail() {
+  const pathParts = window.location.pathname.split('/').filter(Boolean);
+  const pid = parseInt(pathParts[pathParts.length - 1]);
+  return {
+    projectId: pid,
+    project: {},
+    tab: 'overview',
+    typeMap: { kaizen_event: 'Kaizen 活动', vsm_redux: '价值流优化', '5s_deployment': '5S 推广', tpm_rollout: 'TPM 推广', training_program: '培训项目' },
+    roleMap: { owner: '负责人', member: '成员', consultant: '顾问' },
+
+    get taskCompletionRate() {
+      if (!this.project.task_count || this.project.task_count === 0) return 0;
+      return Math.round((this.project.completed_tasks || 0) / this.project.task_count * 100);
+    },
+
+    get budgetUsage() {
+      if (!this.project.budget || parseFloat(this.project.budget) === 0) return 0;
+      return Math.round((parseFloat(this.project.actual_cost || 0) / parseFloat(this.project.budget)) * 100);
+    },
+
+    async init() {
+      try {
+        const res = await LeanOps.api('/projects/' + this.projectId);
+        this.project = res.data;
+      } catch (e) {
+        LeanOps.toast('加载项目详情失败', 'error');
+      }
+    },
+
+    taskStatusBadge(status) {
+      const map = {
+        todo: { label: '待办', class: 'badge-gray' },
+        in_progress: { label: '进行中', class: 'badge-primary' },
+        review: { label: '审查中', class: 'badge-warning' },
+        done: { label: '已完成', class: 'badge-success' },
+      };
+      const item = map[status] || { label: status, class: 'badge-gray' };
+      return '<span class="badge ' + item.class + '">' + item.label + '</span>';
+    },
+
+    taskProgress(status) {
+      const map = { todo: 0, in_progress: 50, review: 75, done: 100 };
+      return map[status] || 0;
+    },
+  };
+}
+</script>
+{% endblock %}

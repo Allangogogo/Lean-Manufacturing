@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+{% from "partials/_head.html" import head %}{{ head('Lean 2.0 评估') }}
+<style>
+    .level-btn { transition: all 0.15s ease; }
+    .level-btn:hover { transform: translateY(-1px); }
+    .checklist-item { border-left: 2px solid transparent; transition: all 0.15s ease; }
+    .checklist-item.scored { border-left-color: var(--accent); background: #f9fafb; }
+    .checklist-item.scored:hover { background: #f3f4f6; }
+    .dim-section { transition: border-color 0.15s ease; }
+    .dim-section:hover { border-color: #d4d4d4; }
+</style>
+</head>
+<body class="min-h-screen" x-data="checklistPage()">
+<div class="flex min-h-screen">
+{% set active_nav = 'lean20' %}
+{% include "partials/_sidebar.html" %}
+<div class="flex-1 ml-56">
+    <header class="bg-white border-b border-[var(--border)] px-8 py-3 flex items-center justify-between sticky top-0 z-30">
+        <div class="flex items-center gap-3">
+            <h1 class="text-base font-semibold">Lean 2.0 Checklist 评估</h1>
+            <span class="pill bg-[#f4f4f5] text-[var(--text-tertiary)]" x-text="totalItems + ' items'"></span>
+        </div>
+        <div class="flex items-center gap-3 text-sm">
+            <span class="text-[var(--text-tertiary)]">Progress</span>
+            <span class="font-semibold text-[var(--text-primary)]" x-text="answeredCount + '/' + totalItems"></span>
+            <div class="w-32 bar">
+                <div :style="'width:' + (totalItems > 0 ? (answeredCount / totalItems * 100) : 0) + '%; background: var(--accent);'"></div>
+            </div>
+        </div>
+    </header>
+
+    <main class="p-8 space-y-6">
+        <!-- Two-column layout -->
+        <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+            <!-- Left: Checklist -->
+            <div class="xl:col-span-2 space-y-4">
+                <template x-for="dim in dimensionList" :key="dim.code">
+                    <div class="card dim-section overflow-hidden">
+                        <!-- Dimension Header -->
+                        <div class="px-5 py-4 border-b border-[var(--border)] flex items-center justify-between cursor-pointer" @click="dim.expanded = !dim.expanded">
+                            <div class="flex items-center gap-3">
+                                <span class="text-lg" x-html="dim.icon"></span>
+                                <div>
+                                    <div class="text-sm font-semibold text-[var(--text-primary)]" x-text="dim.name + ' (' + dim.code + ')'"></div>
+                                    <div class="text-xs text-[var(--text-tertiary)]" x-text="'Weight: ' + (dim.weight * 100).toFixed(0) + '% | ' + getDimItemCount(dim.code) + ' items | ' + getDimAnswered(dim.code) + ' answered'"></div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <div class="text-right">
+                                    <div class="text-lg font-bold" :class="dim.colorClass" x-text="getDimScore(dim.code).toFixed(2)"></div>
+                                    <div class="text-xs text-[var(--text-tertiary)]" x-text="getDimLevel(dim.code)"></div>
+                                </div>
+                                <svg class="w-4 h-4 text-[var(--text-tertiary)] transition-transform duration-200" :class="dim.expanded ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <!-- Checklist Items -->
+                        <div x-show="dim.expanded" x-collapse>
+                            <div class="divide-y divide-[#f4f4f5]">
+                                <template x-for="item in getDimItems(dim.code)" :key="item.id">
+                                    <div class="checklist-item px-5 py-4" :class="responses[item.id] ? 'scored' : ''">
+                                        <div class="flex items-start gap-4">
+                                            <div class="flex-1 min-w-0">
+                                                <!-- Item Title -->
+                                                <div class="flex items-center gap-2 mb-2">
+                                                    <span class="text-xs mono text-[var(--text-tertiary)]" x-text="item.item_code"></span>
+                                                    <span class="text-sm font-medium text-[var(--text-primary)]" x-text="item.item_name"></span>
+                                                    <span class="text-xs text-[var(--text-tertiary)]" x-text="'(' + (item.item_weight * 100).toFixed(0) + '%)'"></span>
+                                                </div>
+                                                <!-- Level Buttons -->
+                                                <div class="flex gap-1.5 mb-2">
+                                                    <template x-for="lvl in [1,2,3,4,5]" :key="lvl">
+                                                        <button @click="setScore(item.id, lvl)"
+                                                            class="level-btn w-9 h-9 rounded-lg text-xs font-bold border transition-all flex items-center justify-center"
+                                                            :class="getResponseClass(item.id, lvl, dim.code)"
+                                                            x-text="lvl">
+                                                        </button>
+                                                    </template>
+                                                </div>
+                                                <!-- Selected Level Description -->
+                                                <div x-show="responses[item.id]" class="text-xs text-[var(--text-secondary)] bg-[#f9fafb] rounded-lg px-3 py-2 mt-1 border border-[var(--border)]" x-text="responses[item.id] ? item.levels[String(responses[item.id].score)] : ''"></div>
+                                                <!-- Evidence Input -->
+                                                <div x-show="responses[item.id]" class="mt-2">
+                                                    <input type="text" placeholder="Evidence / notes (optional)"
+                                                        class="w-full text-xs border border-[var(--border)] rounded-lg px-3 py-1.5 focus:ring-1 focus:ring-[var(--accent)] focus:border-[var(--accent)] outline-none bg-[var(--surface)]"
+                                                        x-model="responses[item.id].evidence"
+                                                        @input="updateChart()">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+
+            <!-- Right: Sticky Results Panel -->
+            <div class="xl:col-span-1">
+                <div class="sticky top-20 space-y-4">
+                    <!-- Composite Index -->
+                    <div class="card p-5">
+                        <div class="text-xs font-semibold text-[var(--text-tertiary)] uppercase tracking-wider mb-3">Composite Index</div>
+                        <div class="flex items-end gap-2 mb-3">
+                            <span class="stat-num" :class="compositeColor" x-text="compositeIndex.toFixed(2)"></span>
+                            <span class="text-sm text-[var(--text-tertiary)] mb-1">/ 5.00</span>
+                        </div>
+                        <span class="pill" :class="levelBadgeClass" x-text="levelLabel"></span>
+                        <div class="mt-4 space-y-2">
+                            <template x-for="dim in dimensionList" :key="dim.code">
+                                <div class="flex items-center justify-between text-sm">
+                                    <span class="flex items-center gap-1.5">
+                                        <span x-html="dim.icon" class="text-sm"></span>
+                                        <span class="text-[var(--text-secondary)]" x-text="dim.name"></span>
+                                    </span>
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-16 bar">
+                                            <div :style="'width:' + (getDimScore(dim.code) / 5 * 100) + '%; background: var(--accent);'"></div>
+                                        </div>
+                                        <span class="font-semibold text-[var(--text-primary)] w-8 text-right" x-text="getDimScore(dim.code).toFixed(1)"></span>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+
+                    <!-- Radar Chart -->
+                    <div class="card p-5">
+                        <div class="text-xs font-semibold text-[var(--text-tertiary)] uppercase tracking-wider mb-3">Radar</div>
+                        <div style="height: 240px;">
+                            <canvas id="radarChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button @click="submitAssessment()"
+                        :disabled="answeredCount < totalItems || submitting"
+                        class="w-full py-2.5 px-4 bg-[var(--accent)] hover:bg-[var(--accent-hover)] disabled:bg-[#e4e4e7] disabled:cursor-not-allowed text-white font-medium text-sm rounded-lg transition-colors flex items-center justify-center gap-2">
+                        <svg x-show="submitting" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                        </svg>
+                        <span x-text="submitting ? 'Submitting...' : 'Submit Assessment'"></span>
+                    </button>
+                    <p class="text-xs text-center text-[var(--text-tertiary)]" x-text="answeredCount < totalItems ? 'Complete all ' + totalItems + ' items to submit' : 'Ready to submit'"></p>
+
+                    <!-- Previous Assessment -->
+                    <div x-show="latestAssessment" class="card p-4" style="border-color: #fbbf24; background: #fffbeb;">
+                        <div class="text-xs font-semibold text-[#92400e] mb-1">Previous Assessment</div>
+                        <div class="text-sm text-[#78350f]" x-text="(latestAssessment?.overall_level || '—') + ' (CI: ' + (latestAssessment?.composite_index || 0).toFixed(2) + ')'"></div>
+                        <a href="/lean20" class="text-xs text-[#92400e] hover:text-[#78350f] underline mt-1 inline-block">View results</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Success Modal -->
+        <div x-show="submitResult" x-cloak
+             class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40"
+             @click.self="submitResult = null">
+            <div class="bg-white rounded-2xl shadow-xl max-w-md w-full mx-4 overflow-hidden fade-in">
+                <div class="p-6 text-center">
+                    <div class="w-14 h-14 bg-[#f0fdf4] rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-7 h-7 text-[var(--positive)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-bold text-[var(--text-primary)] mb-2">Assessment Submitted</h3>
+                    <div class="mb-4">
+                        <div class="text-4xl font-bold text-[var(--accent)] mb-1" x-text="(submitResult?.composite_index || 0).toFixed(2)"></div>
+                        <div class="text-sm text-[var(--text-secondary)]" x-text="submitResult?.overall_level"></div>
+                    </div>
+                    <div class="grid grid-cols-5 gap-2 mb-4">
+                        <template x-for="[code, score] in Object.entries(submitResult?.dimension_scores || {})" :key="code">
+                            <div class="text-center p-2 bg-[#f9fafb] rounded-lg">
+                                <div class="text-xs text-[var(--text-tertiary)]" x-text="code"></div>
+                                <div class="text-sm font-bold text-[var(--text-primary)]" x-text="score.toFixed(1)"></div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+                <div class="px-6 py-4 border-t border-[var(--border)] bg-[#fafafa] flex gap-3">
+                    <a href="/lean20" class="flex-1 py-2 px-4 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white text-sm font-medium rounded-lg transition-colors text-center">View Results</a>
+                    <button @click="submitResult = null; resetForm()" class="flex-1 py-2 px-4 bg-white hover:bg-[#f4f4f5] text-[var(--text-primary)] text-sm font-medium rounded-lg border border-[var(--border)] transition-colors">New Assessment</button>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+</div>
+
+<script>
+function checklistPage() {
+    const DIM_META = {
+        O: { name: 'Operations', icon: '&#9881;', weight: 0.30, colorClass: 'text-blue-600',
+             levelColors: ['', 'bg-gray-100 text-gray-500 border-gray-300', 'bg-red-100 text-red-700 border-red-300', 'bg-orange-100 text-orange-700 border-orange-300', 'bg-yellow-100 text-yellow-700 border-yellow-300', 'bg-green-100 text-green-700 border-green-300'] },
+        D: { name: 'Digital', icon: '&#9889;', weight: 0.25, colorClass: 'text-indigo-600',
+             levelColors: ['', 'bg-gray-100 text-gray-500 border-gray-300', 'bg-red-100 text-red-700 border-red-300', 'bg-orange-100 text-orange-700 border-orange-300', 'bg-yellow-100 text-yellow-700 border-yellow-300', 'bg-indigo-100 text-indigo-700 border-indigo-300'] },
+        G: { name: 'Green', icon: '&#127807;', weight: 0.20, colorClass: 'text-emerald-600',
+             levelColors: ['', 'bg-gray-100 text-gray-500 border-gray-300', 'bg-red-100 text-red-700 border-red-300', 'bg-orange-100 text-orange-700 border-orange-300', 'bg-yellow-100 text-yellow-700 border-yellow-300', 'bg-emerald-100 text-emerald-700 border-emerald-300'] },
+        R: { name: 'Resilience', icon: '&#128737;', weight: 0.15, colorClass: 'text-amber-600',
+             levelColors: ['', 'bg-gray-100 text-gray-500 border-gray-300', 'bg-red-100 text-red-700 border-red-300', 'bg-orange-100 text-orange-700 border-orange-300', 'bg-yellow-100 text-yellow-700 border-yellow-300', 'bg-amber-100 text-amber-700 border-amber-300'] },
+        H: { name: 'Human-Centric', icon: '&#128104;', weight: 0.10, colorClass: 'text-pink-600',
+             levelColors: ['', 'bg-gray-100 text-gray-500 border-gray-300', 'bg-red-100 text-red-700 border-red-300', 'bg-orange-100 text-orange-700 border-orange-300', 'bg-yellow-100 text-yellow-700 border-yellow-300', 'bg-pink-100 text-pink-700 border-pink-300'] },
+    };
+
+    const LEVEL_NAMES = {
+        O: ['Ad-hoc','Basic tools','Systematic','Proactive','World-class'],
+        D: ['Paper-based','Electronic','Data integrated','AI-driven','Autonomous'],
+        G: ['Unaware','Compliance','Green Kaizen','Low-carbon','Carbon leader'],
+        R: ['Fragile','Basic buffer','Proactive','Digital','Adaptive'],
+        H: ['Command','Participatory','Empowered','Human-AI','Symbiosis'],
+    };
+
+    const LEVEL_LABELS = {
+        1: 'L1 - Ad-hoc', 2: 'L2 - Developing', 3: 'L3 - Systematic',
+        4: 'L4 - Proactive', 5: 'L5 - World-class'
+    };
+
+    return {
+        checklist: {},
+        responses: {},
+        chart: null,
+        submitting: false,
+        submitResult: null,
+        latestAssessment: null,
+        dimensionList: Object.entries(DIM_META).map(([code, m]) => ({
+            code, ...m, expanded: true
+        })),
+
+        get totalItems() {
+            return Object.values(this.checklist).reduce((sum, items) => sum + items.length, 0);
+        },
+        get answeredCount() {
+            return Object.keys(this.responses).length;
+        },
+        get compositeIndex() {
+            let total = 0;
+            for (const dim of this.dimensionList) {
+                total += this.getDimScore(dim.code) * dim.weight;
+            }
+            return total;
+        },
+        get levelLabel() {
+            const ci = this.compositeIndex;
+            if (ci >= 4.3) return 'L5 - World-class';
+            if (ci >= 3.3) return 'L4 - Proactive';
+            if (ci >= 2.4) return 'L3 - Systematic';
+            if (ci >= 1.6) return 'L2 - Developing';
+            return 'L1 - Ad-hoc';
+        },
+        get compositeColor() {
+            const ci = this.compositeIndex;
+            if (ci >= 4.3) return 'text-blue-700';
+            if (ci >= 3.3) return 'text-green-700';
+            if (ci >= 2.4) return 'text-yellow-700';
+            if (ci >= 1.6) return 'text-orange-600';
+            return 'text-red-600';
+        },
+        get levelBadgeClass() {
+            const ci = this.compositeIndex;
+            if (ci >= 4.3) return 'bg-blue-100 text-blue-800';
+            if (ci >= 3.3) return 'bg-green-100 text-green-800';
+            if (ci >= 2.4) return 'bg-yellow-100 text-yellow-800';
+            if (ci >= 1.6) return 'bg-orange-100 text-orange-800';
+            return 'bg-red-100 text-red-800';
+        },
+
+        getDimItems(code) { return this.checklist[code] || []; },
+        getDimItemCount(code) { return (this.checklist[code] || []).length; },
+        getDimAnswered(code) {
+            return (this.checklist[code] || []).filter(item => this.responses[item.id]).length;
+        },
+        getDimScore(code) {
+            const items = this.checklist[code] || [];
+            if (items.length === 0) return 1.0;
+            let ws = 0, wt = 0;
+            for (const item of items) {
+                const resp = this.responses[item.id];
+                if (resp) {
+                    ws += resp.score * item.item_weight;
+                    wt += item.item_weight;
+                }
+            }
+            return wt > 0 ? ws / wt : 1.0;
+        },
+        getDimLevel(code) {
+            const score = this.getDimScore(code);
+            const lvl = Math.max(1, Math.min(5, Math.round(score)));
+            return LEVEL_LABELS[lvl];
+        },
+
+        setScore(itemId, score) {
+            if (!this.responses[itemId]) {
+                this.responses[itemId] = { score, evidence: '' };
+            } else {
+                this.responses[itemId].score = score;
+            }
+            this.responses = { ...this.responses };
+            this.updateChart();
+        },
+
+        getResponseClass(itemId, lvl, dimCode) {
+            const resp = this.responses[itemId];
+            const isActive = resp && resp.score === lvl;
+            const colors = DIM_META[dimCode].levelColors;
+            if (isActive) return colors[lvl] + ' ring-2 ring-offset-1 ring-[var(--accent)]';
+            return colors[0];
+        },
+
+        init() {
+            this.loadChecklist();
+            this.loadLatest();
+        },
+
+        async loadChecklist() {
+            try {
+                const resp = await fetch('/api/v1/lean20/checklist');
+                this.checklist = await resp.json();
+                this.$nextTick(() => this.initChart());
+            } catch (e) {
+                console.error('Failed to load checklist:', e);
+            }
+        },
+
+        initChart() {
+            const ctx = document.getElementById('radarChart');
+            if (!ctx) return;
+            const labels = this.dimensionList.map(d => d.name);
+            const avg = [2.8, 2.1, 1.9, 2.3, 2.2];
+
+            this.chart = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels,
+                    datasets: [
+                        { label: 'Current', data: this.dimensionList.map(d => this.getDimScore(d.code)),
+                          borderColor: '#18181b', backgroundColor: 'rgba(24,24,27,0.1)',
+                          borderWidth: 2, pointBackgroundColor: '#18181b', pointRadius: 4 },
+                        { label: 'Industry Avg', data: avg,
+                          borderColor: '#d1d5db', backgroundColor: 'rgba(209,213,219,0.08)',
+                          borderWidth: 1, borderDash: [4,4], pointRadius: 2 },
+                    ],
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    scales: { r: { beginAtZero: true, min: 0, max: 5, ticks: { stepSize: 1, font: { size: 9 } },
+                                   pointLabels: { font: { size: 11, weight: '600' } } } },
+                    plugins: { legend: { display: false } },
+                },
+            });
+        },
+
+        updateChart() {
+            if (!this.chart) return;
+            this.chart.data.datasets[0].data = this.dimensionList.map(d => this.getDimScore(d.code));
+            this.chart.update();
+        },
+
+        async loadLatest() {
+            try {
+                const resp = await fetch('/api/v1/lean20/latest');
+                const data = await resp.json();
+                if (data.has_data) this.latestAssessment = data;
+            } catch (e) { console.error(e); }
+        },
+
+        async submitAssessment() {
+            this.submitting = true;
+            try {
+                const payload = { responses: this.responses, weights: {} };
+                const resp = await fetch('/api/v1/lean20/assessments/checklist', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(payload),
+                });
+                const data = await resp.json();
+                if (data.error) { alert('Error: ' + data.error); return; }
+                this.submitResult = data;
+            } catch (e) {
+                console.error('Submit failed:', e);
+                alert('Submit failed. Please try again.');
+            } finally {
+                this.submitting = false;
+            }
+        },
+
+        resetForm() {
+            this.responses = {};
+            this.updateChart();
+        },
+    };
+}
+</script>
+</body>
+</html>

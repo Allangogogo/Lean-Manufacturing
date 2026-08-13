@@ -1,0 +1,377 @@
+{% extends "base.html" %}
+{% block page_id %}tpm{% endblock %}
+{% block page_title %}设备故障管理{% endblock %}
+{% block content %}
+<div x-data="tpmFaults()" x-init="init()">
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="page-header-info">
+      <h1>设备故障管理</h1>
+      <p>快速响应，减少停机时间</p>
+    </div>
+    <div class="page-header-actions">
+      <button class="btn btn-danger" @click="openReportModal()">
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path d="M10 2v16m-8-8h16" stroke="currentColor" stroke-width="2" fill="none"/></svg>
+        报修
+      </button>
+    </div>
+  </div>
+
+  <!-- Stat Cards -->
+  <div class="stat-grid" x-show="!loading">
+    <div class="stat-card">
+      <div class="stat-icon danger">
+        <svg width="22" height="22" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"/></svg>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value" x-text="faultStats.monthly_count || 0"></div>
+        <div class="stat-label">本月故障数</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon warning">
+        <svg width="22" height="22" viewBox="0 0 20 20" fill="currentColor"><path d="M10 2a8 8 0 100 16 8 8 0 000-16zm0 2a6 6 0 110 12 6 6 0 010-12zm1 5v4H9V9h2zm0-2H9V5h2v2z"/></svg>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value" x-text="(faultStats.avg_repair_hours ?? 0).toFixed(1) + 'h'"></div>
+        <div class="stat-label">平均修复时间</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon primary">
+        <svg width="22" height="22" viewBox="0 0 20 20" fill="currentColor"><path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6z"/></svg>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value" x-text="faultStats.pending || 0"></div>
+        <div class="stat-label">待处理故障</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon success">
+        <svg width="22" height="22" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/></svg>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value" x-text="faultStats.resolved || 0"></div>
+        <div class="stat-label">已解决故障</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filter Bar & Table -->
+  <div class="table-container">
+    <div class="table-header">
+      <div class="table-title">故障列表 <span style="font-size: var(--text-xs); font-weight: 400; color: var(--text-tertiary);" x-text="'共 ' + pagination.total + ' 条'"></span></div>
+      <div class="table-actions filter-bar">
+        <select class="form-select" style="width: 130px;" x-model="filter.status" @change="loadData()">
+          <option value="">全部状态</option>
+          <option value="reported">已报告</option>
+          <option value="diagnosing">诊断中</option>
+          <option value="repairing">维修中</option>
+          <option value="completed">已完成</option>
+        </select>
+        <select class="form-select" style="width: 120px;" x-model="filter.severity" @change="loadData()">
+          <option value="">全部程度</option>
+          <option value="minor">轻微</option>
+          <option value="major">严重</option>
+          <option value="critical">紧急</option>
+        </select>
+        <input type="date" class="form-input" style="width: 150px;" x-model="filter.date_from" @change="loadData()" placeholder="开始日期">
+        <input type="date" class="form-input" style="width: 150px;" x-model="filter.date_to" @change="loadData()" placeholder="结束日期">
+      </div>
+    </div>
+
+    <!-- Loading -->
+    <div class="loading-spinner" x-show="loading">
+      <div class="spinner"></div>
+    </div>
+
+    <!-- Table -->
+    <table class="data-table" x-show="!loading && items.length > 0">
+      <thead>
+        <tr>
+          <th>设备名称</th>
+          <th>故障描述</th>
+          <th>报告时间</th>
+          <th>严重程度</th>
+          <th>状态</th>
+          <th>修复时间</th>
+          <th>停机(h)</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody>
+        <template x-for="item in items" :key="item.id">
+          <tr>
+            <td style="font-weight: 500;" x-text="item.equipment_name"></td>
+            <td x-text="item.description" style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"></td>
+            <td x-text="LeanOps.fmtDateTime(item.reported_at)"></td>
+            <td x-html="severityBadge(item.severity)"></td>
+            <td x-html="LeanOps.statusBadge(item.status, {reported:{label:'已报告',class:'badge-info'},diagnosing:{label:'诊断中',class:'badge-warning'},repairing:{label:'维修中',class:'badge-primary'},completed:{label:'已完成',class:'badge-success'}})"></td>
+            <td x-text="item.repaired_at ? LeanOps.fmtDateTime(item.repaired_at) : '--'"></td>
+            <td x-text="item.downtime_hours"></td>
+            <td>
+              <div style="display: flex; gap: var(--space-1);">
+                <template x-if="item.status !== 'completed'">
+                  <div style="display: flex; gap: 4px;">
+                    <button x-show="item.status === 'reported'" @click="updateStatus(item.id, 'diagnosing')" class="btn btn-warning btn-sm">诊断</button>
+                    <button x-show="item.status === 'diagnosing'" @click="updateStatus(item.id, 'repairing')" class="btn btn-primary btn-sm">维修</button>
+                    <button x-show="item.status === 'repairing'" @click="openCompleteModal(item)" class="btn btn-success btn-sm">完成</button>
+                    <button x-show="item.status === 'reported'" @click="updateStatus(item.id, 'repairing')" class="btn btn-primary btn-sm">直接维修</button>
+                  </div>
+                </template>
+                <template x-if="item.status === 'completed'">
+                  <span style="color: var(--text-tertiary); font-size: var(--text-xs);">--</span>
+                </template>
+              </div>
+            </td>
+          </tr>
+        </template>
+      </tbody>
+    </table>
+
+    <!-- Empty State -->
+    <div class="empty-state" x-show="!loading && items.length === 0">
+      <div class="empty-state-icon">
+        <svg width="48" height="48" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"/></svg>
+      </div>
+      <div class="empty-state-title">暂无故障记录</div>
+      <div class="empty-state-desc">设备运行良好，继续保持</div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="table-footer" x-show="!loading && items.length > 0">
+      <span x-text="'共 ' + pagination.total + ' 条故障记录'"></span>
+      <span x-text="'第 ' + pagination.page + ' / ' + pagination.total_pages + ' 页'"></span>
+      <div class="pagination">
+        <button class="page-btn" :disabled="!pagination.has_prev" @click="changePage(pagination.page - 1)">
+          <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"/></svg>
+        </button>
+        <button class="page-btn" :disabled="!pagination.has_next" @click="changePage(pagination.page + 1)">
+          <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Report Fault Modal -->
+  <div class="modal-overlay" x-show="showReportModal" x-cloak @click.self="showReportModal = false">
+    <div class="modal" @click.stop>
+      <div class="modal-header">
+        <h3 class="modal-title">设备报修</h3>
+        <button class="btn btn-ghost btn-icon" @click="showReportModal = false">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">设备 ID <span style="color: var(--color-danger);">*</span></label>
+          <input type="number" class="form-input" x-model.number="reportForm.equipment_id" placeholder="输入设备ID">
+        </div>
+        <div class="form-group">
+          <label class="form-label">故障类型 <span style="color: var(--color-danger);">*</span></label>
+          <input type="text" class="form-input" x-model="reportForm.fault_type" placeholder="如：电气故障、机械故障">
+        </div>
+        <div class="form-group">
+          <label class="form-label">故障描述 <span style="color: var(--color-danger);">*</span></label>
+          <textarea class="form-input" rows="3" x-model="reportForm.description" placeholder="请详细描述故障现象..."></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">严重程度</label>
+          <select class="form-select" x-model="reportForm.severity">
+            <option value="minor">轻微</option>
+            <option value="major">严重</option>
+            <option value="critical">紧急</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" @click="showReportModal = false">取消</button>
+        <button class="btn btn-danger" @click="reportFault()" :disabled="submitting">
+          <span x-show="!submitting">提交报修</span>
+          <span x-show="submitting">提交中...</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Complete Repair Modal -->
+  <div class="modal-overlay" x-show="showCompleteModal" x-cloak @click.self="showCompleteModal = false">
+    <div class="modal" @click.stop>
+      <div class="modal-header">
+        <h3 class="modal-title">完成维修</h3>
+        <button class="btn btn-ghost btn-icon" @click="showCompleteModal = false">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">根本原因</label>
+          <textarea class="form-input" rows="2" x-model="completeForm.root_cause" placeholder="故障根本原因分析"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">纠正措施</label>
+          <textarea class="form-input" rows="2" x-model="completeForm.corrective_action" placeholder="采取的措施"></textarea>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">停机时长 (h)</label>
+            <input type="number" class="form-input" x-model.number="completeForm.downtime_hours" step="0.5">
+          </div>
+          <div class="form-group">
+            <label class="form-label">维修费用</label>
+            <input type="number" class="form-input" x-model.number="completeForm.repair_cost" step="0.01" placeholder="0.00">
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" @click="showCompleteModal = false">取消</button>
+        <button class="btn btn-success" @click="submitComplete()" :disabled="submitting">
+          <span x-show="!submitting">确认完成</span>
+          <span x-show="submitting">提交中...</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+function tpmFaults() {
+  return {
+    items: [],
+    faultStats: {},
+    loading: false,
+    submitting: false,
+    showReportModal: false,
+    showCompleteModal: false,
+    completeId: null,
+    filter: { status: '', severity: '', date_from: '', date_to: '' },
+    pagination: { page: 1, page_size: 20, total: 0, total_pages: 0, has_next: false, has_prev: false },
+    reportForm: { equipment_id: '', fault_type: '', description: '', severity: 'minor' },
+    completeForm: { root_cause: '', corrective_action: '', downtime_hours: 0, repair_cost: 0 },
+
+    async init() {
+      await Promise.all([this.loadFaultStats(), this.loadData()]);
+    },
+
+    async loadFaultStats() {
+      try {
+        const stats = await LeanOps.api('/tpm/stats');
+        this.faultStats = {
+          monthly_count: stats.open_faults || 0,
+          avg_repair_hours: stats.total_downtime || 0,
+          pending: stats.open_faults || 0,
+          resolved: 0,
+        };
+      } catch (e) { /* non-critical */ }
+    },
+
+    async loadData() {
+      this.loading = true;
+      try {
+        const params = new URLSearchParams({ page: this.pagination.page, page_size: this.pagination.page_size });
+        if (this.filter.status) params.set('status', this.filter.status);
+        if (this.filter.severity) params.set('severity', this.filter.severity);
+        if (this.filter.date_from) params.set('date_from', this.filter.date_from);
+        if (this.filter.date_to) params.set('date_to', this.filter.date_to);
+        const data = await LeanOps.api('/tpm/faults?' + params);
+        this.items = data.data || [];
+        const completed = this.items.filter(function(i) { return i.status === 'completed'; }).length;
+        this.faultStats.resolved = completed;
+        this.pagination = data.pagination || {};
+      } catch (e) {
+        LeanOps.toast(e.detail || '加载失败', 'error');
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    changePage(p) {
+      if (p >= 1 && p <= this.pagination.total_pages) {
+        this.pagination.page = p;
+        this.loadData();
+      }
+    },
+
+    openReportModal() {
+      this.reportForm = { equipment_id: '', fault_type: '', description: '', severity: 'minor' };
+      this.showReportModal = true;
+    },
+
+    async reportFault() {
+      if (!this.reportForm.equipment_id || !this.reportForm.fault_type || !this.reportForm.description) {
+        LeanOps.toast('请填写必填项', 'warning');
+        return;
+      }
+      this.submitting = true;
+      try {
+        await LeanOps.api('/tpm/faults', {
+          method: 'POST',
+          body: JSON.stringify(this.reportForm),
+        });
+        this.showReportModal = false;
+        LeanOps.toast('报修提交成功', 'success');
+        await this.loadData();
+      } catch (e) {
+        LeanOps.toast(e.detail || '报修失败', 'error');
+      } finally {
+        this.submitting = false;
+      }
+    },
+
+    async updateStatus(id, status) {
+      try {
+        await LeanOps.api('/tpm/faults/' + id, {
+          method: 'PUT',
+          body: JSON.stringify({ status: status }),
+        });
+        LeanOps.toast('状态更新成功', 'success');
+        await this.loadData();
+      } catch (e) {
+        LeanOps.toast(e.detail || '更新失败', 'error');
+      }
+    },
+
+    openCompleteModal(item) {
+      this.completeId = item.id;
+      this.completeForm = {
+        root_cause: item.root_cause || '',
+        corrective_action: item.corrective_action || '',
+        downtime_hours: item.downtime_hours || 0,
+        repair_cost: item.repair_cost || 0,
+      };
+      this.showCompleteModal = true;
+    },
+
+    async submitComplete() {
+      this.submitting = true;
+      try {
+        await LeanOps.api('/tpm/faults/' + this.completeId, {
+          method: 'PUT',
+          body: JSON.stringify({ status: 'completed', ...this.completeForm }),
+        });
+        this.showCompleteModal = false;
+        LeanOps.toast('维修完成', 'success');
+        await this.loadData();
+      } catch (e) {
+        LeanOps.toast(e.detail || '提交失败', 'error');
+      } finally {
+        this.submitting = false;
+      }
+    },
+
+    severityBadge(s) {
+      const map = {
+        minor: { label: '轻微', cls: 'badge-warning' },
+        major: { label: '严重', cls: 'badge-danger' },
+        critical: { label: '紧急', cls: 'badge-danger' },
+      };
+      const item = map[s] || { label: s, cls: 'badge-gray' };
+      return '<span class="badge ' + item.cls + '">' + item.label + '</span>';
+    },
+  };
+}
+</script>
+{% endblock %}

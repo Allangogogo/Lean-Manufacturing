@@ -1,0 +1,20 @@
+# ============================================================
+# LeanOps Docker Compose
+# 单容器部署（SQLite）/ 多容器部署（PostgreSQL）
+# ============================================================
+
+services:
+  leanops:
+    build: .
+    container_name: leanops
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/app/data           # 数据库文件持久化
+      - ./uploads:/app/app/static/uploads  # 上传文件持久化
+    environment:
+      - APP_ENV=production
+      - APP_DEBUG=false
+      - DATABASE_URL=sqlite+aiosqlite:///./data/leanops.db
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:-change-me-in-production}
+    restart: unless-stopped

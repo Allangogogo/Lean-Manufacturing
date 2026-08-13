@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+{% from "partials/_head.html" import head %}{{ head('项目看板') }}
+</head>
+<body class="min-h-screen" x-data="projectBoard()">
+<div class="flex min-h-screen">
+{% set active_nav = 'projects' %}
+{% include "partials/_sidebar.html" %}
+<div class="flex-1 ml-56">
+    <header class="bg-white border-b border-[var(--border)] px-8 py-3 flex items-center justify-between sticky top-0 z-30">
+        <div class="flex items-center gap-3">
+            <h1 class="text-base font-semibold">项目看板</h1>
+            <span class="text-xs text-[var(--text-tertiary)] mono" x-text="projects.length + ' projects'"></span>
+        </div>
+        <div class="flex items-center gap-2">
+            <span class="pill bg-[#f4f4f5] text-[var(--text-secondary)]">Budget: <span class="ml-1 font-semibold text-[var(--text-primary)]" x-text="formatCurrency(totalBudget)"></span></span>
+        </div>
+    </header>
+    <main class="p-8 space-y-6">
+        <!-- Stats Row -->
+        <div class="grid grid-cols-2 lg:grid-cols-5 gap-4">
+            <div class="card p-4">
+                <p class="text-xs text-[var(--text-tertiary)] uppercase tracking-wider">Total</p>
+                <p class="stat-num text-[var(--text-primary)]" x-text="projects.length"></p>
+            </div>
+            <div class="card p-4">
+                <p class="text-xs text-[var(--text-tertiary)] uppercase tracking-wider">Planning</p>
+                <p class="stat-num text-[var(--text-secondary)]" x-text="statusCount('planning')"></p>
+            </div>
+            <div class="card p-4">
+                <p class="text-xs text-[var(--text-tertiary)] uppercase tracking-wider">In Progress</p>
+                <p class="stat-num text-[var(--text-secondary)]" x-text="statusCount('in_progress')"></p>
+            </div>
+            <div class="card p-4">
+                <p class="text-xs text-[var(--text-tertiary)] uppercase tracking-wider">Completed</p>
+                <p class="stat-num text-[var(--text-secondary)]" x-text="statusCount('completed')"></p>
+            </div>
+            <div class="card p-4">
+                <p class="text-xs text-[var(--text-tertiary)] uppercase tracking-wider">On Hold</p>
+                <p class="stat-num text-[var(--text-secondary)]" x-text="statusCount('on_hold')"></p>
+            </div>
+        </div>
+
+        <!-- Kanban Board -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <template x-for="col in columns" :key="col.status">
+                <div class="card p-4">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-sm font-semibold text-[var(--text-primary)]" x-text="col.label"></h3>
+                        <span class="pill bg-[#f4f4f5] text-[var(--text-secondary)]" x-text="projectsByStatus(col.status).length"></span>
+                    </div>
+                    <div class="space-y-2 min-h-[100px]">
+                        <template x-for="p in projectsByStatus(col.status)" :key="p.id">
+                            <a :href="'/project-detail?id=' + p.id" class="block p-3 rounded-lg border border-[var(--border)] hover:border-[#d4d4d4] transition-colors bg-[var(--surface)]">
+                                <p class="text-sm font-medium text-[var(--text-primary)] leading-tight mb-1" x-text="p.name"></p>
+                                <p class="text-xs text-[var(--text-tertiary)] mb-2 line-clamp-2" x-text="p.description || ''"></p>
+                                <div class="flex items-center gap-1.5 flex-wrap mb-2">
+                                    <span class="pill" :class="priorityClass(p.priority)" x-text="p.priority || 'P3'"></span>
+                                    <span x-show="p.lean20_dimensions" class="pill bg-[#f4f4f5] text-[var(--text-secondary)]" x-text="dimLabel(p.lean20_dimensions)"></span>
+                                </div>
+                                <div class="flex items-center justify-between text-xs text-[var(--text-tertiary)]">
+                                    <span x-text="p.owner_name || 'Unassigned'"></span>
+                                    <span class="mono" x-text="p.target_end_date || ''"></span>
+                                </div>
+                            </a>
+                        </template>
+                        <p x-show="projectsByStatus(col.status).length === 0" class="text-xs text-[var(--text-tertiary)] text-center py-4">No projects</p>
+                    </div>
+                </div>
+            </template>
+        </div>
+    </main>
+</div>
+</div>
+<script>
+const API = '/api/v1';
+
+function projectBoard() {
+    return {
+        projects: [],
+        columns: [
+            { status: 'planning', label: 'Planning' },
+            { status: 'in_progress', label: 'In Progress' },
+            { status: 'on_hold', label: 'On Hold' },
+            { status: 'completed', label: 'Completed' },
+        ],
+
+        async init() {
+            await this.loadProjects();
+        },
+
+        async loadProjects() {
+            try {
+                const res = await fetch(`${API}/projects`);
+                this.projects = await res.json();
+            } catch(e) { console.error('loadProjects', e); }
+        },
+
+        projectsByStatus(status) {
+            return this.projects.filter(p => p.status === status);
+        },
+
+        statusCount(status) {
+            return this.projects.filter(p => p.status === status).length;
+        },
+
+        get totalBudget() {
+            return this.projects.reduce((s, p) => s + (parseFloat(p.budget) || 0), 0);
+        },
+
+        formatCurrency(n) {
+            if (!n) return '0';
+            if (n >= 10000) return (n / 10000).toFixed(1) + 'w';
+            return n.toLocaleString();
+        },
+
+        priorityClass(pri) {
+            const m = {
+                P1: 'bg-red-50 text-red-600',
+                P2: 'bg-orange-50 text-orange-600',
+                P3: 'bg-amber-50 text-amber-600',
+                P4: 'bg-[#f4f4f5] text-[var(--text-secondary)]'
+            };
+            return m[pri] || 'bg-[#f4f4f5] text-[var(--text-secondary)]';
+        },
+
+        dimLabel(dimJson) {
+            try {
+                const d = JSON.parse(dimJson);
+                return d.join(',');
+            } catch { return dimJson; }
+        },
+    };
+}
+</script>
+</body>
+</html>

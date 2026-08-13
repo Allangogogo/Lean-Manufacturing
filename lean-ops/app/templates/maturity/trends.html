@@ -1,0 +1,123 @@
+﻿{% extends "base.html" %}
+{% block page_id %}maturity{% endblock %}
+{% block page_title %}鎴愮啛搴﹁秼鍔垮垎鏋恵% endblock %}
+{% block content %}
+<div x-data="maturityTrends()" x-init="init()">
+
+  <div class="page-header">
+    <div class="page-header-info">
+      <h1>鎴愮啛搴﹁秼鍔垮垎鏋?/h1>
+      <p>鍘嗗彶璇勪及瓒嬪娍杩借釜锛岃瘑鍒敼杩涙柟鍚戜笌钖勫急鐜妭</p>
+    </div>
+    <div class="page-header-actions">
+      <a href="/maturity" class="btn btn-secondary">
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"/></svg>
+        杩斿洖鍒楄〃
+      </a>
+    </div>
+  </div>
+
+  <div class="loading-spinner" x-show="loading"><div class="spinner"></div></div>
+
+  <div x-show="!loading" class="grid-2" style="margin-bottom: var(--space-6);">
+    <div class="card">
+      <div class="card-header"><div class="card-title">鎬诲垎瓒嬪娍</div></div>
+      <div x-show="trends.length > 0" x-html="trendLineChart()" style="display: flex; justify-content: center;"></div>
+      <div x-show="trends.length === 0" class="empty-state">
+        <div class="empty-state-desc">鏆傛棤瓒嬪娍鏁版嵁</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">鍚勭淮搴﹀緱鍒嗗姣?/div></div>
+      <div x-show="dimensionData.length > 0" x-html="dimensionBarChart()" style="display: flex; justify-content: center;"></div>
+      <div x-show="dimensionData.length === 0" class="empty-state">
+        <div class="empty-state-desc">鍔犺浇鏈€杩戣瘎浼颁互鏌ョ湅缁村害瀵规瘮</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="table-container">
+    <div class="table-header"><div class="table-title">鍘嗗彶璇勪及璁板綍</div></div>
+    <table class="data-table" x-show="trends.length > 0">
+      <thead>
+        <tr><th>ID</th><th>璇勪及鏃ユ湡</th><th>鍖哄煙</th><th>鎬诲垎</th><th>绾у埆</th><th>鎿嶄綔</th></tr>
+      </thead>
+      <tbody>
+        <template x-for="t in trends" :key="t.assessment_id">
+          <tr>
+            <td style="color: var(--text-tertiary);" x-text="'#' + t.assessment_id"></td>
+            <td x-text="LeanOps.fmtDate(t.assessment_date)"></td>
+            <td x-text="t.area_name || '--'"></td>
+            <td>
+              <span x-text="t.total_score || '--'" style="font-weight: 600;"></span>
+            </td>
+            <td>
+              <span class="badge" :class="levelClass(t.overall_level)" x-text="t.overall_level || '--'"></span>
+            </td>
+            <td>
+              <a :href="'/maturity/' + t.assessment_id" class="btn btn-secondary btn-sm">鏌ョ湅</a>
+            </td>
+          </tr>
+        </template>
+      </tbody>
+    </table>
+    <div x-show="trends.length === 0" class="empty-state">
+      <div class="empty-state-icon"><svg width="48" height="48" viewBox="0 0 20 20" fill="currentColor"><path d="M2 3h16v2H2V3zm0 4h16v2H2V7zm0 4h16v2H2v-2zm0 4h10v2H2v-2z"/></svg></div>
+      <div class="empty-state-title">鏆傛棤鍘嗗彶璇勪及鏁版嵁</div>
+      <div class="empty-state-desc">瀹屾垚璇勪及鍚庯紝瓒嬪娍鏁版嵁灏嗗湪姝ゅ睍绀?/div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+function maturityTrends() {
+  return {
+    trends: [], dimensionData: [], loading: true, latestDetail: null,
+    async init() {
+      try {
+        this.trends = await LeanOps.api('/maturity/trends');
+        if (this.trends.length > 0) {
+          const latestId = this.trends[this.trends.length - 1].assessment_id;
+          const res = await LeanOps.api('/maturity/assessments/' + latestId);
+          this.latestDetail = res.data || null;
+          if (this.latestDetail && this.latestDetail.dimensions) {
+            this.dimensionData = this.latestDetail.dimensions.map(d => ({
+              label: d.dimension_name.length > 6 ? d.dimension_name.substring(0, 6) : d.dimension_name,
+              fullName: d.dimension_name,
+              value: Math.round((d.score || 0) / (d.max_score || 100) * 100),
+              color: 'var(--color-primary-500)',
+            }));
+          }
+        }
+      } catch (e) {
+        LeanOps.toast(e.detail || '鍔犺浇澶辫触', 'error');
+      } finally { this.loading = false; }
+    },
+    levelClass(l) {
+      if (!l) return 'badge-gray';
+      if (l.includes('L5') || l.includes('World-class')) return 'badge-success';
+      if (l.includes('L4') || l.includes('Proactive')) return 'badge-primary';
+      if (l.includes('L3') || l.includes('Systematic')) return 'badge-info';
+      if (l.includes('L2') || l.includes('Developing')) return 'badge-warning';
+      return 'badge-gray';
+    },
+    trendLineChart() {
+      if (!this.trends.length) return '';
+      const data = this.trends.map(t => ({
+        label: t.assessment_date ? t.assessment_date.substring(5) : t.assessment_id,
+        value: parseFloat(t.total_score) || 0,
+      }));
+      return Charts.line(data, 400, 220);
+    },
+    dimensionBarChart() {
+      if (!this.dimensionData.length) return '';
+      const colors = ['var(--color-primary-500)', 'var(--color-success-500)', 'var(--color-warning-500)', 'var(--color-danger-500)', 'var(--color-accent-500)'];
+      const data = this.dimensionData.map((d, i) => ({ ...d, color: colors[i % colors.length] }));
+      return Charts.bars(data, 400, 220);
+    },
+  };
+}
+</script>
+{% endblock %}

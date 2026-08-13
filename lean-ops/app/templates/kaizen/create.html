@@ -1,0 +1,164 @@
+﻿{% extends "base.html" %}
+{% block page_id %}kaizen{% endblock %}
+{% block page_title %}新建改善提案{% endblock %}
+{% block content %}
+<div x-data="kaizenCreate()">
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="page-header-info">
+      <h1>新建改善提案</h1>
+      <p>详细描述问题与改善方案，让改善有据可依</p>
+    </div>
+    <div class="page-header-actions">
+      <a href="/kaizen" class="btn btn-secondary">
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg>
+        取消
+      </a>
+    </div>
+  </div>
+
+  <div class="card" style="max-width: 720px;">
+    <form @submit.prevent="submitForm()">
+      <!-- Title -->
+      <div class="form-group">
+        <label class="form-label">提案标题 <span class="required">*</span></label>
+        <input type="text" class="form-input" x-model="form.title" required maxlength="200" placeholder="请简要描述改善提案内容">
+      </div>
+
+      <!-- Category & Priority -->
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">分类 <span class="required">*</span></label>
+          <select class="form-select" x-model="form.category" required>
+            <option value="">请选择分类</option>
+            <option value="quality">质量</option>
+            <option value="cost">成本</option>
+            <option value="delivery">交期</option>
+            <option value="safety">安全</option>
+            <option value="morale">士气</option>
+            <option value="environment">环保</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">优先级</label>
+          <select class="form-select" x-model="form.priority">
+            <option value="low">低</option>
+            <option value="medium" selected>中</option>
+            <option value="high">高</option>
+            <option value="urgent">紧急</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Description -->
+      <div class="form-group">
+        <label class="form-label">问题描述 <span class="required">*</span></label>
+        <textarea class="form-textarea" x-model="form.description" rows="4" required placeholder="描述当前存在的问题、影响范围和严重程度..."></textarea>
+      </div>
+
+      <!-- Root Cause -->
+      <div class="form-group">
+        <label class="form-label">根本原因</label>
+        <textarea class="form-textarea" x-model="form.root_cause" rows="3" placeholder="使用5Why、鱼骨图等方法分析问题的根本原因..."></textarea>
+      </div>
+
+      <!-- Solution -->
+      <div class="form-group">
+        <label class="form-label">改善方案</label>
+        <textarea class="form-textarea" x-model="form.solution" rows="3" placeholder="描述具体的改善方案和实施步骤..."></textarea>
+      </div>
+
+      <!-- Expected Benefit -->
+      <div class="form-group">
+        <label class="form-label">预期效益</label>
+        <textarea class="form-textarea" x-model="form.expected_benefit" rows="2" placeholder="改善后预期的效益（效率提升、成本降低等）..."></textarea>
+      </div>
+
+      <!-- Expected Saving & Due Date -->
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">预期节约（元）</label>
+          <input type="number" class="form-input" x-model.number="form.expected_saving" step="0.01" min="0" placeholder="预计年度节约金额">
+        </div>
+        <div class="form-group">
+          <label class="form-label">截止日期</label>
+          <input type="date" class="form-input" x-model="form.due_date">
+        </div>
+      </div>
+
+      <!-- Error -->
+      <div x-show="error" class="alert alert-danger" style="margin-top: var(--space-4);">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" class="alert-icon"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"/></svg>
+        <span x-text="error"></span>
+      </div>
+
+      <!-- Submit Buttons -->
+      <div style="display: flex; justify-content: flex-end; gap: var(--space-3); margin-top: var(--space-6); padding-top: var(--space-5); border-top: 1px solid var(--border-color);">
+        <a href="/kaizen" class="btn btn-secondary">取消</a>
+        <button type="submit" class="btn btn-secondary" :disabled="saving" @click="saveMode = 'draft'">
+          <span x-show="!saving || saveMode !== 'draft'">保存草稿</span>
+          <span x-show="saving && saveMode === 'draft'">
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" class="spinner" style="width: 14px; height: 14px; border-width: 2px;"></svg>
+            保存中...
+          </span>
+        </button>
+        <button type="button" class="btn btn-primary" :disabled="saving" @click="submitAndSend()">
+          <span x-show="!saving || saveMode !== 'submit'">保存并提交</span>
+          <span x-show="saving && saveMode === 'submit'">
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" class="spinner" style="width: 14px; height: 14px; border-width: 2px;"></svg>
+            提交中...
+          </span>
+        </button>
+      </div>
+    </form>
+  </div>
+
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+function kaizenCreate() {
+  return {
+    form: {
+      title: '', description: '', category: '', priority: 'medium',
+      root_cause: '', solution: '', expected_benefit: '', expected_saving: null, due_date: ''
+    },
+    error: '', saving: false, saveMode: 'draft',
+    categoryLabel(c) {
+      return { quality: '质量', cost: '成本', delivery: '交期', safety: '安全', morale: '士气', environment: '环保' }[c] || c;
+    },
+    async submitForm() {
+      this.saving = true;
+      this.error = '';
+      this.saveMode = 'draft';
+      try {
+        const data = await LeanOps.api('/kaizen', { method: 'POST', body: JSON.stringify(this.form) });
+        window.location.href = '/kaizen/' + data.data.id;
+      } catch (e) {
+        this.error = e.detail || '创建失败，请检查表单内容';
+        LeanOps.toast(this.error, 'error');
+      } finally {
+        this.saving = false;
+      }
+    },
+    async submitAndSend() {
+      this.saving = true;
+      this.error = '';
+      this.saveMode = 'submit';
+      try {
+        const create = await LeanOps.api('/kaizen', { method: 'POST', body: JSON.stringify(this.form) });
+        const id = create.data.id;
+        await LeanOps.api('/kaizen/' + id + '/action', { method: 'POST', body: JSON.stringify({ action: 'submit' }) });
+        window.location.href = '/kaizen/' + id;
+      } catch (e) {
+        this.error = e.detail || '提交失败';
+        LeanOps.toast(this.error, 'error');
+      } finally {
+        this.saving = false;
+      }
+    },
+  };
+}
+</script>
+{% endblock %}

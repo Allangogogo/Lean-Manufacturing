@@ -1,0 +1,269 @@
+﻿{% extends "base.html" %}
+{% block page_id %}fives{% endblock %}
+{% block page_title %}5S审核{% endblock %}
+{% block content %}
+<div x-data="fivesList()" x-init="init()">
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="page-header-info">
+      <h1>5S 审核</h1>
+      <p>整理、整顿、清扫、清洁、素养 —— 持续改善现场管理</p>
+    </div>
+    <div class="page-header-actions">
+      <a href="/fives/improvements" class="btn btn-secondary">
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z"/></svg>
+        改善跟踪
+      </a>
+      <button class="btn btn-primary" @click="showCreateModal = true">
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path d="M10 2v16m-8-8h16" stroke="currentColor" stroke-width="2" fill="none"/></svg>
+        新建审核
+      </button>
+    </div>
+  </div>
+
+  <!-- Stat Cards -->
+  <div class="stat-grid">
+    <div class="stat-card">
+      <div class="stat-icon primary">
+        <svg width="22" height="22" viewBox="0 0 20 20" fill="currentColor"><path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 011 1v5H4V7zm0 7h12v2a1 1 0 01-1 1H5a1 1 0 01-1-1v-2z"/></svg>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value" x-text="stats.total || 0"></div>
+        <div class="stat-label">本月审核</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon success">
+        <svg width="22" height="22" viewBox="0 0 20 20" fill="currentColor"><path d="M10 1l2.5 5.5L18 7l-4 4 1 6-5-3-5 3 1-6-4-4 5.5-.5z"/></svg>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value" x-text="stats.avg_score != null ? (stats.avg_score).toFixed(1) : '--'"></div>
+        <div class="stat-label">平均分</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon accent">
+        <svg width="22" height="22" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/></svg>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value" x-text="qualifyRate()"></div>
+        <div class="stat-label">合格率</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon warning">
+        <svg width="22" height="22" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"/></svg>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value" x-text="stats.open_improvements || 0"></div>
+        <div class="stat-label">待改善项</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="table-container">
+    <div class="table-header">
+      <div class="table-title">审核列表 <span style="font-size: var(--text-xs); color: var(--text-tertiary); font-weight: 400;" x-text="'共 ' + pagination.total + ' 条'"></span></div>
+      <div class="table-actions filter-bar">
+        <select class="form-select" style="width: auto;" x-model="filter.status" @change="loadData()">
+          <option value="">全部状态</option>
+          <option value="scheduled">待执行</option>
+          <option value="in_progress">进行中</option>
+          <option value="completed">已完成</option>
+        </select>
+        <select class="form-select" style="width: auto;" x-model="filter.audit_type" @change="loadData()">
+          <option value="">全部类型</option>
+          <option value="daily">日常审核</option>
+          <option value="weekly">周审核</option>
+          <option value="monthly">月度审核</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="loading-spinner" x-show="loading"><div class="spinner"></div></div>
+
+    <table class="data-table" x-show="!loading && items.length > 0">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>审核区域</th>
+          <th>审核类型</th>
+          <th>审核人</th>
+          <th>得分</th>
+          <th>状态</th>
+          <th>审核日期</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody>
+        <template x-for="item in items" :key="item.id">
+          <tr>
+            <td style="color: var(--text-tertiary); font-size: var(--text-xs);" x-text="item.id"></td>
+            <td style="font-weight: 500;" x-text="item.area_name"></td>
+            <td x-html="typeBadge(item.audit_type)"></td>
+            <td x-text="item.auditor_name || '-'"></td>
+            <td>
+              <span x-show="item.score !== null" style="font-weight: 600;" :style="'color: ' + scoreColor(item.score)" x-text="item.score + ' / ' + item.max_score"></span>
+              <span x-show="item.score === null" style="color: var(--text-tertiary);">-</span>
+            </td>
+            <td x-html="LeanOps.statusBadge(item.status, {scheduled:{label:'待执行',class:'badge-warning'},in_progress:{label:'进行中',class:'badge-primary'},completed:{label:'已完成',class:'badge-success'}})"></td>
+            <td x-text="LeanOps.fmtDate(item.scheduled_date)"></td>
+            <td>
+              <a :href="'/fives/audit/' + item.id" class="btn btn-secondary btn-sm">评分</a>
+            </td>
+          </tr>
+        </template>
+      </tbody>
+    </table>
+
+    <div class="empty-state" x-show="!loading && items.length === 0">
+      <div class="empty-state-icon">
+        <svg width="48" height="48" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"/></svg>
+      </div>
+      <div class="empty-state-title">暂无审核记录</div>
+      <div class="empty-state-desc">点击"新建审核"开始第一次现场5S检查</div>
+    </div>
+
+    <div class="table-footer" x-show="!loading && items.length > 0">
+      <span x-text="'第 ' + pagination.page + ' / ' + pagination.total_pages + ' 页'"></span>
+      <div class="pagination">
+        <button class="page-btn" :disabled="!pagination.has_prev" @click="goPage(pagination.page - 1)">
+          <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"/></svg>
+        </button>
+        <button class="page-btn" :disabled="!pagination.has_next" @click="goPage(pagination.page + 1)">
+          <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Create Modal -->
+<div class="modal-overlay" x-show="showCreateModal" @click.away="showCreateModal = false">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">新建 5S 审核</div>
+      <button class="modal-close" @click="showCreateModal = false">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">审核区域 <span class="required">*</span></label>
+        <select class="form-select" x-model="createForm.area_id">
+          <option value="">请选择区域</option>
+          <template x-for="area in areas" :key="area.id">
+            <option :value="area.id" x-text="area.name"></option>
+          </template>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">审核类型 <span class="required">*</span></label>
+        <select class="form-select" x-model="createForm.audit_type">
+          <option value="daily">日常审核</option>
+          <option value="weekly">周审核</option>
+          <option value="monthly">月度审核</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">计划日期 <span class="required">*</span></label>
+        <input type="date" class="form-input" x-model="createForm.scheduled_date">
+      </div>
+      <div class="form-group">
+        <label class="form-label">备注</label>
+        <textarea class="form-textarea" x-model="createForm.remarks" rows="2" placeholder="审核备注说明..."></textarea>
+      </div>
+      <div x-show="createError" class="alert alert-danger" style="margin-top: var(--space-3);">
+        <span x-text="createError"></span>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" @click="showCreateModal = false">取消</button>
+      <button class="btn btn-primary" @click="createAudit()" :disabled="creating">创建</button>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+{% block scripts %}
+<script>
+function fivesList() {
+  return {
+    items: [], areas: [], stats: {}, loading: false,
+    pagination: { page: 1, total_pages: 1, has_next: false, has_prev: false, total: 0 },
+    filter: { status: '', audit_type: '' },
+    showCreateModal: false, creating: false, createError: '',
+    createForm: { area_id: '', audit_type: 'daily', scheduled_date: '', remarks: '' },
+
+    async init() {
+      await Promise.all([this.loadData(), this.loadStats(), this.loadAreas()]);
+    },
+    async loadData() {
+      this.loading = true;
+      try {
+        const p = new URLSearchParams({ page: this.pagination.page, page_size: 20 });
+        if (this.filter.status) p.set('status', this.filter.status);
+        if (this.filter.audit_type) p.set('audit_type', this.filter.audit_type);
+        const data = await LeanOps.api('/fives/audits?' + p);
+        this.items = data.data || [];
+        this.pagination = data.pagination || {};
+      } catch (e) {
+        LeanOps.toast(e.detail || '加载失败', 'error');
+      } finally { this.loading = false; }
+    },
+    async loadStats() {
+      try { this.stats = await LeanOps.api('/fives/stats'); } catch (e) {}
+    },
+    async loadAreas() {
+      try { const d = await LeanOps.api('/fives/areas'); this.areas = d.data || []; } catch (e) {}
+    },
+    goPage(p) {
+      if (p < 1 || p > this.pagination.total_pages) return;
+      this.pagination.page = p; this.loadData();
+    },
+    async createAudit() {
+      if (!this.createForm.area_id || !this.createForm.scheduled_date) {
+        this.createError = '请填写必填项'; return;
+      }
+      this.creating = true; this.createError = '';
+      try {
+        await LeanOps.api('/fives/audits', {
+          method: 'POST',
+          body: JSON.stringify({
+            area_id: parseInt(this.createForm.area_id),
+            audit_type: this.createForm.audit_type,
+            scheduled_date: this.createForm.scheduled_date,
+            remarks: this.createForm.remarks || null,
+          }),
+        });
+        this.showCreateModal = false;
+        this.createForm = { area_id: '', audit_type: 'daily', scheduled_date: '', remarks: '' };
+        await Promise.all([this.loadData(), this.loadStats()]);
+        LeanOps.toast('审核创建成功', 'success');
+      } catch (e) {
+        this.createError = e.detail || '创建失败';
+      } finally { this.creating = false; }
+    },
+    qualifyRate() {
+      const total = (this.stats.total || 0);
+      if (total === 0) return '--';
+      const pass = this.stats.completed || 0;
+      return ((pass / total) * 100).toFixed(1) + '%';
+    },
+    scoreColor(s) {
+      if (s >= 80) return 'var(--color-success-600)';
+      if (s >= 60) return 'var(--color-warning-600)';
+      return 'var(--color-danger-600)';
+    },
+    typeBadge(t) {
+      const m = { daily: { l: '日常', c: 'badge-info' }, weekly: { l: '周度', c: 'badge-primary' }, monthly: { l: '月度', c: 'badge-success' } };
+      const i = m[t] || { l: t, c: 'badge-gray' };
+      return '<span class="badge ' + i.c + '">' + i.l + '</span>';
+    },
+  };
+}
+</script>
+{% endblock %}

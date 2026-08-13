@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+{% from "partials/_head.html" import head %}{{ head('TPM 设备管理') }}
+</head>
+<body class="min-h-screen" x-data="tpmDashboard()">
+<div class="flex min-h-screen">
+{% set active_nav = 'tpm' %}
+{% include "partials/_sidebar.html" %}
+<div class="flex-1 ml-56">
+    <header class="bg-white border-b border-[var(--border)] px-8 py-3 flex items-center justify-between sticky top-0 z-30">
+        <div class="flex items-center gap-3">
+            <h1 class="text-base font-semibold">TPM Equipment</h1>
+            <span class="text-xs text-[var(--text-tertiary)] mono">设备管理 / 故障 / 维保</span>
+        </div>
+    </header>
+    <main class="p-8 space-y-6">
+
+        <!-- Stats Row -->
+        <div class="grid grid-cols-2 lg:grid-cols-5 gap-4">
+            <div class="card p-4">
+                <p class="text-[10px] text-[var(--text-tertiary)] uppercase tracking-wider mono">Total Equipment</p>
+                <p class="stat-num mt-1" x-text="equipment.length"></p>
+            </div>
+            <div class="card p-4">
+                <p class="text-[10px] text-[var(--text-tertiary)] uppercase tracking-wider mono">Running</p>
+                <p class="stat-num mt-1" style="color: var(--positive);" x-text="equipment.filter(e=>e.status==='running').length"></p>
+            </div>
+            <div class="card p-4">
+                <p class="text-[10px] text-[var(--text-tertiary)] uppercase tracking-wider mono">Maintenance</p>
+                <p class="stat-num mt-1" style="color: var(--warning);" x-text="equipment.filter(e=>e.status==='maintenance').length"></p>
+            </div>
+            <div class="card p-4">
+                <p class="text-[10px] text-[var(--text-tertiary)] uppercase tracking-wider mono">Open Faults</p>
+                <p class="stat-num mt-1" style="color: var(--negative);" x-text="faults.filter(f=>f.status==='open'||f.status==='investigating').length"></p>
+            </div>
+            <div class="card p-4">
+                <p class="text-[10px] text-[var(--text-tertiary)] uppercase tracking-wider mono">Due Plans</p>
+                <p class="stat-num mt-1" x-text="duePlanCount"></p>
+            </div>
+        </div>
+
+        <!-- Tab Navigation -->
+        <div class="flex gap-1">
+            <button @click="activeTab = 'equipment'" :class="activeTab === 'equipment' ? 'tab active' : 'tab'" class="tab">Equipment</button>
+            <button @click="activeTab = 'faults'" :class="activeTab === 'faults' ? 'tab active' : 'tab'" class="tab">Faults</button>
+            <button @click="activeTab = 'maintenance'" :class="activeTab === 'maintenance' ? 'tab active' : 'tab'" class="tab">Maintenance</button>
+        </div>
+
+        <!-- Equipment Tab -->
+        <div x-show="activeTab === 'equipment'" x-cloak class="space-y-4">
+            <!-- Filter -->
+            <div class="flex items-center gap-3">
+                <select x-model="eqFilter" class="border border-[var(--border)] rounded-lg px-3 py-1.5 text-sm bg-white">
+                    <option value="all">All Types</option>
+                    <option value="cold_forging">Cold Forging</option>
+                    <option value="thread_rolling">Thread Rolling</option>
+                    <option value="heat_treatment">Heat Treatment</option>
+                    <option value="plating">Plating</option>
+                    <option value="inspection">Inspection</option>
+                    <option value="packaging">Packaging</option>
+                </select>
+                <select x-model="eqStatusFilter" class="border border-[var(--border)] rounded-lg px-3 py-1.5 text-sm bg-white">
+                    <option value="all">All Status</option>
+                    <option value="running">Running</option>
+                    <option value="maintenance">Maintenance</option>
+                    <option value="idle">Idle</option>
+                    <option value="breakdown">Breakdown</option>
+                </select>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <template x-for="eq in filteredEquipment" :key="eq.id">
+                    <div class="card p-5">
+                        <div class="flex items-start justify-between mb-3">
+                            <div>
+                                <h3 class="text-sm font-bold" x-text="eq.equipment_name"></h3>
+                                <p class="text-[10px] text-[var(--text-tertiary)] mono mt-0.5" x-text="eq.equipment_code"></p>
+                            </div>
+                            <span class="pill mono text-[9px]" :class="statusClass(eq.status)" x-text="eq.status"></span>
+                        </div>
+                        <div class="space-y-1.5 text-xs">
+                            <div class="flex justify-between">
+                                <span class="text-[var(--text-tertiary)]">Type</span>
+                                <span class="font-medium mono" x-text="eq.equipment_type"></span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-[var(--text-tertiary)]">Location</span>
+                                <span class="font-medium" x-text="eq.location || '-'"></span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-[var(--text-tertiary)]">Manufacturer</span>
+                                <span class="font-medium" x-text="eq.manufacturer || '-'"></span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-[var(--text-tertiary)]">Install Date</span>
+                                <span class="font-medium mono" x-text="eq.install_date || '-'"></span>
+                            </div>
+                        </div>
+                        <div class="mt-3 pt-3 border-t border-[var(--border)] flex items-center justify-between">
+                            <span class="text-[10px] text-[var(--text-tertiary)] mono" x-text="eq.model || ''"></span>
+                            <button @click="openFaultForm(eq)" class="text-xs text-[var(--negative)] hover:underline font-medium">Report Fault</button>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
+
+        <!-- Faults Tab -->
+        <div x-show="activeTab === 'faults'" x-cloak>
+            <div class="card overflow-hidden">
+                <table class="w-full text-sm">
+                    <thead class="bg-[#fafafa] border-b border-[var(--border)]">
+                        <tr>
+                            <th class="px-4 py-3 text-left text-[10px] font-semibold text-[var(--text-tertiary)] uppercase tracking-wider">Equipment</th>
+                            <th class="px-4 py-3 text-left text-[10px] font-semibold text-[var(--text-tertiary)] uppercase tracking-wider">Type</th>
+                            <th class="px-4 py-3 text-left text-[10px] font-semibold text-[var(--text-tertiary)] uppercase tracking-wider">Description</th>
+                            <th class="px-4 py-3 text-left text-[10px] font-semibold text-[var(--text-tertiary)] uppercase tracking-wider">Severity</th>
+                            <th class="px-4 py-3 text-left text-[10px] font-semibold text-[var(--text-tertiary)] uppercase tracking-wider">Status</th>
+                            <th class="px-4 py-3 text-left text-[10px] font-semibold text-[var(--text-tertiary)] uppercase tracking-wider">Downtime</th>
+                            <th class="px-4 py-3 text-left text-[10px] font-semibold text-[var(--text-tertiary)] uppercase tracking-wider">Reported</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-[var(--border)]">
+                        <template x-for="fault in faults" :key="fault.id">
+                            <tr class="hover:bg-[#fafafa]">
+                                <td class="px-4 py-3 font-medium" x-text="fault.equipment_name || fault.equipment_id"></td>
+                                <td class="px-4 py-3">
+                                    <span class="pill mono text-[9px]" :class="faultTypeClass(fault.fault_type)" x-text="fault.fault_type"></span>
+                                </td>
+                                <td class="px-4 py-3 text-[var(--text-secondary)] max-w-xs truncate" x-text="fault.description"></td>
+                                <td class="px-4 py-3">
+                                    <span class="pill mono text-[9px] font-medium" :class="severityClass(fault.severity)" x-text="fault.severity"></span>
+                                </td>
+                                <td class="px-4 py-3">
+                                    <span class="pill mono text-[9px]" :class="faultStatusClass(fault.status)" x-text="fault.status"></span>
+                                </td>
+                                <td class="px-4 py-3 mono" x-text="fault.downtime_hours ? fault.downtime_hours + 'h' : '-'"></td>
+                                <td class="px-4 py-3 text-[var(--text-tertiary)] mono text-xs" x-text="formatDate(fault.reported_at)"></td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+                <div x-show="faults.length === 0" class="p-8 text-center text-[var(--text-tertiary)]">No faults recorded</div>
+            </div>
+        </div>
+
+        <!-- Maintenance Tab -->
+        <div x-show="activeTab === 'maintenance'" x-cloak>
+            <div class="card overflow-hidden">
+                <table class="w-full text-sm">
+                    <thead class="bg-[#fafafa] border-b border-[var(--border)]">
+                        <tr>
+                            <th class="px-4 py-3 text-left text-[10px] font-semibold text-[var(--text-tertiary)] uppercase tracking-wider">Equipment</th>
+                            <th class="px-4 py-3 text-left text-[10px] font-semibold text-[var(--text-tertiary)] uppercase tracking-wider">Plan Type</th>
+                            <th class="px-4 py-3 text-left text-[10px] font-semibold text-[var(--text-tertiary)] uppercase tracking-wider">Task</th>
+                            <th class="px-4 py-3 text-left text-[10px] font-semibold text-[var(--text-tertiary)] uppercase tracking-wider">Frequency</th>
+                            <th class="px-4 py-3 text-left text-[10px] font-semibold text-[var(--text-tertiary)] uppercase tracking-wider">Next Due</th>
+                            <th class="px-4 py-3 text-left text-[10px] font-semibold text-[var(--text-tertiary)] uppercase tracking-wider">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-[var(--border)]">
+                        <template x-for="plan in maintenancePlans" :key="plan.id">
+                            <tr class="hover:bg-[#fafafa]">
+                                <td class="px-4 py-3 font-medium" x-text="plan.equipment_name || ('EQ-' + plan.equipment_id)"></td>
+                                <td class="px-4 py-3">
+                                    <span class="pill mono text-[9px]" :class="planTypeClass(plan.plan_type)" x-text="plan.plan_type"></span>
+                                </td>
+                                <td class="px-4 py-3 text-[var(--text-secondary)] max-w-sm truncate" x-text="plan.task_description"></td>
+                                <td class="px-4 py-3 mono" x-text="plan.frequency_days + 'd'"></td>
+                                <td class="px-4 py-3">
+                                    <span class="text-xs font-medium mono" :class="isOverdue(plan.next_due) ? 'text-[var(--negative)]' : ''" x-text="plan.next_due"></span>
+                                </td>
+                                <td class="px-4 py-3">
+                                    <span x-show="isOverdue(plan.next_due)" class="pill mono text-[9px] bg-[#fee2e2] text-[#991b1b] font-medium">OVERDUE</span>
+                                    <span x-show="!isOverdue(plan.next_due)" class="pill mono text-[9px] bg-[#dcfce7] text-[#166534]">OK</span>
+                                </td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+                <div x-show="maintenancePlans.length === 0" class="p-8 text-center text-[var(--text-tertiary)]">No maintenance plans</div>
+            </div>
+        </div>
+
+    </main>
+</div>
+</div>
+
+<!-- Fault Report Modal -->
+<div x-show="showFaultForm" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+    <div class="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4">
+        <div class="p-6 border-b border-[var(--border)]">
+            <div class="flex items-center justify-between">
+                <h3 class="text-base font-semibold">Report Fault</h3>
+                <button @click="showFaultForm = false" class="text-[var(--text-tertiary)] hover:text-[var(--text-primary)]">&times;</button>
+            </div>
+            <p class="text-xs text-[var(--text-tertiary)] mt-1" x-text="faultEquipment ? faultEquipment.equipment_name : ''"></p>
+        </div>
+        <div class="p-6 space-y-4">
+            <div>
+                <label class="block text-xs font-medium text-[var(--text-secondary)] mb-1 uppercase tracking-wider">Fault Type *</label>
+                <select x-model="newFault.fault_type" class="w-full border border-[var(--border)] rounded-lg px-3 py-2 text-sm">
+                    <option value="mechanical">Mechanical</option>
+                    <option value="electrical">Electrical</option>
+                    <option value="hydraulic">Hydraulic</option>
+                    <option value="pneumatic">Pneumatic</option>
+                    <option value="process">Process/Quality</option>
+                    <option value="safety">Safety</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-[var(--text-secondary)] mb-1 uppercase tracking-wider">Description *</label>
+                <textarea x-model="newFault.description" rows="3" class="w-full border border-[var(--border)] rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[var(--negative)] focus:border-[var(--negative)]" placeholder="Describe the fault..."></textarea>
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-[var(--text-secondary)] mb-1 uppercase tracking-wider">Severity</label>
+                <select x-model="newFault.severity" class="w-full border border-[var(--border)] rounded-lg px-3 py-2 text-sm">
+                    <option value="minor">Minor</option>
+                    <option value="major">Major</option>
+                    <option value="critical">Critical</option>
+                </select>
+            </div>
+        </div>
+        <div class="p-6 border-t border-[var(--border)] flex justify-end gap-3">
+            <button @click="showFaultForm = false" class="pill border border-[var(--border)] text-[var(--text-secondary)] px-4 py-2 hover:border-[#d4d4d4]">Cancel</button>
+            <button @click="submitFault()" class="pill bg-[var(--negative)] text-white px-4 py-2 hover:opacity-90 transition-opacity">Submit Report</button>
+        </div>
+    </div>
+</div>
+
+<script>
+const API = '/api/v1/tpm';
+
+function tpmDashboard() {
+    return {
+        activeTab: 'equipment',
+        equipment: [],
+        faults: [],
+        maintenancePlans: [],
+        eqFilter: 'all',
+        eqStatusFilter: 'all',
+        showFaultForm: false,
+        faultEquipment: null,
+        newFault: { fault_type: 'mechanical', description: '', severity: 'minor' },
+
+        async init() {
+            await Promise.all([
+                this.loadEquipment(),
+                this.loadFaults(),
+                this.loadMaintenancePlans(),
+            ]);
+        },
+
+        async loadEquipment() {
+            try {
+                const res = await fetch(API + '/equipment');
+                this.equipment = await res.json();
+            } catch(e) { console.error('loadEquipment', e); }
+        },
+
+        async loadFaults() {
+            try {
+                const res = await fetch(API + '/faults');
+                this.faults = await res.json();
+            } catch(e) { console.error('loadFaults', e); }
+        },
+
+        async loadMaintenancePlans() {
+            try {
+                const res = await fetch(API + '/maintenance/plans');
+                this.maintenancePlans = await res.json();
+            } catch(e) { console.error('loadMaintenancePlans', e); }
+        },
+
+        get filteredEquipment() {
+            return this.equipment.filter(e => {
+                if (this.eqFilter !== 'all' && e.equipment_type !== this.eqFilter) return false;
+                if (this.eqStatusFilter !== 'all' && e.status !== this.eqStatusFilter) return false;
+                return true;
+            });
+        },
+
+        get duePlanCount() {
+            const today = new Date().toISOString().split('T')[0];
+            return this.maintenancePlans.filter(p => p.next_due <= today).length;
+        },
+
+        openFaultForm(eq) {
+            this.faultEquipment = eq;
+            this.newFault = { fault_type: 'mechanical', description: '', severity: 'minor' };
+            this.showFaultForm = true;
+        },
+
+        async submitFault() {
+            if (!this.faultEquipment || !this.newFault.description) return;
+            try {
+                await fetch(API + '/faults', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        equipment_id: this.faultEquipment.id,
+                        fault_type: this.newFault.fault_type,
+                        description: this.newFault.description,
+                        severity: this.newFault.severity,
+                    }),
+                });
+                this.showFaultForm = false;
+                await this.loadFaults();
+            } catch(e) { console.error('submitFault', e); }
+        },
+
+        statusClass(status) {
+            const m = {
+                running: 'bg-[#dcfce7] text-[#166534]',
+                maintenance: 'bg-[#fef3c7] text-[#92400e]',
+                idle: 'bg-[#f4f4f5] text-[var(--text-secondary)]',
+                breakdown: 'bg-[#fee2e2] text-[#991b1b]'
+            };
+            return m[status] || 'bg-[#f4f4f5] text-[var(--text-secondary)]';
+        },
+
+        severityClass(sev) {
+            const m = {
+                minor: 'bg-[#dbeafe] text-[#1e40af]',
+                major: 'bg-[#fef3c7] text-[#92400e]',
+                critical: 'bg-[#fee2e2] text-[#991b1b]'
+            };
+            return m[sev] || 'bg-[#f4f4f5] text-[var(--text-secondary)]';
+        },
+
+        faultStatusClass(status) {
+            const m = {
+                open: 'bg-[#fee2e2] text-[#991b1b]',
+                investigating: 'bg-[#fef3c7] text-[#92400e]',
+                resolved: 'bg-[#dcfce7] text-[#166534]'
+            };
+            return m[status] || 'bg-[#f4f4f5] text-[var(--text-secondary)]';
+        },
+
+        faultTypeClass(type) {
+            const m = {
+                mechanical: 'bg-[#f4f4f5] text-[var(--text-primary)]',
+                electrical: 'bg-[#fef3c7] text-[#92400e]',
+                hydraulic: 'bg-[#dbeafe] text-[#1e40af]',
+                pneumatic: 'bg-[#cffafe] text-[#155e75]',
+                process: 'bg-[#f3e8ff] text-[#6b21a8]',
+                safety: 'bg-[#fee2e2] text-[#991b1b]'
+            };
+            return m[type] || 'bg-[#f4f4f5] text-[var(--text-secondary)]';
+        },
+
+        planTypeClass(type) {
+            const m = {
+                daily: 'bg-[#dcfce7] text-[#166534]',
+                weekly: 'bg-[#dbeafe] text-[#1e40af]',
+                monthly: 'bg-[#f4f4f5] text-[var(--text-primary)]',
+                quarterly: 'bg-[#f3e8ff] text-[#6b21a8]',
+                annual: 'bg-[#fef3c7] text-[#92400e]'
+            };
+            return m[type] || 'bg-[#f4f4f5] text-[var(--text-secondary)]';
+        },
+
+        isOverdue(dateStr) {
+            if (!dateStr) return false;
+            return dateStr <= new Date().toISOString().split('T')[0];
+        },
+
+        formatDate(dt) {
+            if (!dt) return '-';
+            return dt.replace('T', ' ').substring(0, 16);
+        },
+    };
+}
+</script>
+</body>
+</html>

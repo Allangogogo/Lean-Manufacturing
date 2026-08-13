@@ -1,0 +1,200 @@
+﻿{% extends "base.html" %}
+{% block page_id %}maturity{% endblock %}
+{% block page_title %}鎴愮啛搴﹁瘎浼版墦鍒唟% endblock %}
+{% block content %}
+<div x-data="assessmentForm()" x-init="init()">
+
+  <div class="page-header">
+    <div class="page-header-info">
+      <h1 x-text="'璇勪及鎵撳垎: ' + (assessment.area_name || '')"></h1>
+      <p x-text="'璇勪及浜? ' + (assessment.assessor_name || '') + ' | 鏃ユ湡: ' + LeanOps.fmtDate(assessment.assessment_date) + ' | 鐘舵€? ' + assessment.status"></p>
+    </div>
+    <div class="page-header-actions">
+      <a href="/maturity" class="btn btn-secondary">
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"/></svg>
+        杩斿洖鍒楄〃
+      </a>
+    </div>
+  </div>
+
+  <div class="loading-spinner" x-show="loading"><div class="spinner"></div></div>
+
+  <div x-show="!loading && assessment.id">
+    <template x-for="(dim, di) in dimensions" :key="dim.id">
+      <div class="card" style="margin-bottom: var(--space-5);">
+        <div class="card-header" style="display: flex; align-items: center; gap: var(--space-3);">
+          <div class="stat-icon" :class="['primary','success','warning','danger','accent'][di % 5]" style="width: 32px; height: 32px;">
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2 1 1 0 011 1h6a1 1 0 011-1 2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm3 1h6v2H7V5zm0 3h6v2H7V8zm0 3h4v2H7v-2z"/></svg>
+          </div>
+          <div style="flex: 1;">
+            <div class="card-title" x-text="dim.dimension_name" style="font-size: var(--text-base);"></div>
+            <div style="font-size: var(--text-xs); color: var(--text-tertiary); margin-top: 2px;">鏉冮噸: <span x-text="dim.weight"></span> | 婊″垎: <span x-text="dim.max_score"></span></div>
+          </div>
+          <div style="font-weight: 600; color: var(--color-primary); font-size: var(--text-lg);">
+            <span x-text="dimAvg(dim)"></span>
+            <span style="font-size: var(--text-xs); color: var(--text-tertiary);"> / <span x-text="dim.max_score"></span></span>
+          </div>
+        </div>
+        <div class="card-body">
+          <table class="data-table">
+            <thead><tr><th style="width: 35%;">璇勪及鏉＄洰</th><th style="width: 10%;">鏉冮噸</th><th>璇勫垎 (1-5)</th><th>澶囨敞</th></tr></thead>
+            <tbody>
+              <template x-for="(crit, ci) in dim.criteria" :key="crit.id">
+                <tr>
+                  <td>
+                    <div style="font-weight: 500;" x-text="crit.criterion_name"></div>
+                    <div style="font-size: var(--text-xs); color: var(--text-tertiary);" x-text="crit.description || ''"></div>
+                  </td>
+                  <td x-text="crit.weight" style="color: var(--text-tertiary);"></td>
+                  <td>
+                    <div style="display: flex; gap: var(--space-2); align-items: center;">
+                      <template x-for="s in [1,2,3,4,5]" :key="s">
+                        <label style="display: flex; align-items: center; gap: 2px; cursor: pointer; font-size: var(--text-xs);">
+                          <input type="radio" :name="'crit_' + crit.id" :value="s" x-model.number="crit.score" @change="recalcDim(dim)" style="accent-color: var(--color-primary);">
+                          <span x-text="s"></span>
+                        </label>
+                      </template>
+                    </div>
+                  </td>
+                  <td>
+                    <input type="text" class="form-input" placeholder="澶囨敞/璇佹嵁..." x-model="crit.remarks" style="font-size: var(--text-xs); padding: 2px 6px;">
+                  </td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </template>
+
+    <div class="card" style="margin-bottom: var(--space-6);">
+      <div class="card-header"><div class="card-title">璇勪及鎬荤粨</div></div>
+      <div class="card-body">
+        <div class="form-group">
+          <label class="form-label">鎬荤粨</label>
+          <textarea class="form-textarea" x-model="summary" placeholder="鎻忚堪鏈璇勪及鐨勬暣浣撳彂鐜?.." rows="3"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">寤鸿</label>
+          <textarea class="form-textarea" x-model="recommendations" placeholder="鍚庣画鏀瑰杽寤鸿..." rows="3"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: flex; align-items: center; justify-content: space-between; padding: var(--space-5); background: var(--bg-surface); border: 2px solid var(--color-primary-200); border-radius: var(--radius-lg); margin-bottom: var(--space-6);">
+      <div>
+        <div style="font-size: var(--text-xs); color: var(--text-tertiary); margin-bottom: 2px;">璇勪及鎬诲垎</div>
+        <div style="font-size: var(--text-2xl); font-weight: 700; color: var(--text-primary);" x-text="totalScore()"></div>
+        <div class="badge" :class="levelBadgeClass()" x-text="overallLevel()" style="margin-top: var(--space-1);"></div>
+      </div>
+      <div style="display: flex; gap: var(--space-3);">
+        <button class="btn btn-secondary btn-lg" @click="saveScores()" :disabled="saving">
+          <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path d="M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z"/></svg>
+          <span x-text="saving ? '淇濆瓨涓?..' : '淇濆瓨璇勫垎'"></span>
+        </button>
+        <button class="btn btn-primary btn-lg" @click="completeAssessment()" :disabled="saving">
+          <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/></svg>
+          <span x-text="saving ? '鎻愪氦涓?..' : '瀹屾垚璇勪及'"></span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+function assessmentForm() {
+  const pathId = window.location.pathname.split('/').filter(Boolean).pop();
+  const id = parseInt(pathId) || 0;
+  return {
+    assessment: {}, dimensions: [], loading: true, saving: false, summary: '', recommendations: '',
+    async init() {
+      if (!id) { window.location.href = '/maturity'; return; }
+      try {
+        const res = await LeanOps.api('/maturity/assessments/' + id);
+        this.assessment = res.data || {};
+        this.dimensions = this.assessment.dimensions || [];
+        this.summary = this.assessment.summary || '';
+        this.recommendations = this.assessment.recommendations || '';
+        this.dimensions.forEach(d => {
+          (d.criteria || []).forEach(c => { if (!c.score) c.score = null; });
+        });
+      } catch (e) {
+        LeanOps.toast(e.detail || '鍔犺浇澶辫触', 'error');
+      } finally { this.loading = false; }
+    },
+    dimAvg(dim) {
+      const crits = dim.criteria || [];
+      if (crits.length === 0) return '0';
+      const sum = crits.reduce((s,c) => s + (c.score || 0), 0);
+      return (sum / crits.length).toFixed(1);
+    },
+    recalcDim(dim) {
+      const total = (dim.criteria || []).reduce((s,c) => s + (c.score || 0), 0);
+      dim.score = total;
+    },
+    totalScore() {
+      return this.dimensions.reduce((s,d) => s + ((d.criteria || []).reduce((cs, c) => cs + (c.score || 0), 0)), 0).toFixed(1) + ' / ' + (this.assessment.max_score || 100);
+    },
+    overallLevel() {
+      const ts = parseFloat(this.totalScore()) || 0;
+      const ms = parseFloat(this.assessment.max_score) || 100;
+      const pct = ts / ms * 100;
+      if (pct >= 90) return 'L5 - 鍗撹秺';
+      if (pct >= 70) return 'L4 - 鎴愮啛';
+      if (pct >= 50) return 'L3 - 瑙勮寖';
+      if (pct >= 30) return 'L2 - 鍙戝睍';
+      return 'L1 - 鍒濆';
+    },
+    levelBadgeClass() {
+      const l = this.overallLevel();
+      if (l.startsWith('L5')) return 'badge-success';
+      if (l.startsWith('L4')) return 'badge-primary';
+      if (l.startsWith('L3')) return 'badge-info';
+      if (l.startsWith('L2')) return 'badge-warning';
+      return 'badge-gray';
+    },
+    buildScorePayload() {
+      return this.dimensions.map(d => ({
+        dimension_id: d.id,
+        criteria_scores: (d.criteria || []).map(c => ({
+          criterion_id: c.id,
+          score: (c.score || 0).toString(),
+          remarks: c.remarks || null,
+        })),
+      }));
+    },
+    async saveScores() {
+      this.saving = true;
+      try {
+        await LeanOps.api('/maturity/assessments/' + id + '/scores', {
+          method: 'PUT',
+          body: JSON.stringify(this.buildScorePayload()),
+          headers: { 'Content-Type': 'application/json' },
+        });
+        LeanOps.toast('璇勫垎宸蹭繚瀛?, 'success');
+      } catch (e) {
+        LeanOps.toast(e.detail || '淇濆瓨澶辫触', 'error');
+      } finally { this.saving = false; }
+    },
+    async completeAssessment() {
+      if (!confirm('纭瀹屾垚姝ゆ璇勪及锛熷畬鎴愬悗涓嶅彲淇敼銆?)) return;
+      this.saving = true;
+      try {
+        await this.saveScores();
+        await LeanOps.api('/maturity/assessments/' + id + '/complete', {
+          method: 'POST',
+          body: JSON.stringify({ summary: this.summary, recommendations: this.recommendations }),
+          headers: { 'Content-Type': 'application/json' },
+        });
+        LeanOps.toast('璇勪及宸插畬鎴?, 'success');
+        window.location.href = '/maturity';
+      } catch (e) {
+        LeanOps.toast(e.detail || '瀹屾垚澶辫触', 'error');
+      } finally { this.saving = false; }
+    },
+  };
+}
+</script>
+{% endblock %}

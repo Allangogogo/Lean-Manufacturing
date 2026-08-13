@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+{% from "partials/_head.html" import head %}{{ head('Lean 2.0 雷达') }}
+</head>
+<body class="min-h-screen" x-data="lean20Dashboard()">
+<div class="flex min-h-screen">
+{% set active_nav = 'lean20' %}
+{% include "partials/_sidebar.html" %}
+<div class="flex-1 ml-56">
+    <header class="bg-white border-b border-[var(--border)] px-8 py-3 flex items-center justify-between sticky top-0 z-30">
+        <div class="flex items-center gap-3">
+            <h1 class="text-base font-semibold">Lean 2.0 Maturity Radar</h1>
+            <span class="text-xs text-[var(--text-tertiary)] mono">Industry 5.0 Extended Dimensions</span>
+        </div>
+        <div class="flex items-center gap-3">
+            <a href="/assessment" class="text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)]">Traditional</a>
+            <a href="/lean20/assess" class="pill bg-[var(--accent)] text-white hover:bg-[var(--accent-hover)] transition-colors px-3 py-1.5">Checklist Assessment</a>
+        </div>
+    </header>
+    <main class="p-8 space-y-6">
+
+        <!-- Latest Assessment Summary -->
+        <div x-show="latest" class="card p-6 fade-in">
+            <div class="flex items-center justify-between mb-6">
+                <div>
+                    <h2 class="text-lg font-semibold">Latest Assessment</h2>
+                    <p class="text-xs text-[var(--text-tertiary)] mt-0.5" x-text="'Assessed on ' + (latest?.assessment_date || '--')"></p>
+                </div>
+                <div class="text-right">
+                    <div class="stat-num" x-text="latest?.composite_index?.toFixed(2) || '--'"></div>
+                    <div class="text-sm text-[var(--text-secondary)] mt-1" x-text="latest?.overall_level || '--'"></div>
+                </div>
+            </div>
+
+            <!-- Dimension Scores -->
+            <div class="grid grid-cols-5 gap-3">
+                <template x-for="d in dimScores" :key="d.code">
+                    <div class="border border-[var(--border)] rounded-lg p-4 text-center">
+                        <div class="text-sm font-semibold text-[var(--text-primary)]" x-text="d.name"></div>
+                        <div class="stat-num mt-2" style="font-size:22px" x-text="d.level.toFixed(1)"></div>
+                        <div class="text-[10px] text-[var(--text-tertiary)] mono mt-1" x-text="'w' + (d.weight * 100).toFixed(0) + '%'"></div>
+                        <div class="bar mt-2">
+                            <div :style="'width:' + (d.level / 5 * 100) + '%; background:' + d.color"></div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+
+            <div class="flex items-center gap-3 mt-6">
+                <a href="/lean20/assess" class="pill bg-[var(--accent)] text-white px-4 py-2 hover:bg-[var(--accent-hover)] transition-colors">New Checklist Assessment</a>
+                <a href="/assessment" class="pill border border-[var(--border)] text-[var(--text-secondary)] px-4 py-2 hover:border-[#d4d4d4] transition-colors">Traditional Assessment</a>
+            </div>
+        </div>
+
+        <!-- No Assessment Yet -->
+        <div x-show="!latest" class="card p-12 text-center">
+            <h2 class="text-lg font-semibold mb-2">No Assessment Yet</h2>
+            <p class="text-sm text-[var(--text-secondary)] mb-6 max-w-lg mx-auto">Complete a checklist-based assessment to evaluate your organization's Industry 5.0 maturity across 5 dimensions and 31 detailed items.</p>
+            <a href="/lean20/assess" class="pill bg-[var(--accent)] text-white px-4 py-2 hover:bg-[var(--accent-hover)] transition-colors">Start Assessment</a>
+        </div>
+
+        <!-- Radar + Trend Charts -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="card p-6">
+                <h3 class="text-sm font-semibold text-[var(--text-secondary)] mb-3">Current vs Industry Average</h3>
+                <div style="height: 340px;">
+                    <canvas id="radarChart"></canvas>
+                </div>
+            </div>
+            <div class="card p-6">
+                <h3 class="text-sm font-semibold text-[var(--text-secondary)] mb-3">Assessment History</h3>
+                <div style="height: 340px;">
+                    <canvas id="trendChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Benchmark Comparison -->
+        <div class="card p-6">
+            <h3 class="text-sm font-semibold text-[var(--text-secondary)] mb-4">Benchmark Comparison</h3>
+            <template x-if="benchmark">
+                <div class="space-y-4">
+                    <template x-for="dim in dimMeta" :key="dim.code">
+                        <div>
+                            <div class="flex items-center justify-between mb-1">
+                                <span class="text-sm font-medium" x-text="dim.name"></span>
+                                <span class="text-xs text-[var(--text-tertiary)] mono">Score / 5.00</span>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <div class="flex-1 h-5 bg-[#f0f0f0] rounded-full overflow-hidden relative">
+                                    <div class="absolute h-full rounded-full transition-all duration-500"
+                                         :style="'left: 0; width:' + getOurScore(dim.code) + '%; background:' + dim.color"></div>
+                                    <div class="absolute h-full w-0.5 bg-[var(--negative)]"
+                                         :style="'left:' + (benchmark.industry_avg[dim.code] / 5 * 100) + '%'"></div>
+                                    <div class="absolute h-full w-0.5 bg-[var(--positive)]"
+                                         :style="'left:' + (benchmark.leader[dim.code] / 5 * 100) + '%'"></div>
+                                </div>
+                                <span class="text-xs font-medium mono shrink-0" x-text="(latestDimScores[dim.code]?.toFixed(1) || '--')"></span>
+                            </div>
+                        </div>
+                    </template>
+                    <div class="flex items-center gap-4 text-[10px] text-[var(--text-tertiary)] mono">
+                        <span>Our</span>
+                        <span>| Industry Avg</span>
+                        <span>| Leader</span>
+                    </div>
+                </div>
+            </template>
+        </div>
+
+        <!-- Assessment History Table -->
+        <div class="card overflow-hidden">
+            <div class="px-6 py-4 border-b border-[var(--border)]">
+                <h3 class="text-sm font-semibold">Assessment History</h3>
+            </div>
+            <table class="w-full text-sm">
+                <thead class="bg-[#fafafa]">
+                    <tr>
+                        <th class="px-4 py-3 text-left font-medium text-[var(--text-tertiary)] text-xs uppercase tracking-wider">Date</th>
+                        <th class="px-4 py-3 text-left font-medium text-[var(--text-tertiary)] text-xs uppercase tracking-wider">Composite</th>
+                        <th class="px-4 py-3 text-left font-medium text-[var(--text-tertiary)] text-xs uppercase tracking-wider">Level</th>
+                        <th class="px-4 py-3 text-left font-medium text-[var(--text-tertiary)] text-xs uppercase tracking-wider">O</th>
+                        <th class="px-4 py-3 text-left font-medium text-[var(--text-tertiary)] text-xs uppercase tracking-wider">D</th>
+                        <th class="px-4 py-3 text-left font-medium text-[var(--text-tertiary)] text-xs uppercase tracking-wider">G</th>
+                        <th class="px-4 py-3 text-left font-medium text-[var(--text-tertiary)] text-xs uppercase tracking-wider">R</th>
+                        <th class="px-4 py-3 text-left font-medium text-[var(--text-tertiary)] text-xs uppercase tracking-wider">H</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-[var(--border)]">
+                    <template x-for="a in assessments" :key="a.id">
+                        <tr class="hover:bg-[#fafafa]">
+                            <td class="px-4 py-3 mono" x-text="a.assessment_date"></td>
+                            <td class="px-4 py-3 font-bold" x-text="a.composite_index.toFixed(2)"></td>
+                            <td class="px-4 py-3">
+                                <span class="pill bg-[#f4f4f5] text-[var(--text-secondary)]" x-text="a.overall_level"></span>
+                            </td>
+                            <template x-for="d in ['O','D','G','R','H']" :key="d">
+                                <td class="px-4 py-3 mono" x-text="getDimLevel(a, d)?.toFixed(1) || '--'"></td>
+                            </template>
+                        </tr>
+                    </template>
+                    <tr x-show="assessments.length === 0">
+                        <td colspan="9" class="px-4 py-8 text-center text-[var(--text-tertiary)]">No assessments yet</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Re-assessment Suggestions -->
+        <div x-show="reassessmentSuggestions.length > 0" class="space-y-3">
+            <template x-for="s in reassessmentSuggestions" :key="s.project_id">
+                <div class="card p-4 flex items-center justify-between" style="border-color: #fbbf24;">
+                    <div>
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="text-sm font-medium" x-text="s.project_name"></span>
+                            <template x-for="d in s.dimensions" :key="d">
+                                <span class="pill bg-[#fef3c7] text-[#92400e]" x-text="d"></span>
+                            </template>
+                        </div>
+                        <p class="text-xs text-[var(--text-secondary)]" x-text="s.message"></p>
+                    </div>
+                    <a href="/lean20/assess" class="pill bg-[var(--warning)] text-white px-3 py-1.5 hover:opacity-90 transition-opacity whitespace-nowrap">Re-assess</a>
+                </div>
+            </template>
+        </div>
+
+    </main>
+</div>
+</div>
+
+<script>
+function lean20Dashboard() {
+    const DIM_META = [
+        { code: 'O', name: 'Operations', color: '#2563eb' },
+        { code: 'D', name: 'Digital', color: '#7c3aed' },
+        { code: 'G', name: 'Green', color: '#059669' },
+        { code: 'R', name: 'Resilience', color: '#d97706' },
+        { code: 'H', name: 'Human', color: '#dc2626' },
+    ];
+
+    return {
+        latest: null,
+        dimScores: [],
+        assessments: [],
+        benchmark: null,
+        reassessmentSuggestions: [],
+        dimMeta: DIM_META,
+        radarChart: null,
+        trendChart: null,
+
+        init() {
+            this.loadLatest();
+            this.loadHistory();
+            this.loadBenchmark();
+            this.loadReassessmentSuggestions();
+        },
+
+        async loadLatest() {
+            try {
+                const resp = await fetch('/api/v1/lean20/latest');
+                const data = await resp.json();
+                if (data.has_data) {
+                    this.latest = data.assessment;
+                    this.dimScores = data.dimension_scores.map(ds => {
+                        const meta = DIM_META.find(m => m.code === ds.dimension_code);
+                        return {
+                            code: ds.dimension_code,
+                            name: meta ? meta.name : ds.dimension_code,
+                            color: meta ? meta.color : '#333',
+                            level: ds.level,
+                            weight: ds.weight,
+                        };
+                    });
+                    this.$nextTick(() => this.initCharts());
+                }
+            } catch (e) { console.error('Load latest failed:', e); }
+        },
+
+        async loadHistory() {
+            try {
+                const resp = await fetch('/api/v1/lean20/assessments');
+                this.assessments = await resp.json();
+            } catch (e) { console.error(e); }
+        },
+
+        async loadBenchmark() {
+            try {
+                const resp = await fetch('/api/v1/lean20/benchmark');
+                this.benchmark = await resp.json();
+            } catch (e) { this.benchmark = null; }
+        },
+
+        async loadReassessmentSuggestions() {
+            try {
+                const resp = await fetch('/api/v1/lean20/reassessment-suggestions');
+                const data = await resp.json();
+                this.reassessmentSuggestions = Array.isArray(data) ? data : (data.suggestions || []);
+            } catch (e) { this.reassessmentSuggestions = []; }
+        },
+
+        get latestDimScores() {
+            if (!this.latest) return {};
+            const scores = {};
+            if (this.latest.dimension_scores) {
+                this.latest.dimension_scores.forEach(ds => {
+                    scores[ds.dimension_code] = ds.level;
+                });
+            }
+            return scores;
+        },
+
+        getOurScore(code) {
+            const s = this.latestDimScores[code];
+            return s ? (s / 5 * 100) : 0;
+        },
+
+        getDimLevel(assessment, code) {
+            if (!assessment || !assessment.dimension_scores) return null;
+            const ds = assessment.dimension_scores.find(d => d.dimension_code === code);
+            return ds ? ds.level : null;
+        },
+
+        initCharts() {
+            // Radar Chart
+            const radarCtx = document.getElementById('radarChart');
+            if (!radarCtx) return;
+
+            const radarLabels = DIM_META.map(d => d.name);
+            const radarData = DIM_META.map(d => this.latestDimScores[d.code] || 0);
+            const benchmarkAvg = this.benchmark
+                ? DIM_META.map(d => this.benchmark.industry_avg[d.code] || 0)
+                : [0, 0, 0, 0, 0];
+
+            this.radarChart = new Chart(radarCtx, {
+                type: 'radar',
+                data: {
+                    labels: radarLabels,
+                    datasets: [
+                        {
+                            label: 'Current',
+                            data: radarData,
+                            borderColor: '#18181b',
+                            backgroundColor: 'rgba(24,24,27,0.08)',
+                            borderWidth: 2,
+                            pointBackgroundColor: '#18181b',
+                            pointRadius: 4,
+                        },
+                        {
+                            label: 'Industry Avg',
+                            data: benchmarkAvg,
+                            borderColor: '#d4d4d4',
+                            backgroundColor: 'rgba(212,212,212,0.05)',
+                            borderWidth: 1,
+                            borderDash: [4, 4],
+                            pointRadius: 3,
+                        },
+                    ],
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            beginAtZero: true,
+                            min: 0,
+                            max: 5,
+                            ticks: { stepSize: 1, font: { size: 10 } },
+                            pointLabels: { font: { size: 11, weight: '600' } },
+                        },
+                    },
+                    plugins: { legend: { position: 'bottom', labels: { font: { size: 11 } } } },
+                },
+            });
+
+            // Trend Chart
+            const trendCtx = document.getElementById('trendChart');
+            if (!trendCtx) return;
+
+            const sorted = [...this.assessments].sort((a, b) => a.assessment_date.localeCompare(b.assessment_date));
+            this.trendChart = new Chart(trendCtx, {
+                type: 'line',
+                data: {
+                    labels: sorted.map(a => a.assessment_date),
+                    datasets: [{
+                        label: 'Composite Index',
+                        data: sorted.map(a => a.composite_index || 0),
+                        borderColor: '#18181b',
+                        backgroundColor: 'rgba(24,24,27,0.05)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.3,
+                        pointRadius: 4,
+                        pointBackgroundColor: '#18181b',
+                    }],
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { beginAtZero: true, max: 5, ticks: { stepSize: 1 } },
+                    },
+                    plugins: { legend: { display: false } },
+                },
+            });
+        },
+    };
+}
+</script>
+</body>
+</html>

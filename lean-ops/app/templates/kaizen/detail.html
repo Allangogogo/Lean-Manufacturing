@@ -1,0 +1,327 @@
+﻿{% extends "base.html" %}
+{% block page_id %}kaizen{% endblock %}
+{% block page_title %}改善提案详情{% endblock %}
+{% block content %}
+<div x-data="kaizenDetail()" x-init="init()">
+
+  <!-- Page Header -->
+  <div class="page-header" x-show="proposal.id">
+    <div class="page-header-info">
+      <h1 x-text="proposal.title"></h1>
+      <p>
+        <span x-text="'#' + proposal.id"></span>
+        <span style="margin: 0 8px; color: var(--text-tertiary);">·</span>
+        <span x-text="'提交人：' + (proposal.submitter_name || '-')"></span>
+        <span style="margin: 0 8px; color: var(--text-tertiary);">·</span>
+        <span x-text="LeanOps.fmtDate(proposal.created_at)"></span>
+      </p>
+    </div>
+    <div class="page-header-actions">
+      <a href="/kaizen" class="btn btn-secondary">
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"/></svg>
+        返回列表
+      </a>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-spinner" x-show="loading">
+    <div class="spinner"></div>
+  </div>
+
+  <!-- Content: 2-col Layout -->
+  <div x-show="!loading && proposal.id" style="display: grid; grid-template-columns: 1fr 340px; gap: var(--space-6); align-items: start;">
+
+    <!-- LEFT: Detail Info -->
+    <div style="display: flex; flex-direction: column; gap: var(--space-5);">
+
+      <!-- Basic Info -->
+      <div class="card">
+        <div class="detail-grid">
+          <div class="detail-item">
+            <div class="detail-label">状态</div>
+            <div class="detail-value" x-html="LeanOps.statusBadge(proposal.status, {draft:{label:'草稿',class:'badge-gray'},submitted:{label:'已提交',class:'badge-info'},reviewing:{label:'审核中',class:'badge-warning'},approved:{label:'已批准',class:'badge-success'},implementing:{label:'实施中',class:'badge-primary'},verified:{label:'已验证',class:'badge-success'},closed:{label:'已关闭',class:'badge-gray'},rejected:{label:'已拒绝',class:'badge-danger'},returned:{label:'已退回',class:'badge-warning'}})"></div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">分类</div>
+            <div class="detail-value" x-text="categoryLabel(proposal.category)"></div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">优先级</div>
+            <div class="detail-value" x-html="LeanOps.priorityBadge(proposal.priority)"></div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">截止日期</div>
+            <div class="detail-value" x-text="LeanOps.fmtDate(proposal.due_date)"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Description -->
+      <div class="card" x-show="proposal.description">
+        <div class="card-title" style="font-size: var(--text-base); margin-bottom: var(--space-3);">问题描述</div>
+        <div class="card-body" style="color: var(--text-secondary); font-size: var(--text-sm); white-space: pre-wrap;" x-text="proposal.description"></div>
+      </div>
+
+      <!-- Root Cause & Solution -->
+      <div class="card" x-show="proposal.root_cause || proposal.solution">
+        <div class="card-title" style="font-size: var(--text-base); margin-bottom: var(--space-3);">根因分析与改善方案</div>
+        <div x-show="proposal.root_cause" style="margin-bottom: var(--space-4);">
+          <div class="detail-label">根本原因</div>
+          <div style="color: var(--text-secondary); font-size: var(--text-sm); white-space: pre-wrap;" x-text="proposal.root_cause"></div>
+        </div>
+        <div x-show="proposal.solution">
+          <div class="detail-label">改善方案</div>
+          <div style="color: var(--text-secondary); font-size: var(--text-sm); white-space: pre-wrap;" x-text="proposal.solution"></div>
+        </div>
+      </div>
+
+      <!-- Implementation Plan -->
+      <div class="card" x-show="proposal.implementation_plan">
+        <div class="card-title" style="font-size: var(--text-base); margin-bottom: var(--space-3);">实施计划</div>
+        <div class="card-body" style="color: var(--text-secondary); font-size: var(--text-sm); white-space: pre-wrap;" x-text="proposal.implementation_plan"></div>
+      </div>
+
+      <!-- Benefits -->
+      <div class="card" x-show="proposal.expected_benefit || proposal.actual_benefit">
+        <div class="card-title" style="font-size: var(--text-base); margin-bottom: var(--space-3);">效益</div>
+        <div class="grid-2" style="gap: var(--space-6);">
+          <div x-show="proposal.expected_benefit">
+            <div class="detail-label">预期效益</div>
+            <div style="color: var(--text-secondary); font-size: var(--text-sm);" x-text="proposal.expected_benefit"></div>
+            <div x-show="proposal.expected_saving" style="font-size: var(--text-lg); font-weight: 700; color: var(--color-primary-600); margin-top: var(--space-1);" x-text="LeanOps.fmtMoney(proposal.expected_saving)"></div>
+          </div>
+          <div x-show="proposal.actual_benefit">
+            <div class="detail-label">实际效益</div>
+            <div style="color: var(--text-secondary); font-size: var(--text-sm);" x-text="proposal.actual_benefit"></div>
+            <div x-show="proposal.actual_saving" style="font-size: var(--text-lg); font-weight: 700; color: var(--color-success-600); margin-top: var(--space-1);" x-text="LeanOps.fmtMoney(proposal.actual_saving)"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Result -->
+      <div class="card" x-show="proposal.result">
+        <div class="card-title" style="font-size: var(--text-base); margin-bottom: var(--space-3);">改善成果</div>
+        <div class="card-body" style="color: var(--text-secondary); font-size: var(--text-sm); white-space: pre-wrap;" x-text="proposal.result"></div>
+      </div>
+
+      <!-- Workflow History -->
+      <div class="card">
+        <div class="card-title" style="font-size: var(--text-base); margin-bottom: var(--space-4);">审批记录</div>
+        <div class="timeline" x-show="(proposal.workflow_history || []).length > 0">
+          <template x-for="log in proposal.workflow_history" :key="log.created_at">
+            <div class="timeline-item">
+              <div class="timeline-marker"></div>
+              <div class="timeline-content">
+                <div class="timeline-title">
+                  <span x-text="actionLabel(log.action)"></span>
+                  <span style="font-weight: 400; color: var(--text-tertiary);">→</span>
+                  <span x-text="statusLabelShort(log.to_state)"></span>
+                </div>
+                <div class="timeline-time" x-text="log.operator_name + ' · ' + LeanOps.fmtDateTime(log.created_at)"></div>
+                <div class="timeline-desc" x-show="log.comment" x-text="log.comment"></div>
+              </div>
+            </div>
+          </template>
+        </div>
+        <div x-show="!(proposal.workflow_history || []).length" style="color: var(--text-tertiary); font-size: var(--text-sm); text-align: center; padding: var(--space-4);">暂无审批记录</div>
+      </div>
+
+      <!-- Comments -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">评论 <span style="font-size: var(--text-sm); font-weight: 400; color: var(--text-tertiary);" x-text="'(' + (proposal.comments || []).length + ')'"></span></div>
+        </div>
+
+        <!-- Add Comment -->
+        <div style="margin-bottom: var(--space-4);">
+          <textarea class="form-textarea" x-model="commentText" rows="3" placeholder="添加评论..."></textarea>
+          <button class="btn btn-primary" style="margin-top: var(--space-2);" @click="addComment()" :disabled="!commentText.trim() || commentSaving">
+            <span x-show="!commentSaving">发表评论</span>
+            <span x-show="commentSaving">发送中...</span>
+          </button>
+        </div>
+
+        <!-- Comment List -->
+        <div x-show="(proposal.comments || []).length > 0" style="border-top: 1px solid var(--border-color); padding-top: var(--space-4);">
+          <template x-for="c in proposal.comments" :key="c.id">
+            <div style="padding: var(--space-3) 0; border-bottom: 1px solid var(--border-color);" x-show="c.id">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-1);">
+                <div style="display: flex; align-items: center; gap: var(--space-2);">
+                  <div class="avatar avatar-sm" style="background: var(--color-primary-500); color: white;" x-text="LeanOps.initials(c.user_name)"></div>
+                  <span style="font-size: var(--text-sm); font-weight: 600; color: var(--text-primary);" x-text="c.user_name || '用户'"></span>
+                </div>
+                <span style="font-size: var(--text-xs); color: var(--text-tertiary);" x-text="LeanOps.fmtDateTime(c.created_at)"></span>
+              </div>
+              <div style="font-size: var(--text-sm); color: var(--text-secondary); white-space: pre-wrap;" x-text="c.comment"></div>
+            </div>
+          </template>
+        </div>
+        <div x-show="(proposal.comments || []).length === 0" style="color: var(--text-tertiary); font-size: var(--text-sm); text-align: center; padding: var(--space-4);">暂无评论</div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Status & Actions Panel -->
+    <div style="display: flex; flex-direction: column; gap: var(--space-4); position: sticky; top: calc(var(--topbar-height) + var(--space-6));">
+
+      <!-- Actions -->
+      <div class="card" x-show="(proposal.allowed_actions || []).length > 0">
+        <div class="card-title" style="font-size: var(--text-base); margin-bottom: var(--space-4);">操作</div>
+        <div style="display: flex; flex-direction: column; gap: var(--space-2);">
+          <template x-for="action in proposal.allowed_actions" :key="action">
+            <button @click="executeAction(action)" class="btn" :class="actionBtnClass(action)" style="width: 100%;">
+              <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" x-show="action === 'submit'"><path d="M10 2v16m-8-8h16" stroke="currentColor" stroke-width="2" fill="none"/></svg>
+              <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" x-show="action === 'approve'"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
+              <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" x-show="action === 'reject'"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg>
+              <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" x-show="action === 'return'"><path fill-rule="evenodd" d="M15.707 15.707a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 010 1.414zm-6 0a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 011.414 1.414L5.414 10l4.293 4.293a1 1 0 010 1.414z"/></svg>
+              <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" x-show="action === 'start'"><path d="M5 3l14 7-14 7V3z"/></svg>
+              <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" x-show="action === 'complete'"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
+              <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" x-show="action === 'close'"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/></svg>
+              <span x-text="actionLabel(action)"></span>
+            </button>
+          </template>
+        </div>
+      </div>
+
+      <!-- Info Summary -->
+      <div class="card">
+        <div class="card-title" style="font-size: var(--text-base); margin-bottom: var(--space-4);">概览</div>
+        <div style="display: flex; flex-direction: column; gap: var(--space-3);">
+          <div>
+            <div class="detail-label">提案编号</div>
+            <div class="detail-value" x-text="'#' + proposal.id"></div>
+          </div>
+          <div>
+            <div class="detail-label">状态</div>
+            <div class="detail-value" x-html="LeanOps.statusBadge(proposal.status, {draft:{label:'草稿',class:'badge-gray'},submitted:{label:'已提交',class:'badge-info'},reviewing:{label:'审核中',class:'badge-warning'},approved:{label:'已批准',class:'badge-success'},implementing:{label:'实施中',class:'badge-primary'},verified:{label:'已验证',class:'badge-success'},closed:{label:'已关闭',class:'badge-gray'},rejected:{label:'已拒绝',class:'badge-danger'},returned:{label:'已退回',class:'badge-warning'}})"></div>
+          </div>
+          <div>
+            <div class="detail-label">分类</div>
+            <div class="detail-value" x-text="categoryLabel(proposal.category)"></div>
+          </div>
+          <div>
+            <div class="detail-label">优先级</div>
+            <div class="detail-value" x-html="LeanOps.priorityBadge(proposal.priority)"></div>
+          </div>
+          <div>
+            <div class="detail-label">提交人</div>
+            <div class="detail-value" style="display: flex; align-items: center; gap: var(--space-2);">
+              <div class="avatar avatar-sm" style="background: var(--color-primary-500); color: white;" x-text="LeanOps.initials(proposal.submitter_name)"></div>
+              <span x-text="proposal.submitter_name || '-'"></span>
+            </div>
+          </div>
+          <div x-show="proposal.expected_saving">
+            <div class="detail-label">预期节约</div>
+            <div class="detail-value" style="font-weight: 600; color: var(--color-primary-600);" x-text="LeanOps.fmtMoney(proposal.expected_saving)"></div>
+          </div>
+          <div>
+            <div class="detail-label">提交日期</div>
+            <div class="detail-value" x-text="LeanOps.fmtDate(proposal.created_at)"></div>
+          </div>
+          <div x-show="proposal.due_date">
+            <div class="detail-label">截止日期</div>
+            <div class="detail-value" x-text="LeanOps.fmtDate(proposal.due_date)"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Action Modal -->
+  <div class="modal-overlay" x-show="showActionModal" @click.away="showActionModal = false">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title" x-text="actionLabel(currentAction)"></div>
+        <button class="modal-close" @click="showActionModal = false">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">审批意见（可选）</label>
+          <textarea class="form-textarea" x-model="actionComment" rows="3" placeholder="输入审批意见..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" @click="showActionModal = false">取消</button>
+        <button class="btn" :class="actionBtnClass(currentAction)" @click="confirmAction()" x-text="actionLabel(currentAction)"></button>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+function kaizenDetail() {
+  const id = window.location.pathname.split('/').pop();
+  return {
+    proposal: {},
+    loading: true,
+    commentText: '',
+    commentSaving: false,
+    showActionModal: false,
+    currentAction: '',
+    actionComment: '',
+    async init() {
+      try {
+        const data = await LeanOps.api('/kaizen/' + id);
+        this.proposal = data.data || {};
+      } catch (e) {
+        LeanOps.toast('加载失败', 'error');
+      } finally {
+        this.loading = false;
+      }
+    },
+    async addComment() {
+      if (!this.commentText.trim()) return;
+      this.commentSaving = true;
+      try {
+        await LeanOps.api('/kaizen/' + id + '/comment', {
+          method: 'POST',
+          body: JSON.stringify({ comment: this.commentText.trim() }),
+        });
+        this.commentText = '';
+        await this.init();
+        LeanOps.toast('评论已发表', 'success');
+      } catch (e) {
+        LeanOps.toast(e.detail || '评论失败', 'error');
+      } finally {
+        this.commentSaving = false;
+      }
+    },
+    executeAction(action) {
+      this.currentAction = action;
+      this.actionComment = '';
+      this.showActionModal = true;
+    },
+    async confirmAction() {
+      this.showActionModal = false;
+      try {
+        await LeanOps.api('/kaizen/' + id + '/action', {
+          method: 'POST',
+          body: JSON.stringify({ action: this.currentAction, comment: this.actionComment || null }),
+        });
+        await this.init();
+        LeanOps.toast('操作成功', 'success');
+      } catch (e) {
+        LeanOps.toast(e.detail || '操作失败', 'error');
+      }
+    },
+    actionLabel(a) {
+      return { submit: '提交审核', approve: '批准', reject: '拒绝', return: '退回', start: '开始实施', complete: '完成验证', close: '关闭' }[a] || a;
+    },
+    actionBtnClass(a) {
+      return { submit: 'btn-primary', approve: 'btn-success', reject: 'btn-danger', return: 'btn-warning', start: 'btn-primary', complete: 'btn-success', close: 'btn-secondary' }[a] || 'btn-secondary';
+    },
+    statusLabelShort(s) {
+      return { draft: '草稿', submitted: '已提交', reviewing: '审核中', approved: '已批准', implementing: '实施中', verified: '已验证', closed: '已关闭', rejected: '已拒绝', returned: '已退回' }[s] || s;
+    },
+    categoryLabel(c) {
+      return { quality: '质量', cost: '成本', delivery: '交期', safety: '安全', morale: '士气', environment: '环保' }[c] || c;
+    },
+  };
+}
+</script>
+{% endblock %}

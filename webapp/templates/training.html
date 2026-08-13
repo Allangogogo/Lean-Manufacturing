@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+{% from "partials/_head.html" import head %}{{ head('培训管理') }}
+</head>
+<body class="min-h-screen" x-data="trainingPage()" x-init="init()">
+<div class="flex min-h-screen">
+{% set active_nav = 'training' %}
+{% include "partials/_sidebar.html" %}
+<div class="flex-1 ml-56">
+    <header class="bg-white border-b border-[var(--border)] px-8 py-3 flex items-center justify-between sticky top-0 z-30">
+        <div class="flex items-center gap-3">
+            <h1 class="text-base font-semibold">培训管理</h1>
+            <span class="text-xs text-[var(--text-tertiary)] mono" x-text="sessions.length + ' sessions'"></span>
+        </div>
+    </header>
+    <main class="p-8 space-y-6">
+        <!-- Stats -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="card p-4">
+                <p class="text-xs text-[var(--text-tertiary)] uppercase tracking-wider">Total Sessions</p>
+                <p class="stat-num text-[var(--text-primary)]" x-text="sessions.length"></p>
+            </div>
+            <div class="card p-4">
+                <p class="text-xs text-[var(--text-tertiary)] uppercase tracking-wider">Completed</p>
+                <p class="stat-num text-[var(--positive)]" x-text="sessions.filter(s => s.status === 'completed').length"></p>
+            </div>
+            <div class="card p-4">
+                <p class="text-xs text-[var(--text-tertiary)] uppercase tracking-wider">Scheduled</p>
+                <p class="stat-num text-[var(--warning)]" x-text="sessions.filter(s => s.status === 'scheduled').length"></p>
+            </div>
+            <div class="card p-4">
+                <p class="text-xs text-[var(--text-tertiary)] uppercase tracking-wider">Enrollments</p>
+                <p class="stat-num text-[var(--text-primary)]" x-text="enrollments.length"></p>
+            </div>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="card p-4 flex items-center gap-3">
+            <div class="flex-1">
+                <input type="text" x-model="search" placeholder="Search training..." class="w-full px-3 py-2 text-sm bg-[var(--bg)] border border-[var(--border)] rounded-lg text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:border-[#d4d4d4] outline-none">
+            </div>
+            <select x-model="filterStatus" class="px-3 py-2 text-sm bg-white border border-[var(--border)] rounded-lg text-[var(--text-primary)] focus:border-[#d4d4d4] outline-none">
+                <option value="">All Status</option>
+                <option value="completed">Completed</option>
+                <option value="scheduled">Scheduled</option>
+                <option value="in_progress">In Progress</option>
+            </select>
+            <select x-model="filterType" class="px-3 py-2 text-sm bg-white border border-[var(--border)] rounded-lg text-[var(--text-primary)] focus:border-[#d4d4d4] outline-none">
+                <option value="">All Types</option>
+                <option value="5S">5S</option>
+                <option value="TPM">TPM</option>
+                <option value="Lean Core">Lean Core</option>
+                <option value="Quality">Quality</option>
+                <option value="Kaizen">Kaizen</option>
+                <option value="Digital">Digital</option>
+            </select>
+        </div>
+
+        <!-- Sessions Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <template x-for="s in filteredSessions" :key="s.id">
+                <div class="card p-5">
+                    <div class="flex items-start justify-between mb-4">
+                        <div>
+                            <h3 class="font-semibold text-sm text-[var(--text-primary)]" x-text="s.title"></h3>
+                            <p class="text-xs text-[var(--text-tertiary)] mt-0.5" x-text="s.description"></p>
+                        </div>
+                        <span class="pill shrink-0" :class="s.status === 'completed' ? 'bg-green-50 text-[var(--positive)]' : s.status === 'scheduled' ? 'bg-orange-50 text-[var(--warning)]' : 'bg-[#f4f4f5] text-[var(--text-primary)]'" x-text="s.status"></span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3 text-sm">
+                        <div>
+                            <span class="text-[var(--text-tertiary)] text-xs">Type</span>
+                            <p class="font-medium text-[var(--text-primary)]" x-text="s.training_type"></p>
+                        </div>
+                        <div>
+                            <span class="text-[var(--text-tertiary)] text-xs">Level</span>
+                            <p class="font-medium text-[var(--text-primary)] capitalize" x-text="s.level"></p>
+                        </div>
+                        <div>
+                            <span class="text-[var(--text-tertiary)] text-xs">Date</span>
+                            <p class="font-medium text-[var(--text-primary)] mono" x-text="s.scheduled_date"></p>
+                        </div>
+                        <div>
+                            <span class="text-[var(--text-tertiary)] text-xs">Duration</span>
+                            <p class="font-medium text-[var(--text-primary)] mono" x-text="s.duration_hours + 'h'"></p>
+                        </div>
+                        <div>
+                            <span class="text-[var(--text-tertiary)] text-xs">Location</span>
+                            <p class="font-medium text-[var(--text-primary)]" x-text="s.location"></p>
+                        </div>
+                        <div>
+                            <span class="text-[var(--text-tertiary)] text-xs">Capacity</span>
+                            <p class="font-medium text-[var(--text-primary)] mono">
+                                <span x-text="getEnrollmentCount(s.id)"></span>/<span x-text="s.max_participants"></span>
+                            </p>
+                        </div>
+                    </div>
+                    <!-- Materials -->
+                    <div x-show="getMaterials(s.id).length > 0" class="mt-4 pt-4 border-t border-[var(--border)]">
+                        <p class="text-xs text-[var(--text-tertiary)] uppercase tracking-wider mb-2">Materials</p>
+                        <div class="flex flex-wrap gap-1.5">
+                            <template x-for="m in getMaterials(s.id)" :key="m.id">
+                                <span class="pill bg-[#f4f4f5] text-[var(--text-secondary)]">
+                                    <span class="mono mr-1" x-text="m.material_type === 'document' ? 'DOC' : m.material_type === 'video' ? 'VID' : 'IMG'"></span>
+                                    <span x-text="m.material_name"></span>
+                                </span>
+                            </template>
+                        </div>
+                    </div>
+                    <!-- Score (if completed) -->
+                    <div x-show="s.status === 'completed'" class="mt-4 pt-4 border-t border-[var(--border)] flex items-center gap-6">
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs text-[var(--text-tertiary)]">Pass Score</span>
+                            <span class="text-sm font-bold text-[var(--text-primary)] mono" x-text="s.pass_score + '%'"></span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs text-[var(--text-tertiary)]">Avg Score</span>
+                            <span class="text-sm font-bold text-[var(--positive)] mono" x-text="getAvgScore(s.id) + '%'"></span>
+                        </div>
+                    </div>
+                </div>
+            </template>
+        </div>
+
+        <!-- Enrollment Records -->
+        <div class="card p-5">
+            <h3 class="font-semibold text-sm text-[var(--text-primary)] mb-4">Enrollment Records</h3>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="border-b border-[var(--border)]">
+                            <th class="text-left py-2 px-3 text-xs font-medium text-[var(--text-tertiary)] uppercase tracking-wider">Session</th>
+                            <th class="text-left py-2 px-3 text-xs font-medium text-[var(--text-tertiary)] uppercase tracking-wider">User</th>
+                            <th class="text-left py-2 px-3 text-xs font-medium text-[var(--text-tertiary)] uppercase tracking-wider">Status</th>
+                            <th class="text-left py-2 px-3 text-xs font-medium text-[var(--text-tertiary)] uppercase tracking-wider">Score</th>
+                            <th class="text-left py-2 px-3 text-xs font-medium text-[var(--text-tertiary)] uppercase tracking-wider">Certified</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <template x-for="e in enrollments.slice(0, 20)" :key="e.id">
+                            <tr class="border-b border-[var(--border)] hover:bg-[#fafafa] transition-colors">
+                                <td class="py-2 px-3 text-[var(--text-primary)]" x-text="getSessionTitle(e.session_id)"></td>
+                                <td class="py-2 px-3 text-[var(--text-secondary)] mono" x-text="'User #' + e.user_id"></td>
+                                <td class="py-2 px-3">
+                                    <span class="pill" :class="e.status === 'completed' ? 'bg-green-50 text-[var(--positive)]' : 'bg-orange-50 text-[var(--warning)]'" x-text="e.status"></span>
+                                </td>
+                                <td class="py-2 px-3 font-medium mono" :class="e.score ? 'text-[var(--text-primary)]' : 'text-[var(--text-tertiary)]'" x-text="e.score ? e.score + '%' : '-'"></td>
+                                <td class="py-2 px-3 text-[var(--text-secondary)]" x-text="e.certified_at ? 'Yes' : '-'"></td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</div>
+</div>
+<script>
+function trainingPage() {
+    return {
+        sessions: [],
+        enrollments: [],
+        materials: [],
+        search: '',
+        filterStatus: '',
+        filterType: '',
+
+        async init() {
+            await Promise.all([this.loadSessions(), this.loadEnrollments(), this.loadMaterials()]);
+        },
+
+        async loadSessions() {
+            try {
+                const res = await fetch('/api/v1/training/sessions');
+                this.sessions = await res.json();
+            } catch(e) { console.error(e); }
+        },
+        async loadEnrollments() {
+            try {
+                const res = await fetch('/api/v1/training/enrollments');
+                this.enrollments = await res.json();
+            } catch(e) { console.error(e); }
+        },
+        async loadMaterials() {
+            try {
+                const res = await fetch('/api/v1/training/materials');
+                this.materials = await res.json();
+            } catch(e) { console.error(e); }
+        },
+
+        get filteredSessions() {
+            return this.sessions.filter(s => {
+                if (this.search && !s.title.toLowerCase().includes(this.search.toLowerCase())) return false;
+                if (this.filterStatus && s.status !== this.filterStatus) return false;
+                if (this.filterType && s.training_type !== this.filterType) return false;
+                return true;
+            });
+        },
+
+        getEnrollmentCount(sid) {
+            return this.enrollments.filter(e => e.session_id === sid).length;
+        },
+        getMaterials(sid) {
+            return this.materials.filter(m => m.session_id === sid);
+        },
+        getAvgScore(sid) {
+            const scores = this.enrollments.filter(e => e.session_id === sid && e.score);
+            if (!scores.length) return '-';
+            return Math.round(scores.reduce((a, b) => a + b.score, 0) / scores.length);
+        },
+        getSessionTitle(sid) {
+            const s = this.sessions.find(s => s.id === sid);
+            return s ? s.title : 'Session #' + sid;
+        }
+    }
+}
+</script>
+</body>
+</html>

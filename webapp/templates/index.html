@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>精益运营平台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #fafafa;
+            --surface: #ffffff;
+            --border: #e8e8e8;
+            --text-primary: #1a1a1a;
+            --text-secondary: #666;
+            --text-tertiary: #999;
+            --accent: #18181b;
+            --accent-hover: #27272a;
+            --positive: #16a34a;
+            --warning: #ea580c;
+            --negative: #dc2626;
+            --info: #2563eb;
+        }
+        * { font-family: 'Inter', 'Microsoft YaHei', system-ui, sans-serif; }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        body { background: var(--bg); color: var(--text-primary); }
+        [x-cloak] { display: none !important; }
+
+        /* Minimal card style */
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            transition: border-color 0.15s ease;
+        }
+        .card:hover { border-color: #d4d4d4; }
+
+        /* Sidebar */
+        .sidebar-link {
+            display: flex; align-items: center; gap: 10px;
+            padding: 7px 12px; border-radius: 8px;
+            font-size: 13px; font-weight: 500;
+            color: var(--text-secondary);
+            transition: all 0.12s ease;
+        }
+        .sidebar-link:hover { background: #f4f4f5; color: var(--text-primary); }
+        .sidebar-link.active { background: var(--accent); color: white; }
+
+        /* Pill badge */
+        .pill {
+            display: inline-flex; align-items: center;
+            padding: 2px 8px; border-radius: 999px;
+            font-size: 11px; font-weight: 500;
+        }
+
+        /* Progress bar */
+        .bar { height: 4px; border-radius: 2px; background: #f0f0f0; overflow: hidden; }
+        .bar > div { height: 100%; border-radius: 2px; transition: width 0.3s ease; }
+
+        /* Tab */
+        .tab { padding: 6px 14px; border-radius: 8px; font-size: 13px; font-weight: 500; color: var(--text-secondary); cursor: pointer; transition: all 0.12s; }
+        .tab:hover { color: var(--text-primary); }
+        .tab.active { background: var(--accent); color: white; }
+
+        /* Number display */
+        .stat-num { font-size: 28px; font-weight: 700; letter-spacing: -0.02em; line-height: 1; }
+
+        /* Fade in */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        .fade-in { animation: fadeIn 0.3s ease-out; }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #d4d4d4; border-radius: 3px; }
+    </style>
+</head>
+<body class="min-h-screen" x-data="{ tab: 'overview' }">
+
+    <div class="flex min-h-screen">
+
+        <!-- ===== SIDEBAR ===== -->
+        <aside class="w-56 bg-white border-r border-[var(--border)] flex flex-col fixed h-screen z-40">
+            <!-- Logo -->
+            <div class="px-5 py-5 border-b border-[var(--border)]">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 bg-[var(--accent)] rounded-lg flex items-center justify-center">
+                        <span class="text-white font-bold text-sm">L</span>
+                    </div>
+                    <div>
+                        <div class="text-sm font-bold text-[var(--text-primary)]">精益运营</div>
+                        <div class="text-[10px] text-[var(--text-tertiary)] mono">v2.0</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Nav -->
+            <nav class="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
+                <div class="text-[10px] font-semibold text-[var(--text-tertiary)] uppercase tracking-wider px-3 mb-2">概览</div>
+                <a href="/" class="sidebar-link active">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"/></svg>
+                    仪表盘
+                </a>
+
+                <div class="text-[10px] font-semibold text-[var(--text-tertiary)] uppercase tracking-wider px-3 mb-2 mt-5">评估</div>
+                <a href="/lean20" class="sidebar-link">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                    Lean 2.0 雷达
+                </a>
+                <a href="/pillars" class="sidebar-link">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+                    价值支柱
+                </a>
+                <a href="/automation" class="sidebar-link">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                    自动化成熟度
+                </a>
+                <a href="/assessment" class="sidebar-link">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                    传统评估
+                </a>
+
+                <div class="text-[10px] font-semibold text-[var(--text-tertiary)] uppercase tracking-wider px-3 mb-2 mt-5">执行</div>
+                <a href="/projects" class="sidebar-link">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2a4 4 0 00-4-4H3m18 6V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2z"/></svg>
+                    项目看板
+                </a>
+                <a href="/tpm" class="sidebar-link">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    TPM 设备
+                </a>
+                <a href="/fives-kaizen" class="sidebar-link">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
+                    5S & Kaizen
+                </a>
+                <a href="/training-page" class="sidebar-link">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/></svg>
+                    培训管理
+                </a>
+                <a href="/best-practices" class="sidebar-link">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
+                    最佳实践
+                </a>
+                <a href="/implementation" class="sidebar-link">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 66l6-6m0 0l6-6m-6 6V6"/></svg>
+                    实施追踪
+                </a>
+            </nav>
+
+            <!-- Footer -->
+            <div class="px-4 py-3 border-t border-[var(--border)]">
+                <div class="flex items-center gap-2 text-xs text-[var(--text-tertiary)]">
+                    <div class="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+                    <span>系统运行中</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- ===== MAIN ===== -->
+        <div class="flex-1 ml-56">
+
+            <!-- Top Bar -->
+            <header class="bg-white border-b border-[var(--border)] px-8 py-3 flex items-center justify-between sticky top-0 z-30">
+                <div class="flex items-center gap-3">
+                    <h1 class="text-base font-semibold">仪表盘</h1>
+                    <span class="text-xs text-[var(--text-tertiary)] mono">{{ latest_assessment.assessment_date if latest_assessment else 'N/A' }}</span>
+                </div>
+                <div class="flex items-center gap-3">
+                    <form action="/search" method="get">
+                        <input type="text" name="q" placeholder="搜索..."
+                            class="w-56 text-sm bg-[#f4f4f5] border border-transparent rounded-lg px-3 py-1.5 focus:bg-white focus:border-[var(--border)] outline-none transition">
+                    </form>
+                </div>
+            </header>
+
+            <!-- Content -->
+            <main class="p-8 space-y-6">
+
+                {% if error %}
+                <div class="card p-4 border-red-200 bg-red-50 text-sm text-red-700">{{ error }}</div>
+                {% endif %}
+
+                <!-- ============ TAB BAR ============ -->
+                <div class="flex items-center gap-1">
+                    <div class="tab" :class="tab==='overview' && 'active'" @click="tab='overview'">总览</div>
+                    <div class="tab" :class="tab==='maturity' && 'active'" @click="tab='maturity'">成熟度</div>
+                    <div class="tab" :class="tab==='execution' && 'active'" @click="tab='execution'">执行</div>
+                    <div class="tab" :class="tab==='knowledge' && 'active'" @click="tab='knowledge'">知识库</div>
+                </div>
+
+                <!-- ============ TAB: OVERVIEW ============ -->
+                <div x-show="tab==='overview'" x-cloak class="fade-in space-y-6">
+
+                    <!-- Key Metrics Row -->
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                        <!-- Composite Maturity -->
+                        <div class="card p-5">
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="text-xs font-medium text-[var(--text-secondary)]">综合成熟度</span>
+                                {% if latest_assessment %}
+                                <span class="pill bg-[var(--accent)] text-white">{{ latest_assessment.overall_level }}</span>
+                                {% else %}
+                                <span class="pill bg-gray-100 text-gray-500">未评估</span>
+                                {% endif %}
+                            </div>
+                            <div class="flex items-baseline gap-1">
+                                <span class="stat-num">{% if latest_assessment %}{{ latest_assessment.composite_index }}{% else %}--{% endif %}</span>
+                                <span class="text-sm text-[var(--text-tertiary)]">/ 5.0</span>
+                            </div>
+                            <div class="bar mt-3">
+                                <div class="bg-[var(--accent)]" style="width: {% if latest_assessment %}{{ (latest_assessment.composite_index / 5 * 100) | int }}{% else %}0{% endif %}%"></div>
+                            </div>
+                            <div class="flex justify-between text-[10px] text-[var(--text-tertiary)] mt-1">
+                                <span>L1 初始</span><span>L3 成熟</span><span>L5 卓越</span>
+                            </div>
+                        </div>
+
+                        <!-- Automation Maturity -->
+                        <div class="card p-5">
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="text-xs font-medium text-[var(--text-secondary)]">自动化成熟度</span>
+                                {% if auto_maturity %}
+                                <span class="pill bg-blue-100 text-blue-700">L{{ auto_maturity.maturity_level }}</span>
+                                {% else %}
+                                <span class="pill bg-gray-100 text-gray-500">未评估</span>
+                                {% endif %}
+                            </div>
+                            <div class="flex items-baseline gap-1">
+                                <span class="stat-num">{% if auto_maturity %}{{ auto_maturity.composite_score }}{% else %}--{% endif %}</span>
+                                <span class="text-sm text-[var(--text-tertiary)]">/ 5.0</span>
+                            </div>
+                            <div class="bar mt-3">
+                                <div class="bg-blue-500" style="width: {% if auto_maturity %}{{ (auto_maturity.composite_score / 5 * 100) | int }}{% else %}0{% endif %}%"></div>
+                            </div>
+                            <div class="text-[10px] text-[var(--text-tertiary)] mt-1">5工序维度综合评分</div>
+                        </div>
+
+                        <!-- Active Projects -->
+                        <div class="card p-5">
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="text-xs font-medium text-[var(--text-secondary)]">活跃项目</span>
+                                <span class="pill bg-violet-100 text-violet-700">{{ project_active }} 规划中</span>
+                            </div>
+                            <div class="flex items-baseline gap-1">
+                                <span class="stat-num">{{ project_count }}</span>
+                                <span class="text-sm text-[var(--text-tertiary)]">个</span>
+                            </div>
+                            <div class="bar mt-3">
+                                <div class="bg-violet-500" style="width: {{ [project_count * 9, 100] | min }}%"></div>
+                            </div>
+                            <div class="text-[10px] text-[var(--text-tertiary)] mt-1">10 规划中 · 1 已完成</div>
+                        </div>
+
+                        <!-- Kaizen Savings -->
+                        <div class="card p-5">
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="text-xs font-medium text-[var(--text-secondary)]">改善预期收益</span>
+                                <span class="pill bg-green-100 text-green-700">{{ kaizen_count }} 提案</span>
+                            </div>
+                            <div class="flex items-baseline gap-1">
+                                <span class="stat-num">41.7</span>
+                                <span class="text-sm text-[var(--text-tertiary)]">万元/年</span>
+                            </div>
+                            <div class="bar mt-3">
+                                <div class="bg-green-500" style="width: 65%"></div>
+                            </div>
+                            <div class="text-[10px] text-[var(--text-tertiary)] mt-1">2 已完成 · 2 审批中 · 2 实施中</div>
+                        </div>
+                    </div>
+
+                    <!-- Radar + Side Panel -->
+                    <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+
+                        <!-- Big Radar -->
+                        <div class="card p-6 lg:col-span-3">
+                            <div class="flex items-center justify-between mb-5">
+                                <div>
+                                    <h3 class="text-sm font-semibold">Lean 2.0 五维度雷达</h3>
+                                    <p class="text-xs text-[var(--text-tertiary)] mt-0.5">O 运营 · D 数字 · G 绿色 · R 韧性 · H 人本</p>
+                                </div>
+                                <a href="/lean20" class="text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)]">详细 →</a>
+                            </div>
+                            <div style="height: 340px"><canvas id="radarChart"></canvas></div>
+
+                            <!-- Dimension Score Cards -->
+                            <div class="grid grid-cols-5 gap-2 mt-5">
+                                {% set dim_colors = {'O': '#18181b', 'D': '#2563eb', 'G': '#16a34a', 'R': '#ea580c', 'H': '#9333ea'} %}
+                                {% set dim_names = {'O': '运营', 'D': '数字', 'G': '绿色', 'R': '韧性', 'H': '人本'} %}
+                                {% set dim_weights = {'O': '30%', 'D': '25%', 'G': '20%', 'R': '15%', 'H': '10%'} %}
+                                {% for code in ['O','D','G','R','H'] %}
+                                {% set score = dim_scores | selectattr('dimension_code', 'equalto', code) | list %}
+                                <div class="text-center p-3 rounded-lg border border-[var(--border)]">
+                                    <div class="text-[10px] font-semibold text-[var(--text-tertiary)]">{{ code }}</div>
+                                    <div class="text-xs text-[var(--text-secondary)] mt-0.5">{{ dim_names[code] }}</div>
+                                    <div class="text-xl font-bold mt-1" style="color: {{ dim_colors[code] }}">
+                                        {% if score %}{{ score[0].level }}{% else %}--{% endif %}
+                                    </div>
+                                    <div class="text-[10px] text-[var(--text-tertiary)] mono">{{ dim_weights[code] }}</div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- Right: Value Pillars + Auto Radar -->
+                        <div class="lg:col-span-2 space-y-6">
+                            <!-- Pillars -->
+                            <div class="card p-5">
+                                <div class="flex items-center justify-between mb-4">
+                                    <h3 class="text-sm font-semibold">价值支柱</h3>
+                                    <a href="/pillars" class="text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)]">→</a>
+                                </div>
+                                <div class="space-y-3">
+                                    {% for p in pillars %}
+                                    <div class="flex items-center justify-between p-3 rounded-lg" style="background-color: {{ p.color }}08; border-left: 3px solid {{ p.color }}">
+                                        <div>
+                                            <div class="text-sm font-semibold" style="color: {{ p.color }}">{{ p.name_en }}</div>
+                                            <div class="text-xs text-[var(--text-secondary)]">{{ p.name }}</div>
+                                        </div>
+                                        <div class="text-right">
+                                            <div class="text-lg font-bold" style="color: {{ p.color }}">{{ p.target_composite }}</div>
+                                            <div class="text-[10px] text-[var(--text-tertiary)]">目标</div>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+
+                            <!-- Auto Radar -->
+                            <div class="card p-5">
+                                <div class="flex items-center justify-between mb-3">
+                                    <h3 class="text-sm font-semibold">自动化雷达</h3>
+                                    <a href="/automation" class="text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)]">→</a>
+                                </div>
+                                <div style="height: 200px"><canvas id="autoRadar"></canvas></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ============ TAB: MATURITY ============ -->
+                <div x-show="tab==='maturity'" x-cloak class="fade-in space-y-6">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- 5S Audit Scores -->
+                        <div class="card p-6">
+                            <h3 class="text-sm font-semibold mb-4">5S 审计得分率</h3>
+                            <div style="height: 240px"><canvas id="fiveSChart"></canvas></div>
+                            <div class="text-xs text-[var(--text-tertiary)] mt-3">7个区域平均得分率 63-66%，均有提升空间</div>
+                        </div>
+
+                        <!-- Automation Breakdown -->
+                        <div class="card p-6">
+                            <h3 class="text-sm font-semibold mb-4">自动化工序评分</h3>
+                            {% if auto_maturity %}
+                            <div class="space-y-3">
+                                {% set auto_dims = [
+                                    {'key': 'quality_score', 'name': '质量检测', 'score': auto_maturity.quality_score, 'color': '#2563eb'},
+                                    {'key': 'tooling_score', 'name': '工装模具', 'score': auto_maturity.tooling_score, 'color': '#7c3aed'},
+                                    {'key': 'feeding_score', 'name': '自动送料', 'score': auto_maturity.feeding_score, 'color': '#16a34a'},
+                                    {'key': 'heat_treatment_score', 'name': '热处理', 'score': auto_maturity.heat_treatment_score, 'color': '#ea580c'},
+                                    {'key': 'logistics_score', 'name': '物流搬运', 'score': auto_maturity.logistics_score, 'color': '#dc2626'}
+                                ] %}
+                                {% for d in auto_dims %}
+                                <div>
+                                    <div class="flex items-center justify-between mb-1.5">
+                                        <span class="text-sm text-[var(--text-secondary)]">{{ d.name }}</span>
+                                        <span class="text-sm font-semibold mono" style="color: {{ d.color }}">{{ d.score }}/5</span>
+                                    </div>
+                                    <div class="bar">
+                                        <div style="width: {{ (d.score / 5 * 100) | int }}%; background: {{ d.color }}"></div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            <div class="mt-4 pt-4 border-t border-[var(--border)] flex justify-between text-xs">
+                                <span class="text-[var(--text-tertiary)]">综合评分</span>
+                                <span class="font-bold mono">{{ auto_maturity.composite_score }} / L{{ auto_maturity.maturity_level }}</span>
+                            </div>
+                            {% else %}
+                            <div class="text-center text-[var(--text-tertiary)] py-16 text-sm">暂无评估数据</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Assessment History -->
+                    <div class="card p-6">
+                        <h3 class="text-sm font-semibold mb-4">评估历史趋势</h3>
+                        <div style="height: 200px"><canvas id="trendChart"></canvas></div>
+                    </div>
+                </div>
+
+                <!-- ============ TAB: EXECUTION ============ -->
+                <div x-show="tab==='execution'" x-cloak class="fade-in space-y-6">
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                        <!-- Project Status -->
+                        <div class="card p-5">
+                            <span class="text-xs font-medium text-[var(--text-secondary)]">项目状态</span>
+                            <div class="stat-num mt-2">{{ project_count }}</div>
+                            <div class="text-xs text-[var(--text-tertiary)] mt-1">10 规划 · 1 完成</div>
+                            <div class="flex gap-1 mt-3">
+                                <div class="flex-1 h-1.5 bg-violet-400 rounded" style="flex: 10"></div>
+                                <div class="h-1.5 bg-green-400 rounded" style="flex: 1"></div>
+                            </div>
+                        </div>
+                        <!-- Equipment -->
+                        <div class="card p-5">
+                            <span class="text-xs font-medium text-[var(--text-secondary)]">设备状态</span>
+                            <div class="stat-num mt-2">{{ tpm_equipment_count }}</div>
+                            <div class="text-xs text-[var(--text-tertiary)] mt-1">8 运行 · 1 维保 · 1 闲置</div>
+                            <div class="flex gap-1 mt-3">
+                                <div class="flex-1 h-1.5 bg-green-400 rounded" style="flex: 8"></div>
+                                <div class="h-1.5 bg-amber-400 rounded" style="flex: 1"></div>
+                                <div class="h-1.5 bg-gray-300 rounded" style="flex: 1"></div>
+                            </div>
+                        </div>
+                        <!-- Kaizen -->
+                        <div class="card p-5">
+                            <span class="text-xs font-medium text-[var(--text-secondary)]">改善提案</span>
+                            <div class="stat-num mt-2">{{ kaizen_count }}</div>
+                            <div class="text-xs text-[var(--text-tertiary)] mt-1">2 已完成 · 2 审批 · 2 实施</div>
+                            <div class="flex gap-1 mt-3">
+                                <div class="flex-1 h-1.5 bg-green-400 rounded" style="flex: 2"></div>
+                                <div class="h-1.5 bg-blue-400 rounded" style="flex: 2"></div>
+                                <div class="h-1.5 bg-amber-400 rounded" style="flex: 2"></div>
+                                <div class="h-1.5 bg-gray-300 rounded" style="flex: 2"></div>
+                            </div>
+                        </div>
+                        <!-- Training -->
+                        <div class="card p-5">
+                            <span class="text-xs font-medium text-[var(--text-secondary)]">培训课程</span>
+                            <div class="stat-num mt-2">{{ training_count }}</div>
+                            <div class="text-xs text-[var(--text-tertiary)] mt-1">3 已完成 · 3 待开</div>
+                            <div class="flex gap-1 mt-3">
+                                <div class="flex-1 h-1.5 bg-green-400 rounded" style="flex: 3"></div>
+                                <div class="h-1.5 bg-violet-400 rounded" style="flex: 3"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Project List + Equipment List -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="card p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-sm font-semibold">项目优先级分布</h3>
+                                <a href="/projects" class="text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)]">看板 →</a>
+                            </div>
+                            <div style="height: 200px"><canvas id="projectChart"></canvas></div>
+                        </div>
+                        <div class="card p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-sm font-semibold">设备运行状态</h3>
+                                <a href="/tpm" class="text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)]">详细 →</a>
+                            </div>
+                            <div style="height: 200px"><canvas id="equipChart"></canvas></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ============ TAB: KNOWLEDGE ============ -->
+                <div x-show="tab==='knowledge'" x-cloak class="fade-in space-y-6">
+                    <!-- KPI Targets -->
+                    <div class="card p-6">
+                        <h3 class="text-sm font-semibold mb-5">关键指标达成度</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-5">
+                            <div>
+                                <div class="flex items-baseline justify-between mb-2">
+                                    <span class="text-sm font-medium">OEE</span>
+                                    <div class="text-right">
+                                        <span class="text-lg font-bold text-[var(--accent)]">85%</span>
+                                        <span class="text-xs text-[var(--text-tertiary)] ml-1">/ 72%</span>
+                                    </div>
+                                </div>
+                                <div class="bar"><div class="bg-[var(--accent)]" style="width: 72%"></div></div>
+                            </div>
+                            <div>
+                                <div class="flex items-baseline justify-between mb-2">
+                                    <span class="text-sm font-medium">换型时间</span>
+                                    <div class="text-right">
+                                        <span class="text-lg font-bold text-green-600">15min</span>
+                                        <span class="text-xs text-[var(--text-tertiary)] ml-1">/ 60min</span>
+                                    </div>
+                                </div>
+                                <div class="bar"><div class="bg-green-500" style="width: 25%"></div></div>
+                            </div>
+                            <div>
+                                <div class="flex items-baseline justify-between mb-2">
+                                    <span class="text-sm font-medium">缺陷逃逸率</span>
+                                    <div class="text-right">
+                                        <span class="text-lg font-bold text-red-600">0.5%</span>
+                                        <span class="text-xs text-[var(--text-tertiary)] ml-1">/ 2.3%</span>
+                                    </div>
+                                </div>
+                                <div class="bar"><div class="bg-red-500" style="width: 78%"></div></div>
+                            </div>
+                            <div>
+                                <div class="flex items-baseline justify-between mb-2">
+                                    <span class="text-sm font-medium">培训覆盖率</span>
+                                    <div class="text-right">
+                                        <span class="text-lg font-bold text-violet-600">100%</span>
+                                        <span class="text-xs text-[var(--text-tertiary)] ml-1">/ 45%</span>
+                                    </div>
+                                </div>
+                                <div class="bar"><div class="bg-violet-500" style="width: 45%"></div></div>
+                            </div>
+                            <div>
+                                <div class="flex items-baseline justify-between mb-2">
+                                    <span class="text-sm font-medium">成熟度等级</span>
+                                    <div class="text-right">
+                                        <span class="text-lg font-bold text-amber-600">L4</span>
+                                        <span class="text-xs text-[var(--text-tertiary)] ml-1">/ L2</span>
+                                    </div>
+                                </div>
+                                <div class="bar"><div class="bg-amber-500" style="width: 50%"></div></div>
+                            </div>
+                            <div>
+                                <div class="flex items-baseline justify-between mb-2">
+                                    <span class="text-sm font-medium">改善收益</span>
+                                    <div class="text-right">
+                                        <span class="text-lg font-bold text-emerald-600">50万</span>
+                                        <span class="text-xs text-[var(--text-tertiary)] ml-1">/ 41.7万</span>
+                                    </div>
+                                </div>
+                                <div class="bar"><div class="bg-emerald-500" style="width: 83%"></div></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Module Grid -->
+                    <div>
+                        <h3 class="text-sm font-semibold mb-3">知识模块</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                            {% for module_key, module_data in modules.items() %}
+                            {% set info = module_defs.get(module_key, {}) %}
+                            <a href="/module/{{ module_key }}" class="card p-4 block group">
+                                <div class="flex items-start justify-between mb-2">
+                                    <div class="flex items-center gap-2.5">
+                                        <div class="w-8 h-8 rounded-lg flex items-center justify-center text-base" style="background-color: {{ info.get('color', '#6b7280') }}12">
+                                            {{ info.get('icon', '📄') }}
+                                        </div>
+                                        <div>
+                                            <div class="text-sm font-semibold group-hover:text-[var(--accent)] transition">{{ info.get('name', module_key) }}</div>
+                                            <div class="text-[10px] text-[var(--text-tertiary)] mono">{{ module_key }}</div>
+                                        </div>
+                                    </div>
+                                    <span class="pill bg-gray-100 text-gray-600">{{ module_data.total_files }}</span>
+                                </div>
+                                <p class="text-xs text-[var(--text-secondary)] line-clamp-2">{{ info.get('description', '') }}</p>
+                            </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <script src="/static/app.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const dimScores = {{ dim_scores | tojson }};
+        const scoreMap = {};
+        if (dimScores && dimScores.length) {
+            dimScores.forEach(s => { scoreMap[s.dimension_code] = s.level; });
+        }
+        const data5d = [
+            scoreMap['O'] || 0,
+            scoreMap['D'] || 0,
+            scoreMap['G'] || 0,
+            scoreMap['R'] || 0,
+            scoreMap['H'] || 0
+        ];
+
+        // === Main Radar ===
+        const ctx1 = document.getElementById('radarChart');
+        if (ctx1) {
+            new Chart(ctx1, {
+                type: 'radar',
+                data: {
+                    labels: ['运营 O', '数字 D', '绿色 G', '韧性 R', '人本 H'],
+                    datasets: [
+                        { label: '当前', data: data5d, backgroundColor: 'rgba(24,24,27,0.08)', borderColor: 'rgba(24,24,27,0.7)', borderWidth: 2, pointBackgroundColor: 'rgba(24,24,27,1)', pointRadius: 4 },
+                        { label: '行业基准', data: [2.8, 2.1, 1.9, 2.3, 2.2], backgroundColor: 'rgba(148,163,184,0.04)', borderColor: 'rgba(148,163,184,0.4)', borderWidth: 1.5, borderDash: [4,4], pointRadius: 0 },
+                        { label: '目标', data: [4, 3.5, 3, 3.5, 3], backgroundColor: 'transparent', borderColor: 'rgba(22,163,74,0.3)', borderWidth: 1, borderDash: [2,4], pointRadius: 0 }
+                    ]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    scales: { r: { min: 0, max: 5, ticks: { stepSize: 1, font: { size: 10 }, backdropColor: 'transparent', color: '#999' }, pointLabels: { font: { size: 12, weight: '600' }, color: '#333' }, grid: { color: 'rgba(0,0,0,0.04)' }, angleLines: { color: 'rgba(0,0,0,0.04)' } } },
+                    plugins: { legend: { position: 'bottom', labels: { font: { size: 11 }, usePointStyle: true, padding: 12, color: '#666' } }, tooltip: { backgroundColor: 'rgba(0,0,0,0.85)', padding: 10, titleFont: { size: 12 }, bodyFont: { size: 11 } } }
+                }
+            });
+        }
+
+        // === Auto Radar ===
+        const ctx2 = document.getElementById('autoRadar');
+        const am = {{ auto_maturity | tojson }};
+        if (ctx2 && am) {
+            new Chart(ctx2, {
+                type: 'radar',
+                data: {
+                    labels: ['质量', '工装', '送料', '热处理', '物流'],
+                    datasets: [{ label: '自动化', data: [am.quality_score, am.tooling_score, am.feeding_score, am.heat_treatment_score, am.logistics_score], backgroundColor: 'rgba(37,99,235,0.1)', borderColor: 'rgba(37,99,235,0.7)', borderWidth: 2, pointBackgroundColor: 'rgba(37,99,235,1)', pointRadius: 3 }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    scales: { r: { min: 0, max: 5, ticks: { stepSize: 1, font: { size: 8 }, backdropColor: 'transparent', color: '#999' }, pointLabels: { font: { size: 10 }, color: '#666' }, grid: { color: 'rgba(0,0,0,0.04)' }, angleLines: { color: 'rgba(0,0,0,0.04)' } } },
+                    plugins: { legend: { display: false }, tooltip: { backgroundColor: 'rgba(0,0,0,0.85)', padding: 8 } }
+                }
+            });
+        }
+
+        // === 5S Chart (Tab: Maturity) ===
+        const ctx3 = document.getElementById('fiveSChart');
+        if (ctx3) {
+            new Chart(ctx3, {
+                type: 'bar',
+                data: {
+                    labels: ['冷镦车间', '螺纹车间', '热处理区', '表面处理', '包装区', '仓库', '办公区'],
+                    datasets: [{ label: '得分率', data: [64.4, 63.7, 65.3, 63.3, 64.6, 65.6, 65.2], backgroundColor: 'rgba(22,163,74,0.6)', borderRadius: 4, barThickness: 28 }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    scales: { y: { min: 0, max: 100, ticks: { font: { size: 10 }, callback: v => v + '%' }, grid: { color: 'rgba(0,0,0,0.04)' } }, x: { ticks: { font: { size: 10 }, color: '#666' }, grid: { display: false } } },
+                    plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => c.parsed.y + '%' } } }
+                }
+            });
+        }
+
+        // === Trend Chart (Tab: Maturity) ===
+        const ctx4 = document.getElementById('trendChart');
+        if (ctx4) {
+            new Chart(ctx4, {
+                type: 'line',
+                data: {
+                    labels: ['评估1', '评估2', '评估3'],
+                    datasets: [
+                        { label: 'O 运营', data: [2.8, 3.52, 3], borderColor: '#18181b', borderWidth: 2, tension: 0.3, pointRadius: 4 },
+                        { label: 'D 数字', data: [1.8, 2.82, 3], borderColor: '#2563eb', borderWidth: 2, tension: 0.3, pointRadius: 4 },
+                        { label: 'G 绿色', data: [1.5, 2.38, 3], borderColor: '#16a34a', borderWidth: 2, tension: 0.3, pointRadius: 4 },
+                        { label: 'R 韧性', data: [2, 2.6, 3], borderColor: '#ea580c', borderWidth: 2, tension: 0.3, pointRadius: 4 },
+                        { label: 'H 人本', data: [2.2, 2.82, 3], borderColor: '#9333ea', borderWidth: 2, tension: 0.3, pointRadius: 4 },
+                    ]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    scales: { y: { min: 0, max: 5, ticks: { stepSize: 1, font: { size: 10 } }, grid: { color: 'rgba(0,0,0,0.04)' } }, x: { grid: { display: false } } },
+                    plugins: { legend: { position: 'bottom', labels: { font: { size: 10 }, usePointStyle: true, padding: 10 } } }
+                }
+            });
+        }
+
+        // === Project Chart (Tab: Execution) ===
+        const ctx5 = document.getElementById('projectChart');
+        if (ctx5) {
+            new Chart(ctx5, {
+                type: 'doughnut',
+                data: {
+                    labels: ['P1 高', 'P2 中', 'P3 低', 'high'],
+                    datasets: [{ data: [1, 3, 2, 5], backgroundColor: ['#dc2626', '#ea580c', '#6b7280', '#f59e0b'], borderWidth: 0 }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    cutout: '60%',
+                    plugins: { legend: { position: 'right', labels: { font: { size: 11 }, usePointStyle: true, padding: 10 } } }
+                }
+            });
+        }
+
+        // === Equipment Chart (Tab: Execution) ===
+        const ctx6 = document.getElementById('equipChart');
+        if (ctx6) {
+            new Chart(ctx6, {
+                type: 'doughnut',
+                data: {
+                    labels: ['运行', '维保', '闲置'],
+                    datasets: [{ data: [8, 1, 1], backgroundColor: ['#16a34a', '#ea580c', '#d4d4d4'], borderWidth: 0 }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    cutout: '60%',
+                    plugins: { legend: { position: 'right', labels: { font: { size: 11 }, usePointStyle: true, padding: 10 } } }
+                }
+            });
+        }
+    });
+    </script>
+</body>
+</html>

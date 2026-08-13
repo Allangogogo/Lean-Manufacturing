@@ -1,0 +1,342 @@
+{% extends "base.html" %}
+{% block page_id %}training{% endblock %}
+{% block page_title %}培训管理{% endblock %}
+{% block content %}
+<div x-data="trainingList()" x-init="init()">
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="page-header-info">
+      <h1>培训管理</h1>
+      <p>人才培养，持续成长</p>
+    </div>
+    <div class="page-header-actions">
+      <button class="btn btn-primary" @click="openCreateModal()">
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path d="M10 2v16m-8-8h16" stroke="currentColor" stroke-width="2" fill="none"/></svg>
+        新建培训
+      </button>
+    </div>
+  </div>
+
+  <!-- Stat Cards -->
+  <div class="stat-grid" x-show="!loading">
+    <div class="stat-card">
+      <div class="stat-icon primary">
+        <svg width="22" height="22" viewBox="0 0 20 20" fill="currentColor"><path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"/></svg>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value" x-text="stats.total || 0"></div>
+        <div class="stat-label">本季度培训场次</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon accent">
+        <svg width="22" height="22" viewBox="0 0 20 20" fill="currentColor"><path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v1h8v-1zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-1a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v1h-3zM4.75 14.094A5.973 5.973 0 004 17v1H1v-1a3 3 0 013.75-2.906z"/></svg>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value" x-text="stats.total_enrollments || 0"></div>
+        <div class="stat-label">总参训人次</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon success">
+        <svg width="22" height="22" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/></svg>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value" x-text="(stats.avg_score ?? 0).toFixed(1)"></div>
+        <div class="stat-label">平均成绩</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon warning">
+        <svg width="22" height="22" viewBox="0 0 20 20" fill="currentColor"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z"/></svg>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value" x-text="stats.completed || 0"></div>
+        <div class="stat-label">已完成课程</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filter Bar -->
+  <div class="card" style="margin-bottom: var(--space-5);">
+    <div class="filter-bar" style="padding: var(--space-4);">
+      <div class="search-input" style="flex: 1;">
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"/></svg>
+        <input type="text" class="form-input" placeholder="搜索培训标题..." x-model="filter.search" @input.debounce.300ms="loadData()">
+      </div>
+      <select class="form-select" style="width: 140px;" x-model="filter.status" @change="loadData()">
+        <option value="">全部状态</option>
+        <option value="scheduled">待开始</option>
+        <option value="in_progress">进行中</option>
+        <option value="completed">已完成</option>
+        <option value="cancelled">已取消</option>
+      </select>
+      <select class="form-select" style="width: 140px;" x-model="filter.training_type" @change="loadData()">
+        <option value="">全部类型</option>
+        <option value="lean_tool">精益工具</option>
+        <option value="safety">安全培训</option>
+        <option value="quality">质量培训</option>
+        <option value="other">其他</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-spinner" x-show="loading">
+    <div class="spinner"></div>
+  </div>
+
+  <!-- Training Card Grid -->
+  <div class="grid-3" x-show="!loading && items.length > 0">
+    <template x-for="item in items" :key="item.id">
+      <div class="card" style="display: flex; flex-direction: column;">
+        <div style="padding: var(--space-5); flex: 1; display: flex; flex-direction: column;">
+          <!-- Status Badge -->
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: var(--space-3);">
+            <span class="badge" :class="statusBadgeClass(item.status)" x-text="statusLabel(item.status)"></span>
+            <span class="badge" :class="levelBadgeClass(item.level)" style="font-size: 10px;" x-text="levelLabel(item.level)"></span>
+          </div>
+
+          <!-- Title -->
+          <h3 style="font-size: var(--text-base); font-weight: 600; color: var(--text-primary); margin-bottom: var(--space-3); line-height: 1.4;" x-text="item.title"></h3>
+
+          <!-- Meta Info -->
+          <div style="display: flex; flex-direction: column; gap: var(--space-2); margin-bottom: var(--space-4); font-size: var(--text-sm);">
+            <div style="display: flex; align-items: center; gap: var(--space-2); color: var(--text-secondary);">
+              <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor"><path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"/></svg>
+              <span x-text="item.trainer_name"></span>
+            </div>
+            <div style="display: flex; align-items: center; gap: var(--space-2); color: var(--text-secondary);">
+              <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm-2 5a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1z"/></svg>
+              <span x-text="LeanOps.fmtDate(item.scheduled_date)"></span>
+            </div>
+            <div style="display: flex; align-items: center; gap: var(--space-2); color: var(--text-secondary);">
+              <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"/></svg>
+              <span x-text="item.duration_hours + ' 小时'"></span>
+            </div>
+          </div>
+
+          <!-- Enrollment Progress -->
+          <div style="margin-top: auto;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 4px; font-size: var(--text-xs);">
+              <span style="color: var(--text-tertiary);">参训进度</span>
+              <span style="font-weight: 600; color: var(--text-primary);" x-text="item.enrolled_count + ' / ' + item.max_participants"></span>
+            </div>
+            <div class="progress-bar" style="margin-bottom: var(--space-3);">
+              <div class="progress-fill" :style="{width: (item.max_participants > 0 ? item.enrolled_count / item.max_participants * 100 : 0) + '%'}"
+                :class="item.enrolled_count >= item.max_participants ? 'bg-success' : item.enrolled_count >= item.max_participants * 0.5 ? 'bg-warning' : ''"></div>
+            </div>
+
+            <div style="display: flex; gap: var(--space-2);">
+              <a :href="'/training/session/' + item.id" class="btn btn-secondary btn-sm" style="flex: 1;">详情</a>
+              <template x-if="item.status === 'scheduled' && item.enrolled_count < item.max_participants">
+                <button class="btn btn-primary btn-sm" style="flex: 1;" @click="enrollSession(item.id)">报名</button>
+              </template>
+              <template x-if="item.status === 'scheduled' && item.enrolled_count >= item.max_participants">
+                <span class="badge badge-gray" style="flex: 1; text-align: center; justify-content: center;">已满</span>
+              </template>
+            </div>
+          </div>
+        </div>
+      </div>
+    </template>
+  </div>
+
+  <!-- Empty State -->
+  <div class="empty-state" x-show="!loading && items.length === 0">
+    <div class="empty-state-icon">
+      <svg width="48" height="48" viewBox="0 0 20 20" fill="currentColor"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+    </div>
+    <div class="empty-state-title">暂无培训</div>
+    <div class="empty-state-desc">创建第一场培训，开启学习之旅</div>
+  </div>
+
+  <!-- Pagination -->
+  <div class="table-footer" x-show="!loading && items.length > 0">
+    <span x-text="'共 ' + pagination.total + ' 场培训'"></span>
+    <span x-text="'第 ' + pagination.page + ' / ' + pagination.total_pages + ' 页'"></span>
+    <div class="pagination">
+      <button class="page-btn" :disabled="!pagination.has_prev" @click="changePage(pagination.page - 1)">
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"/></svg>
+      </button>
+      <button class="page-btn" :disabled="!pagination.has_next" @click="changePage(pagination.page + 1)">
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Create Training Modal -->
+  <div class="modal-overlay" x-show="showCreateModal" x-cloak @click.self="showCreateModal = false">
+    <div class="modal" @click.stop>
+      <div class="modal-header">
+        <h3 class="modal-title">新建培训</h3>
+        <button class="btn btn-ghost btn-icon" @click="showCreateModal = false">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">培训标题 <span style="color: var(--color-danger);">*</span></label>
+          <input type="text" class="form-input" x-model="form.title" placeholder="如：5S基础培训">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">培训类型 <span style="color: var(--color-danger);">*</span></label>
+            <select class="form-select" x-model="form.training_type">
+              <option value="lean_tool">精益工具</option>
+              <option value="safety">安全培训</option>
+              <option value="quality">质量培训</option>
+              <option value="other">其他</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">级别 <span style="color: var(--color-danger);">*</span></label>
+            <select class="form-select" x-model="form.level">
+              <option value="L1_basics">L1 基础</option>
+              <option value="L2_intermediate">L2 中级</option>
+              <option value="L3_advanced">L3 高级</option>
+              <option value="L4_expert">L4 专家</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">计划日期 <span style="color: var(--color-danger);">*</span></label>
+            <input type="date" class="form-input" x-model="form.scheduled_date">
+          </div>
+          <div class="form-group">
+            <label class="form-label">时长（小时）</label>
+            <input type="number" class="form-input" x-model.number="form.duration_hours" step="0.5" min="0.5">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">培训地点</label>
+          <input type="text" class="form-input" x-model="form.location" placeholder="如：培训教室A">
+        </div>
+        <div class="form-group">
+          <label class="form-label">描述</label>
+          <textarea class="form-input" rows="2" x-model="form.description" placeholder="培训内容简介..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" @click="showCreateModal = false">取消</button>
+        <button class="btn btn-primary" @click="createSession()" :disabled="submitting">
+          <span x-show="!submitting">创建培训</span>
+          <span x-show="submitting">创建中...</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+function trainingList() {
+  return {
+    items: [],
+    stats: {},
+    loading: false,
+    submitting: false,
+    showCreateModal: false,
+    filter: { search: '', status: '', training_type: '' },
+    pagination: { page: 1, page_size: 12, total: 0, total_pages: 0, has_next: false, has_prev: false },
+    form: { title: '', training_type: 'lean_tool', level: 'L1_basics', scheduled_date: '', duration_hours: 1, location: '', description: '' },
+
+    async init() {
+      await Promise.all([this.loadStats(), this.loadData()]);
+    },
+
+    async loadStats() {
+      try {
+        this.stats = await LeanOps.api('/training/stats');
+      } catch (e) { /* non-critical */ }
+    },
+
+    async loadData() {
+      this.loading = true;
+      try {
+        const params = new URLSearchParams({ page: this.pagination.page, page_size: this.pagination.page_size });
+        if (this.filter.status) params.set('status', this.filter.status);
+        if (this.filter.training_type) params.set('training_type', this.filter.training_type);
+        if (this.filter.search) params.set('search', this.filter.search);
+        const data = await LeanOps.api('/training/sessions?' + params);
+        this.items = data.data || [];
+        this.pagination = data.pagination || {};
+      } catch (e) {
+        LeanOps.toast(e.detail || '加载失败', 'error');
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    changePage(p) {
+      if (p >= 1 && p <= this.pagination.total_pages) {
+        this.pagination.page = p;
+        this.loadData();
+      }
+    },
+
+    openCreateModal() {
+      this.form = { title: '', training_type: 'lean_tool', level: 'L1_basics', scheduled_date: '', duration_hours: 1, location: '', description: '' };
+      this.showCreateModal = true;
+    },
+
+    async createSession() {
+      if (!this.form.title || !this.form.scheduled_date) {
+        LeanOps.toast('请填写培训标题和日期', 'warning');
+        return;
+      }
+      this.submitting = true;
+      try {
+        await LeanOps.api('/training/sessions', {
+          method: 'POST',
+          body: JSON.stringify(this.form),
+        });
+        this.showCreateModal = false;
+        LeanOps.toast('培训创建成功', 'success');
+        await Promise.all([this.loadStats(), this.loadData()]);
+      } catch (e) {
+        LeanOps.toast(e.detail || '创建失败', 'error');
+      } finally {
+        this.submitting = false;
+      }
+    },
+
+    async enrollSession(id) {
+      try {
+        await LeanOps.api('/training/sessions/' + id + '/enroll', {
+          method: 'POST',
+          body: JSON.stringify({ action: 'enroll' }),
+        });
+        LeanOps.toast('报名成功', 'success');
+        await this.loadData();
+      } catch (e) {
+        LeanOps.toast(e.detail || '报名失败', 'error');
+      }
+    },
+
+    statusLabel(s) {
+      const map = { scheduled: '待开始', in_progress: '进行中', completed: '已完成', cancelled: '已取消' };
+      return map[s] || s;
+    },
+
+    statusBadgeClass(s) {
+      const map = { scheduled: 'badge-warning', in_progress: 'badge-primary', completed: 'badge-success', cancelled: 'badge-gray' };
+      return map[s] || 'badge-gray';
+    },
+
+    levelLabel(l) {
+      const map = { L1_basics: 'L1 基础', L2_intermediate: 'L2 中级', L3_advanced: 'L3 高级', L4_expert: 'L4 专家' };
+      return map[l] || l;
+    },
+
+    levelBadgeClass(l) {
+      const map = { L1_basics: 'badge-success', L2_intermediate: 'badge-primary', L3_advanced: 'badge-info', L4_expert: 'badge-danger' };
+      return map[l] || 'badge-gray';
+    },
+  };
+}
+</script>
+{% endblock %}

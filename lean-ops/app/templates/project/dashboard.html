@@ -1,0 +1,303 @@
+{% extends "base.html" %}
+{% block page_id %}projects{% endblock %}
+{% block page_title %}项目KPI仪表板{% endblock %}
+
+{% block content %}
+<div x-data="projectDashboard()" x-init="init()">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="page-header-info">
+      <div style="display: flex; align-items: center; gap: var(--space-3);">
+        <a :href="'/project/' + projectId" class="btn btn-ghost btn-sm" style="padding: 2px 6px;">
+          <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path d="M12 5l-5 5 5 5" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+        </a>
+        <h1>项目KPI仪表板</h1>
+      </div>
+      <p x-text="projectName || '加载中...'"></p>
+    </div>
+    <div class="page-header-actions">
+      <span class="badge" :class="healthClass" x-text="healthLabel" x-show="healthLabel"></span>
+    </div>
+  </div>
+
+  <!-- KPI Stat Cards -->
+  <div class="stat-grid">
+    <div class="stat-card">
+      <div class="stat-icon primary">
+        <svg width="22" height="22" viewBox="0 0 20 20" fill="currentColor"><circle cx="10" cy="10" r="8" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value" x-text="data.progress_pct + '%'">0%</div>
+        <div class="stat-label">项目进度</div>
+        <div class="progress" style="margin-top: 8px; height: 6px;">
+          <div class="progress-bar" :style="'width: ' + (data.progress_pct || 0) + '%'" :class="{ success: (data.progress_pct || 0) >= 100 }"></div>
+        </div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon" :class="budgetClass">
+        <svg width="22" height="22" viewBox="0 0 20 20" fill="currentColor"><circle cx="10" cy="10" r="8" fill="none" stroke="currentColor" stroke-width="1.5"/><text x="10" y="14" text-anchor="middle" font-size="11" font-weight="700" fill="currentColor">¥</text></svg>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value" x-text="fmtPct(budgetRate)">0%</div>
+        <div class="stat-label">预算执行率</div>
+        <div class="stat-change" :class="budgetRate > 100 ? 'down' : 'up'" x-text="'预算: ' + fmtMoney(data.budget) + ' | 实际: ' + fmtMoney(data.actual_cost)"></div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon success">
+        <svg width="22" height="22" viewBox="0 0 20 20" fill="currentColor"><rect x="2" y="2" width="16" height="16" rx="3" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value" x-text="fmtPct(taskRate)">0%</div>
+        <div class="stat-label">任务完成率</div>
+        <div class="stat-change up" x-text="(data.completed_tasks || 0) + '/' + (data.total_tasks || 0) + ' 个任务'"></div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon" :class="riskClass">
+        <svg width="22" height="22" viewBox="0 0 20 20" fill="currentColor"><path d="M10 1l9 4v6a9 9 0 01-4 7.5L10 19l-5-1.5A9 9 0 012 10V5l8-4z"/></svg>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value" x-text="data.open_risks || 0">0</div>
+        <div class="stat-label">开放风险数</div>
+        <div class="stat-change" :class="(data.open_risks || 0) > 0 ? 'down' : 'up'" x-text="'共 ' + (data.total_risks || 0) + ' 个风险'"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts Grid -->
+  <div class="grid-2" style="margin-bottom: var(--space-5);">
+    <!-- Budget vs Actual -->
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">预算 vs 实际花费</h3>
+      </div>
+      <div class="card-body">
+        <div class="chart-container" id="chartBudget" style="display: flex; justify-content: center;"></div>
+      </div>
+    </div>
+
+    <!-- Task Completion Trend -->
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">任务完成趋势</h3>
+      </div>
+      <div class="card-body">
+        <div class="chart-container" id="chartTrend" style="display: flex; justify-content: center;"></div>
+      </div>
+    </div>
+
+    <!-- Risk Distribution -->
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">风险分布</h3>
+      </div>
+      <div class="card-body">
+        <div style="display: flex; align-items: center; justify-content: center; gap: var(--space-6);">
+          <div id="chartRiskDonut"></div>
+          <div class="chart-legend" style="flex-direction: column; gap: var(--space-2);">
+            <template x-for="r in riskDistribution" :key="r.label">
+              <div class="chart-legend-item" style="font-size: var(--text-sm);">
+                <div class="chart-legend-dot" :style="'background: ' + r.color"></div>
+                <span x-text="r.label + ': ' + r.value"></span>
+              </div>
+            </template>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Task Status Distribution -->
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">任务状态分布</h3>
+      </div>
+      <div class="card-body">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>状态</th>
+              <th>数量</th>
+              <th>占比</th>
+              <th>分布</th>
+            </tr>
+          </thead>
+          <tbody>
+            <template x-for="ts in taskStatusDistribution" :key="ts.status">
+              <tr>
+                <td x-html="taskStatusBadge(ts.status)"></td>
+                <td style="font-weight: 600;" x-text="ts.count"></td>
+                <td x-text="fmtPct(ts.pct)"></td>
+                <td>
+                  <div class="progress" style="height: 8px;">
+                    <div class="progress-bar" :style="'width: ' + ts.pct + '%; background: ' + ts.color"></div>
+                  </div>
+                </td>
+              </tr>
+            </template>
+            <tr x-show="taskStatusDistribution.length === 0">
+              <td colspan="4" style="text-align: center; padding: var(--space-4); color: var(--text-tertiary);">暂无任务数据</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-spinner" x-show="loading">
+    <div class="spinner"></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function projectDashboard() {
+  const pathParts = window.location.pathname.split('/').filter(Boolean);
+  const pidIdx = pathParts.indexOf('project') + 1;
+  const pid = parseInt(pathParts[pidIdx]);
+  return {
+    projectId: pid,
+    projectName: '',
+    data: {},
+    loading: true,
+    riskDistribution: [],
+    taskStatusDistribution: [],
+
+    get budgetRate() {
+      const b = parseFloat(this.data.budget) || 0;
+      if (b === 0) return 0;
+      return Math.round((parseFloat(this.data.actual_cost || 0) / b) * 100);
+    },
+    get taskRate() {
+      const t = this.data.total_tasks || 0;
+      if (t === 0) return 0;
+      return Math.round(((this.data.completed_tasks || 0) / t) * 100);
+    },
+    get budgetClass() {
+      return this.budgetRate > 100 ? 'danger' : this.budgetRate > 80 ? 'warning' : 'success';
+    },
+    get riskClass() {
+      return (this.data.open_risks || 0) > 5 ? 'danger' : (this.data.open_risks || 0) > 0 ? 'warning' : 'success';
+    },
+    get healthLabel() {
+      if (!this.data.health_score) return '';
+      const level = this.data.health_score.level;
+      const map = { green: '健康', yellow: '需关注', orange: '预警', red: '危险' };
+      return map[level] || '';
+    },
+    get healthClass() {
+      if (!this.data.health_score) return '';
+      const level = this.data.health_score.level;
+      const map = { green: 'badge-success', yellow: 'badge-warning', orange: 'badge-warning', red: 'badge-danger' };
+      return map[level] || 'badge-gray';
+    },
+
+    async init() {
+      this.loading = true;
+      try {
+        const res = await LeanOps.api('/projects/' + this.projectId + '/dashboard');
+        this.data = res;
+        this.projectName = res.project_name || '';
+        this.buildRiskDistribution();
+        this.buildTaskDistribution();
+        this.$nextTick(() => { this.renderCharts(); });
+      } catch (e) {
+        LeanOps.toast('加载仪表板数据失败', 'error');
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    buildRiskDistribution() {
+      const colors = {
+        high: 'var(--color-danger-500)',
+        medium: 'var(--color-warning-500)',
+        low: 'var(--color-success-500)',
+      };
+      const labels = { high: '高风险', medium: '中风险', low: '低风险' };
+      const dist = this.data.risk_distribution || {};
+      this.riskDistribution = Object.entries(dist).map(([k, v]) => ({
+        label: labels[k] || k,
+        value: v,
+        color: colors[k] || 'var(--color-gray-400)',
+      }));
+    },
+
+    buildTaskDistribution() {
+      const colors = {
+        todo: 'var(--color-gray-400)',
+        in_progress: 'var(--color-primary-500)',
+        review: 'var(--color-warning-500)',
+        done: 'var(--color-success-500)',
+      };
+      const total = this.data.total_tasks || 1;
+      const dist = this.data.task_distribution || {};
+      this.taskStatusDistribution = Object.entries(dist).map(([k, v]) => ({
+        status: k,
+        count: v,
+        pct: Math.round((v / total) * 100),
+        color: colors[k] || 'var(--color-gray-400)',
+      }));
+      if (this.taskStatusDistribution.length === 0 && this.data.total_tasks) {
+        this.taskStatusDistribution = [
+          { status: 'todo', count: this.data.total_tasks - (this.data.completed_tasks || 0), pct: 100 - this.taskRate, color: colors.todo },
+          { status: 'done', count: this.data.completed_tasks || 0, pct: this.taskRate, color: colors.done },
+        ];
+      }
+    },
+
+    renderCharts() {
+      // Budget chart
+      const budgetEl = document.getElementById('chartBudget');
+      if (budgetEl) {
+        const budgetData = [
+          { label: '预算', value: parseFloat(this.data.budget) || 0, color: 'var(--color-primary-500)' },
+          { label: '实际花费', value: parseFloat(this.data.actual_cost) || 0, color: 'var(--color-danger-500)' },
+        ];
+        budgetEl.innerHTML = Charts.bars(budgetData, 360, 200);
+      }
+
+      // Trend chart
+      const trendEl = document.getElementById('chartTrend');
+      if (trendEl) {
+        const trend = this.data.completion_trend || [];
+        const trendData = trend.map(t => ({ label: t.label || t.week || '', value: t.count || t.completed || 0 }));
+        if (trendData.length > 0) {
+          trendEl.innerHTML = Charts.line(trendData, 360, 200);
+        } else {
+          trendEl.innerHTML = '<div style="color: var(--text-tertiary); padding: 40px;">暂无趋势数据</div>';
+        }
+      }
+
+      // Risk donut
+      const donutEl = document.getElementById('chartRiskDonut');
+      if (donutEl && this.riskDistribution.length > 0) {
+        donutEl.innerHTML = Charts.donut(this.riskDistribution, 160, 28);
+      } else if (donutEl) {
+        donutEl.innerHTML = '<div style="color: var(--text-tertiary); padding: 20px;">暂无风险数据</div>';
+      }
+    },
+
+    taskStatusBadge(status) {
+      const map = {
+        todo: { label: '待办', class: 'badge-gray' },
+        in_progress: { label: '进行中', class: 'badge-primary' },
+        review: { label: '审查中', class: 'badge-warning' },
+        done: { label: '已完成', class: 'badge-success' },
+      };
+      const item = map[status] || { label: status, class: 'badge-gray' };
+      return '<span class="badge ' + item.class + '">' + item.label + '</span>';
+    },
+
+    fmtPct(val) { return (val || 0) + '%'; },
+    fmtMoney(val) {
+      if (val === null || val === undefined) return '¥0';
+      return '¥' + Number(val).toLocaleString('zh-CN');
+    },
+  };
+}
+</script>
+{% endblock %}
