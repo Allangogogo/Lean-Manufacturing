@@ -33,7 +33,7 @@ templates_dir = "templates"
 
 # ==================== Module Definitions ====================
 MODULES = {
-    "01-精益工具知识库": {"name": "Lean Tools KB", "short_name": "Tools", "icon": "🔧", "color": "#2563eb", "description": "Lean philosophy, 13 core tools, fastener industry applications", "roles": "All"},
+    "01-精益工具知识库": {"name": "Lean Tools KB", "short_name": "Tools", "icon": "🔧", "color": "#2563eb", "description": "Lean philosophy, 13 core tools, manufacturing process applications", "roles": "All"},
     "02-精益培训": {"name": "Training", "short_name": "Training", "icon": "📚", "color": "#059669", "description": "Training strategy, 4-level materials, evaluation", "roles": "Training, HR"},
     "03-成熟度评估": {"name": "Maturity Assessment", "short_name": "Assessment", "icon": "📊", "color": "#d97706", "description": "5-level maturity model, assessment tools", "roles": "Management, Lean"},
     "04-实施战略": {"name": "Implementation Strategy", "short_name": "Strategy", "icon": "🎯", "color": "#dc2626", "description": "5-phase roadmap, 3 path comparisons, 6 tools", "roles": "Management, PMO"},

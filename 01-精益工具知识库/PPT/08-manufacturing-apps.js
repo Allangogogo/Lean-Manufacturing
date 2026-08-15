@@ -4,7 +4,7 @@ const OUT = __dirname;
 
 let pptx = new PptxGenJS();
 pptx.layout = "LAYOUT_WIDE";
-pptx.title = "紧固件行业应用 Fastener Industry Applications";
+pptx.title = "制造工序应用 Manufacturing Process Applications";
 pptx.author = "精益工具知识库";
 
 const S = pptx.ShapeType;
@@ -124,9 +124,9 @@ function tr4(slide, x, y, w, row, bg, c1, c2, c3, c4) {
   s.addShape(S.ellipse, { x: 10.5, y: -0.5, w: 4.5, h: 4.5, fill: { color: "233B7A" }, line: { color: "000000" } });
   s.addText("08", { x: 0.8, y: 1, w: 4, h: 2.8, fontFace: "Arial", fontSize: 100, color: C.S, bold: true });
   s.addShape(S.rect, { x: 0.8, y: 3.6, w: 3.2, h: 0.06, fill: { color: C.G }, line: { color: "000000" } });
-  s.addText("紧固件行业应用", { x: 0.8, y: 3.8, w: 8.5, h: 1.2, fontFace: "Microsoft YaHei", fontSize: 44, color: C.A, bold: true, valign: "middle" });
-  s.addText("Fastener Industry Applications", { x: 0.8, y: 4.65, w: 8, h: 0.6, fontFace: "Arial", fontSize: 20, color: C.S });
-  s.addText("精益工具在紧固件制造中的全面应用\n从冷镦到包装的端到端改善实践", { x: 0.8, y: 5.45, w: 8, h: 1, fontFace: "Microsoft YaHei", fontSize: 14, color: C.TL });
+  s.addText("制造工序应用", { x: 0.8, y: 3.8, w: 8.5, h: 1.2, fontFace: "Microsoft YaHei", fontSize: 44, color: C.A, bold: true, valign: "middle" });
+  s.addText("Manufacturing Process Applications", { x: 0.8, y: 4.65, w: 8, h: 0.6, fontFace: "Arial", fontSize: 20, color: C.S });
+  s.addText("精益工具在制造中的全面应用\n从机加工到包装的端到端改善实践", { x: 0.8, y: 5.45, w: 8, h: 1, fontFace: "Microsoft YaHei", fontSize: 14, color: C.TL });
 })();
 
 // ============================================================
@@ -136,16 +136,16 @@ function tr4(slide, x, y, w, row, bg, c1, c2, c3, c4) {
   var s = pptx.addSlide();
   setBg(s);
   addTopBar(s, C.TE);
-  addTitleBand(s, "制造流程概览", "Fastener Manufacturing Process Overview");
-  addFooter(s, "08 | 紧固件行业应用 | 制造流程概览");
+  addTitleBand(s, "制造流程概览", "Discrete Manufacturing Process Overview");
+  addFooter(s, "08 | 制造工序应用 | 制造流程概览");
   sectLabel(s, "端到端流程 · 关键参数");
 
   var processes = [
-    { n: "冷镦", e: "Cold Heading", c: C.P, ct: "0.5-2s/件", oee: "75-85%", defect: "<0.5%" },
-    { n: "搓丝", e: "Thread Rolling", c: C.G, ct: "0.3-1s/件", oee: "80-90%", defect: "<0.3%" },
+    { n: "机加工", e: "Machining", c: C.P, ct: "0.5-2s/件", oee: "75-85%", defect: "<0.5%" },
+    { n: "精加工", e: "Precision Machining", c: C.G, ct: "0.3-1s/件", oee: "80-90%", defect: "<0.3%" },
     { n: "热处理", e: "Heat Treatment", c: C.W, ct: "2-4h/炉", oee: "70-80%", defect: "<0.2%" },
     { n: "表面处理", e: "Surface Treatment", c: C.TE, ct: "30-90min", oee: "65-75%", defect: "<1.0%" },
-    { n: "分选", e: "Sorting", c: "636F85", ct: "实时", oee: "95-98%", defect: "<0.1%" },
+    { n: "装配", e: "Sorting", c: "636F85", ct: "实时", oee: "95-98%", defect: "<0.1%" },
     { n: "包装", e: "Packing", c: "8B5CF6", ct: "实时", oee: "85-92%", defect: "<0.05%" },
   ];
 
@@ -177,15 +177,15 @@ function tr4(slide, x, y, w, row, bg, c1, c2, c3, c4) {
 })();
 
 // ============================================================
-// SLIDE 03: Cold Heading Lean Applications
+// SLIDE 03: Machining Lean Applications
 // ============================================================
 (function(){
   var s = pptx.addSlide();
   setBg(s);
   addTopBar(s, C.G);
-  addTitleBand(s, "冷镦工序精益应用", "Cold Heading — SMED · TPM · Poka-Yoke");
-  addFooter(s, "08 | 紧固件行业应用 | 冷镦工序精益应用");
-  sectLabel(s, "PART 1 · 冷镦");
+  addTitleBand(s, "机加工工序精益应用", "Machining — SMED · TPM · Poka-Yoke");
+  addFooter(s, "08 | 制造工序应用 | 机加工工序精益应用");
+  sectLabel(s, "PART 1 · 机加工");
 
   cardB(s, 0.5, 1.78, 3.8, 2.55, C.G, [
     { t: "SMED 快速换模", y: 0.08, size: 12, bold: true, color: C.P },
@@ -230,19 +230,19 @@ function tr4(slide, x, y, w, row, bg, c1, c2, c3, c4) {
   }
 
   s.addShape(S.roundRect, { x: 4.6, y: 4.53, w: 8.23, h: 0.55, fill: { color: "ECFDF5" }, rectRadius: 0.1, line: { color: C.G } });
-  s.addText("冷镦是紧固件制造第一道关键工序——SMED释放产能、TPM稳定设备、Poka-Yoke杜绝批量不良", { x: 4.6, y: 4.53, w: 8.23, h: 0.55, fontFace: "Microsoft YaHei", fontSize: 9.5, color: C.T, align: "center", valign: "middle" });
+  s.addText("机加工是制造第一道关键工序——SMED释放产能、TPM稳定设备、Poka-Yoke杜绝批量不良", { x: 4.6, y: 4.53, w: 8.23, h: 0.55, fontFace: "Microsoft YaHei", fontSize: 9.5, color: C.T, align: "center", valign: "middle" });
 })();
 
 // ============================================================
-// SLIDE 04: Thread Rolling Lean Applications
+// SLIDE 04: Precision Machining Lean Applications
 // ============================================================
 (function(){
   var s = pptx.addSlide();
   setBg(s);
   addTopBar(s, C.G);
-  addTitleBand(s, "搓丝工序精益应用", "Thread Rolling — Roller Life · SPC · Quick Change");
-  addFooter(s, "08 | 紧固件行业应用 | 搓丝工序精益应用");
-  sectLabel(s, "PART 2 · 搓丝");
+  addTitleBand(s, "精加工工序精益应用", "Precision Machining — Roller Life · SPC · Quick Change");
+  addFooter(s, "08 | 制造工序应用 | 精加工工序精益应用");
+  sectLabel(s, "PART 2 · 精加工");
 
   cardB(s, 0.5, 1.78, 4.0, 2.2, C.G, [
     { t: "丝辊寿命管理", y: 0.08, size: 12, bold: true, color: C.P },
@@ -253,11 +253,11 @@ function tr4(slide, x, y, w, row, bg, c1, c2, c3, c4) {
   ]);
 
   cardB(s, 0.5, 4.18, 4.0, 2.1, C.TE, [
-    { t: "螺纹轮廓 SPC 管控", y: 0.08, size: 12, bold: true, color: C.P },
-    { t: "· 通止规抽检频率：首件+每30min", y: 0.42, size: 10, color: C.T },
-    { t: "· 中径/大径实时SPC趋势图监控", y: 0.72, size: 10, color: C.T },
+    { t: "轮廓 SPC 管控", y: 0.08, size: 12, bold: true, color: C.P },
+    { t: "· 量规抽检频率：首件+每30min", y: 0.42, size: 10, color: C.T },
+    { t: "· 关键尺寸实时SPC趋势图监控", y: 0.72, size: 10, color: C.T },
     { t: "· CPK目标：>= 1.67（关键特性）", y: 1.02, size: 10, color: C.T },
-    { t: "SPC CPK >= 1.67 | Thread profile auto inspection", y: 1.65, size: 8, color: C.TL }
+    { t: "SPC CPK >= 1.67 | Profile auto inspection", y: 1.65, size: 8, color: C.TL }
   ]);
 
   cardB(s, 4.8, 1.78, 4.0, 2.2, C.W, [
@@ -281,7 +281,7 @@ function tr4(slide, x, y, w, row, bg, c1, c2, c3, c4) {
   var rows4 = [
     ["换辊时间", "45min", "8min"],
     ["丝辊寿命", "8万件", "12万件"],
-    ["螺纹不良率", "0.8%", "0.2%"],
+    ["尺寸不良率", "0.8%", "0.2%"],
     ["SPC CPK", "1.2", "1.75"],
   ];
   for (var i = 0; i < rows4.length; i++) {
@@ -298,7 +298,7 @@ function tr4(slide, x, y, w, row, bg, c1, c2, c3, c4) {
   setBg(s);
   addTopBar(s, C.W);
   addTitleBand(s, "热处理工序精益应用", "Heat Treatment — CQI-9 · Energy Efficiency · TPM");
-  addFooter(s, "08 | 紧固件行业应用 | 热处理工序精益应用");
+  addFooter(s, "08 | 制造工序应用 | 热处理工序精益应用");
   sectLabel(s, "PART 3 · 热处理");
 
   cardB(s, 0.5, 1.78, 3.8, 2.2, C.W, [
@@ -313,7 +313,7 @@ function tr4(slide, x, y, w, row, bg, c1, c2, c3, c4) {
     { t: "温度均匀性 SOP & 能耗改善", y: 0.08, size: 11, bold: true, color: C.P },
     { t: "· 炉内温度均匀性测试（TUS）定期验证", y: 0.38, size: 9.5, color: C.T },
     { t: "· 热电偶校准周期标准化", y: 0.65, size: 9.5, color: C.T },
-    { t: "· 余热回收系统：预热进料线材", y: 0.92, size: 9.5, color: C.T },
+    { t: "· 余热回收系统：预热进料原材料", y: 0.92, size: 9.5, color: C.T },
     { t: "· 天然气单耗从85降至68 m³/吨", y: 1.19, size: 9.5, color: C.T },
     { t: "Gas consumption: 85 -> 68 m3/ton | Energy cost -20%", y: 1.8, size: 8, color: C.TL }
   ]);
@@ -346,8 +346,8 @@ function tr4(slide, x, y, w, row, bg, c1, c2, c3, c4) {
   var s = pptx.addSlide();
   setBg(s);
   addTopBar(s, C.TE);
-  addTitleBand(s, "表面处理工序精益应用", "Surface Treatment — Plating Control · WIP Reduction");
-  addFooter(s, "08 | 紧固件行业应用 | 表面处理精益应用");
+  addTitleBand(s, "表面处理工序精益应用", "Surface Treatment — Coating Control · WIP Reduction");
+  addFooter(s, "08 | 制造工序应用 | 表面处理精益应用");
   sectLabel(s, "PART 4 · 表面处理");
 
   cardB(s, 0.5, 1.78, 3.8, 2.55, C.TE, [
@@ -356,7 +356,7 @@ function tr4(slide, x, y, w, row, bg, c1, c2, c3, c4) {
     { t: "· pH值/温度/电流密度实时监控", y: 0.72, size: 10, color: C.T },
     { t: "· 镀层厚度CPK从1.0提升至1.67", y: 1.02, size: 10, color: C.T },
     { t: "· 镀液异常自动报警+停机保护", y: 1.32, size: 10, color: C.T },
-    { t: "Plating thickness CPK: 1.0 -> 1.67 | Auto dosing", y: 2.05, size: 8, color: C.TL }
+    { t: "Coating thickness CPK: 1.0 -> 1.67 | Auto dosing", y: 2.05, size: 8, color: C.TL }
   ]);
 
   cardB(s, 0.5, 4.53, 3.8, 2.2, C.G, [
@@ -382,13 +382,13 @@ function tr4(slide, x, y, w, row, bg, c1, c2, c3, c4) {
   var wipBefore = [
     { label: "电镀后\n暂存", time: "4h", c: C.D },
     { label: "钝化后\n晾干", time: "2h", c: C.W },
-    { label: "等待\n分选", time: "6h", c: C.D },
+    { label: "等待\n装配", time: "6h", c: C.D },
     { label: "等待\n包装", time: "8h", c: C.W },
   ];
   var wipAfter = [
     { label: "连续流\n水线", time: "0.5h", c: C.G },
     { label: "在线\n干燥", time: "0.2h", c: C.TE },
-    { label: "自动\n分选", time: "0.1h", c: C.G },
+    { label: "自动\n装配", time: "0.1h", c: C.G },
     { label: "即时\n包装", time: "0.2h", c: C.TE },
   ];
 
@@ -421,7 +421,7 @@ function tr4(slide, x, y, w, row, bg, c1, c2, c3, c4) {
   setBg(s);
   addTopBar(s, "8B5CF6");
   addTitleBand(s, "包装工序精益应用", "Packaging — Poka-Yoke · Kanban · Line Balance");
-  addFooter(s, "08 | 紧固件行业应用 | 包装工序精益应用");
+  addFooter(s, "08 | 制造工序应用 | 包装工序精益应用");
   sectLabel(s, "PART 5 · 包装");
 
   cardB(s, 0.5, 1.78, 3.8, 2.55, "8B5CF6", [
@@ -495,7 +495,7 @@ function tr4(slide, x, y, w, row, bg, c1, c2, c3, c4) {
   setBg(s);
   addTopBar(s, C.P);
   addTitleBand(s, "综合改善案例", "Comprehensive Improvement Case — Before / After All Processes");
-  addFooter(s, "08 | 紧固件行业应用 | 综合改善案例");
+  addFooter(s, "08 | 制造工序应用 | 综合改善案例");
   sectLabel(s, "全流程改善成效");
 
   // Top row: key improvement stats
@@ -509,11 +509,11 @@ function tr4(slide, x, y, w, row, bg, c1, c2, c3, c4) {
   th4(s, tx, 3.15, tw, ["工序", "改善前", "改善后", "关键工具", "改善幅度"]);
 
   var caseRows = [
-    ["冷镦", "OEE 65%\n换模 60min", "OEE 85%\n换模 <10min", "SMED\nTPM\nPoka-Yoke", "换模 -83%"],
-    ["搓丝", "换辊 45min\n不良 0.8%", "换辊 8min\n不良 0.2%", "SMED\nSPC\n目视管理", "不良 -75%"],
+    ["机加工", "OEE 65%\n换模 60min", "OEE 85%\n换模 <10min", "SMED\nTPM\nPoka-Yoke", "换模 -83%"],
+    ["精加工", "换辊 45min\n不良 0.8%", "换辊 8min\n不良 0.2%", "SMED\nSPC\n目视管理", "不良 -75%"],
     ["热处理", "能耗 85m³/吨\n装量 80%", "能耗 68m³/吨\n装量 95%", "CQI-9\nTPM\nSOP", "能耗 -20%"],
     ["表面处理", "WIP 20h\n膜厚CPK 1.0", "WIP 1h\n膜厚CPK 1.67", "自动化\nSPC\n连续流", "WIP -95%"],
-    ["分选", "人工目检\n漏检率 2%", "自动光学分选\n漏检率 <0.1%", "AOI\nPoka-Yoke\n自动化", "漏检 -95%"],
+    ["装配", "人工目检\n漏检率 2%", "自动光学装配\n漏检率 <0.1%", "AOI\nPoka-Yoke\n自动化", "漏检 -95%"],
     ["包装", "混装12次/年\n平衡率 68%", "混装 0次/年\n平衡率 88%", "Poka-Yoke\n看板\n线平衡", "混装归零"],
   ];
 
@@ -531,6 +531,6 @@ function tr4(slide, x, y, w, row, bg, c1, c2, c3, c4) {
 // ============================================================
 // OUTPUT
 // ============================================================
-pptx.writeFile({ fileName: path.join(OUT, "08-紧固件行业应用.pptx") })
-  .then(function() { console.log("OK: 08-紧固件行业应用.pptx created"); })
+pptx.writeFile({ fileName: path.join(OUT, "08-制造工序应用.pptx") })
+  .then(function() { console.log("OK: 08-制造工序应用.pptx created"); })
   .catch(function(err) { console.error("ERR:", err); process.exit(1); });

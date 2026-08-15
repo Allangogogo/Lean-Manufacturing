@@ -18,7 +18,7 @@
     </div>
     <div class="page-header-actions">
       <a href="/kaizen" class="btn btn-secondary">
-        <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"/></svg>
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"/></svg>
         返回列表
       </a>
     </div>
@@ -170,13 +170,13 @@
         <div style="display: flex; flex-direction: column; gap: var(--space-2);">
           <template x-for="action in proposal.allowed_actions" :key="action">
             <button @click="executeAction(action)" class="btn" :class="actionBtnClass(action)" style="width: 100%;">
-              <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" x-show="action === 'submit'"><path d="M10 2v16m-8-8h16" stroke="currentColor" stroke-width="2" fill="none"/></svg>
-              <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" x-show="action === 'approve'"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
-              <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" x-show="action === 'reject'"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg>
-              <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" x-show="action === 'return'"><path fill-rule="evenodd" d="M15.707 15.707a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 010 1.414zm-6 0a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 011.414 1.414L5.414 10l4.293 4.293a1 1 0 010 1.414z"/></svg>
-              <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" x-show="action === 'start'"><path d="M5 3l14 7-14 7V3z"/></svg>
-              <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" x-show="action === 'complete'"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
-              <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" x-show="action === 'close'"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/></svg>
+              <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" x-show="action === 'submit'"><path d="M 2v16m-8-8h16" stroke="currentColor" stroke-width="2" fill="none"/></svg>
+              <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" x-show="action === 'approve'"><path d="M 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
+              <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" x-show="action === 'reject'"><path fill-rule="evenodd" d="M 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg>
+              <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" x-show="action === 'return'"><path fill-rule="evenodd" d="M 15.707a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 010 1.414zm-6 0a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 011.414 1.414L5.414 10l4.293 4.293a1 1 0 010 1.414z"/></svg>
+              <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" x-show="action === 'start'"><path d="M 3l14 7-14 7V3z"/></svg>
+              <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" x-show="action === 'complete'"><path fill-rule="evenodd" d="M 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
+              <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" x-show="action === 'close'"><path d="M 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/></svg>
               <span x-text="actionLabel(action)"></span>
             </button>
           </template>
@@ -234,7 +234,7 @@
       <div class="modal-header">
         <div class="modal-title" x-text="actionLabel(currentAction)"></div>
         <button class="modal-close" @click="showActionModal = false">
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg>
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg>
         </button>
       </div>
       <div class="modal-body">

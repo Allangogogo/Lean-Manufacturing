@@ -27,7 +27,7 @@ class Settings(BaseSettings):
 
     # ---- 应用 ----
     APP_NAME: str = "LeanOps"
-    APP_VERSION: str = "1.0.0"
+    APP_VERSION: str = "2.0.0"
     APP_ENV: str = "development"
     APP_DEBUG: bool = True
     APP_SECRET_KEY: str = "dev-secret-key-change-in-production"

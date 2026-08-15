@@ -61,7 +61,7 @@ mk("精益工具知识库 - 封面与目录", function(p) {
   s.addShape(p.shapes.RECTANGLE, { x:0, y:0, w:10, h:0.12, fill:{color:C.TE} });
   s.addShape(p.shapes.RECTANGLE, { x:8.5, y:0, w:1.5, h:5.625, fill:{color:"0F172A", transparency:30} });
   s.addText("精益工具知识库", { x:0.8, y:1.2, w:7.5, h:1.2, fontSize:44, fontFace:"Arial Black", color:C.A, bold:true });
-  s.addText("金属紧固件制造企业精益转型核心指南", { x:0.8, y:2.5, w:7, h:0.6, fontSize:20, fontFace:"Arial", color:C.S });
+  s.addText("离散制造企业精益转型核心指南", { x:0.8, y:2.5, w:7, h:0.6, fontSize:20, fontFace:"Arial", color:C.S });
   s.addShape(p.shapes.LINE, { x:0.8, y:3.3, w:3, h:0, line:{color:C.TE, width:3} });
   const cs = [{n:"13+",l:"核心精益工具"},{n:"5",l:"问题解决方法"},{n:"4",l:"深度专题"},{n:"70%",l:"转型失败率*"}];
   cs.forEach((c,i)=>{ sc(s, 0.8+i*2.2, 3.8, c.n, c.l, [C.TE,C.G,C.W,C.D][i]); });
@@ -73,7 +73,7 @@ mk("精益工具知识库 - 封面与目录", function(p) {
     {n:"01",t:"精益基础",d:"精益哲学 · 八大浪费 · TPS体系 · 术语表",c:C.P},
     {n:"02",t:"核心工具（13+）",d:"看板 · VSM · 安灯 · TPM · 5S · 改善 · 防错 · SMED 等",c:C.TE},
     {n:"03",t:"问题解决方法",d:"Gemba Walk · A3 · PDCA · DMAIC · VA/VE",c:C.G},
-    {n:"04",t:"紧固件行业应用",d:"冷镦 · 搓丝 · 热处理 · 表面处理 · 包装",c:C.W},
+    {n:"04",t:"制造工序应用",d:"机加工 · 精加工 · 热处理 · 表面处理 · 包装",c:C.W},
     {n:"05",t:"实践案例集",d:"SMED改善案例 · 改善提案模板 · 实施指南",c:C.D},
     {n:"06",t:"深度专题研究",d:"变革管理 · VSM高级实战 · 质量标准整合 · 精益数字化",c:C.P},
   ];
@@ -181,7 +181,7 @@ mk("TPM与OEE详解", function(p) {
   s.addText("1个重大事故背后可能有 1000 个微缺陷！", { x:0.8, y:3.75, w=8, h=0.35, fontSize:12, fontFace:"Arial Black", color:C.D, align:"center" });
 
   // OEE行业基准
-  s = hdr(p, "OEE 行业基准与紧固件KPI", "OEE Benchmarks & Fastener KPI");
+  s = hdr(p, "OEE 行业基准与产品KPI", "OEE Benchmarks & Manufacturing KPI");
   sc(s, 0.5, 1.2, ">90%", "世界级 World Class", C.G);
   sc(s, 2.9, 1.2, "80-90%", "优秀 Excellent", C.TE);
   sc(s, 5.3, 1.2, "65-80%", "发展中 Developing", C.W);

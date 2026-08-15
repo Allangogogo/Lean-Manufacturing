@@ -52,7 +52,7 @@ DIMENSIONS = {
 CHECKLIST_TEMPLATE = [
     # Quality (quality × 5)
     {"dimension": "quality", "sort_order": 1,  "item_text": "是否有AI视觉检测系统上线？" },
-    {"dimension": "quality", "sort_order": 2,  "item_text": "视觉检测是否覆盖主要缺陷类型（头部裂纹/毛刺/螺纹）？" },
+    {"dimension": "quality", "sort_order": 2,  "item_text": "视觉检测是否覆盖主要缺陷类型（表面裂纹/毛刺/尺寸偏差）？" },
     {"dimension": "quality", "sort_order": 3,  "item_text": "视觉检测漏检率是否<1%？" },
     {"dimension": "quality", "sort_order": 4,  "item_text": "视觉检测数据是否对接MES？" },
     {"dimension": "quality", "sort_order": 5,  "item_text": "误报率是否<5%？" },
@@ -63,8 +63,8 @@ CHECKLIST_TEMPLATE = [
     {"dimension": "tooling", "sort_order": 9,  "item_text": "是否有模具全生命周期管理？" },
     {"dimension": "tooling", "sort_order": 10, "item_text": "换模参数是否有版本记录和追溯？" },
     # Feeding (feeding × 5)
-    {"dimension": "feeding", "sort_order": 11, "item_text": "冷镦机是否配备断料检测？" },
-    {"dimension": "feeding", "sort_order": 12, "item_text": "搓丝机是否配备断丝检测？" },
+    {"dimension": "feeding", "sort_order": 11, "item_text": "机加工设备是否配备断料检测？" },
+    {"dimension": "feeding", "sort_order": 12, "item_text": "精加工设备是否配备断丝检测？" },
     {"dimension": "feeding", "sort_order": 13, "item_text": "断料检测响应时间是否<500ms？" },
     {"dimension": "feeding", "sort_order": 14, "item_text": "是否有自动上料系统替代人工上料？" },
     {"dimension": "feeding", "sort_order": 15, "item_text": "自动上料可靠性是否>95%？" },

@@ -12,7 +12,7 @@
     </div>
     <div class="page-header-actions">
       <button class="btn btn-primary" @click="openCreateModal()">
-        <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path d="M10 2v16m-8-8h16" stroke="currentColor" stroke-width="2" fill="none"/></svg>
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path d="M 2v16m-8-8h16" stroke="currentColor" stroke-width="2" fill="none"/></svg>
         添加设备
       </button>
     </div>
@@ -22,7 +22,7 @@
   <div class="stat-grid" x-show="!loading">
     <div class="stat-card">
       <div class="stat-icon primary">
-        <svg width="22" height="22" viewBox="0 0 20 20" fill="currentColor"><path d="M4 3a2 2 0 100 4h12a2 2 0 100-4H4z"/><path fill-rule="evenodd" d="M3 8h14v7a2 2 0 01-2 2H5a2 2 0 01-2-2V8zm5 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z"/></svg>
+        <svg width="22" height="22" viewBox="0 0 20 20" fill="currentColor"><path d="M 3a2 2 0 100 4h12a2 2 0 100-4H4z"/><path fill-rule="evenodd" d="M 8h14v7a2 2 0 01-2 2H5a2 2 0 01-2-2V8zm5 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z"/></svg>
       </div>
       <div class="stat-content">
         <div class="stat-value" x-text="stats.total_equipment || 0"></div>
@@ -31,7 +31,7 @@
     </div>
     <div class="stat-card">
       <div class="stat-icon success">
-        <svg width="22" height="22" viewBox="0 0 20 20" fill="currentColor"><circle cx="10" cy="10" r="8"/><path d="M7 10l2 2 4-4" stroke="white" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <svg width="22" height="22" viewBox="0 0 20 20" fill="currentColor"><circle cx="10" cy="10" r="8"/><path d="M 10l2 2 4-4" stroke="white" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </div>
       <div class="stat-content">
         <div class="stat-value" x-text="stats.normal || 0"></div>
@@ -40,7 +40,7 @@
     </div>
     <div class="stat-card">
       <div class="stat-icon warning">
-        <svg width="22" height="22" viewBox="0 0 20 20" fill="currentColor"><path d="M10 2a8 8 0 100 16 8 8 0 000-16zm0 2a6 6 0 110 12 6 6 0 010-12zm1 8a1 1 0 01-2 0V9a1 1 0 012 0v3z"/></svg>
+        <svg width="22" height="22" viewBox="0 0 20 20" fill="currentColor"><path d="M 2a8 8 0 100 16 8 8 0 000-16zm0 2a6 6 0 110 12 6 6 0 010-12zm1 8a1 1 0 01-2 0V9a1 1 0 012 0v3z"/></svg>
       </div>
       <div class="stat-content">
         <div class="stat-value" x-text="(stats.maintenance || 0) + (stats.overdue_maintenance || 0)"></div>
@@ -49,7 +49,7 @@
     </div>
     <div class="stat-card">
       <div class="stat-icon danger">
-        <svg width="22" height="22" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 1.944l-8.66 15h17.32L10 1.944zM10 14a1 1 0 100 2 1 1 0 000-2zm0-8v5a1 1 0 01-2 0V6a1 1 0 012 0z"/></svg>
+        <svg width="22" height="22" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M 1.944l-8.66 15h17.32L10 1.944zM10 14a1 1 0 100 2 1 1 0 000-2zm0-8v5a1 1 0 01-2 0V6a1 1 0 012 0z"/></svg>
       </div>
       <div class="stat-content">
         <div class="stat-value" x-text="stats.fault || 0"></div>
@@ -58,7 +58,7 @@
     </div>
     <div class="stat-card">
       <div class="stat-icon accent">
-        <svg width="22" height="22" viewBox="0 0 20 20" fill="currentColor"><path d="M2 10a8 8 0 018-8v8h8a8 8 0 11-16 0z"/></svg>
+        <svg width="22" height="22" viewBox="0 0 20 20" fill="currentColor"><path d="M 10a8 8 0 018-8v8h8a8 8 0 11-16 0z"/></svg>
       </div>
       <div class="stat-content">
         <div class="stat-value" x-text="(stats.avg_oee ?? 0).toFixed(1) + '%'"></div>
@@ -71,17 +71,17 @@
   <div class="card" style="margin-bottom: var(--space-5);">
     <div class="filter-bar" style="padding: var(--space-4);">
       <div class="search-input" style="flex: 1;">
-        <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"/></svg>
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"/></svg>
         <input type="text" class="form-input" placeholder="搜索设备名称或编码..." x-model="filter.search" @input.debounce.300ms="loadData()">
       </div>
       <select class="form-select" style="width: 160px;" x-model="filter.equipment_type" @change="loadData()">
         <option value="">全部类型</option>
-        <option value="cold_header">冷镦机</option>
-        <option value="thread_roller">螺纹机</option>
-        <option value="heat_treat">热处理炉</option>
-        <option value="electroplating">电镀线</option>
-        <option value="sorter">分选机</option>
-        <option value="packager">包装机</option>
+        <option value="machining">机加工设备</option>
+        <option value="precision_machining">精加工设备</option>
+        <option value="heat_treatment">热处理炉</option>
+        <option value="surface_treatment">表面处理线</option>
+        <option value="assembly">装配设备</option>
+        <option value="packaging">包装机</option>
       </select>
       <select class="form-select" style="width: 130px;" x-model="filter.status" @change="loadData()">
         <option value="">全部状态</option>
@@ -157,7 +157,7 @@
   <!-- Empty State -->
   <div class="empty-state" x-show="!loading && items.length === 0">
     <div class="empty-state-icon">
-      <svg width="48" height="48" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 2h8v8H6V6zm2 2h4v4H8V8z"/></svg>
+      <svg width="48" height="48" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M 4a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 2h8v8H6V6zm2 2h4v4H8V8z"/></svg>
     </div>
     <div class="empty-state-title">暂无设备</div>
     <div class="empty-state-desc">添加第一台设备，开启TPM管理之旅</div>
@@ -169,10 +169,10 @@
     <span x-text="'第 ' + pagination.page + ' / ' + pagination.total_pages + ' 页'"></span>
     <div class="pagination">
       <button class="page-btn" :disabled="!pagination.has_prev" @click="changePage(pagination.page - 1)">
-        <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"/></svg>
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"/></svg>
       </button>
       <button class="page-btn" :disabled="!pagination.has_next" @click="changePage(pagination.page + 1)">
-        <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
       </button>
     </div>
   </div>
@@ -183,7 +183,7 @@
       <div class="modal-header">
         <h3 class="modal-title">添加设备</h3>
         <button class="btn btn-ghost btn-icon" @click="showCreateModal = false">
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg>
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg>
         </button>
       </div>
       <div class="modal-body">
@@ -199,12 +199,12 @@
           <div class="form-group">
             <label class="form-label">设备类型 <span style="color: var(--color-danger);">*</span></label>
             <select class="form-select" x-model="form.equipment_type">
-              <option value="cold_header">冷镦机</option>
-              <option value="thread_roller">螺纹机</option>
-              <option value="heat_treat">热处理炉</option>
-              <option value="electroplating">电镀线</option>
-              <option value="sorter">分选机</option>
-              <option value="packager">包装机</option>
+              <option value="machining">机加工设备</option>
+              <option value="precision_machining">精加工设备</option>
+              <option value="heat_treatment">热处理炉</option>
+              <option value="surface_treatment">表面处理线</option>
+              <option value="assembly">装配设备</option>
+              <option value="packaging">包装机</option>
             </select>
           </div>
           <div class="form-group">
@@ -246,7 +246,7 @@ function tpmEquipment() {
     showCreateModal: false,
     filter: { search: '', equipment_type: '', status: '' },
     pagination: { page: 1, page_size: 12, total: 0, total_pages: 0, has_next: false, has_prev: false },
-    form: { equipment_code: '', equipment_name: '', equipment_type: 'cold_header', location: '', manufacturer: '', model: '' },
+    form: { equipment_code: '', equipment_name: '', equipment_type: 'machining', location: '', manufacturer: '', model: '' },
 
     async init() {
       await Promise.all([this.loadStats(), this.loadData()]);
@@ -283,7 +283,7 @@ function tpmEquipment() {
     },
 
     openCreateModal() {
-      this.form = { equipment_code: '', equipment_name: '', equipment_type: 'cold_header', location: '', manufacturer: '', model: '' };
+      this.form = { equipment_code: '', equipment_name: '', equipment_type: 'machining', location: '', manufacturer: '', model: '' };
       this.showCreateModal = true;
     },
 
@@ -314,7 +314,7 @@ function tpmEquipment() {
     },
 
     typeLabel(t) {
-      const map = { cold_header: '冷镦机', thread_roller: '螺纹机', heat_treat: '热处理炉', electroplating: '电镀线', sorter: '分选机', packager: '包装机' };
+      const map = { machining: '机加工设备', precision_machining: '精加工设备', heat_treatment: '热处理炉', surface_treatment: '表面处理线', assembly: '装配设备', packaging: '包装机' };
       return map[t] || t;
     },
   };

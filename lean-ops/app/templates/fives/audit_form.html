@@ -18,7 +18,7 @@
     </div>
     <div class="page-header-actions">
       <a href="/fives" class="btn btn-secondary">
-        <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"/></svg>
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"/></svg>
         返回列表
       </a>
     </div>
@@ -54,11 +54,11 @@
         </div>
         <div x-show="audit.status !== 'completed'" style="display: flex; gap: var(--space-2);">
           <button class="btn btn-primary" @click="saveScores()" :disabled="saving">
-            <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path d="M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z"/></svg>
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path d="M 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z"/></svg>
             保存评分
           </button>
           <button class="btn btn-success" @click="completeAudit()" :disabled="saving">
-            <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
             完成审核
           </button>
         </div>
@@ -118,7 +118,7 @@
       <div class="card-header">
         <div class="card-title">改善项</div>
         <button x-show="audit.status !== 'completed'" class="btn btn-secondary btn-sm" @click="showImpModal = true">
-          <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor"><path d="M10 2v16m-8-8h16" stroke="currentColor" stroke-width="2" fill="none"/></svg>
+          <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor"><path d="M 2v16m-8-8h16" stroke="currentColor" stroke-width="2" fill="none"/></svg>
           添加改善项
         </button>
       </div>
@@ -143,7 +143,7 @@
       </div>
       <div x-show="!(audit.improvements || []).length" class="empty-state" style="padding: var(--space-8) var(--space-4);">
         <div class="empty-state-icon">
-          <svg width="36" height="36" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"/></svg>
+          <svg width="36" height="36" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"/></svg>
         </div>
         <div class="empty-state-title">暂无改善项</div>
         <div class="empty-state-desc">审核中发现的问题可添加为改善项跟踪处理</div>
@@ -157,7 +157,7 @@
       <div class="modal-header">
         <div class="modal-title">添加改善项</div>
         <button class="modal-close" @click="showImpModal = false">
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg>
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg>
         </button>
       </div>
       <div class="modal-body">

@@ -1,6 +1,6 @@
 /**
  * 精益工具知识库 - 主目录PPT
- * 金属紧固件制造企业精益转型核心知识库
+ * 离散制造企业精益转型核心知识库
  *
  * 使用方式: node 精益工具知识库-主目录.js
  */
@@ -9,9 +9,9 @@ const pptxgen = require("pptxgenjs");
 
 let pres = new pptxgen();
 pres.layout = 'LAYOUT_16x9';
-pres.title = '精益工具知识库 - 金属紧固件制造企业精益转型';
+pres.title = '精益工具知识库 - 离散制造企业精益转型';
 pres.author = 'Lean Knowledge Base';
-pres.subject = '精益生产 | 紧固件制造 | 精益转型';
+pres.subject = '精益生产 | 制造 | 精益转型';
 
 // ============================================================
 // 全局设计配置
@@ -195,7 +195,7 @@ slide1.addText("精益工具知识库", {
 });
 
 // 副标题
-slide1.addText("金属紧固件制造企业精益转型核心指南", {
+slide1.addText("离散制造企业精益转型核心指南", {
   x: 0.8, y: 2.5, w: 7, h: 0.6,
   fontSize: 20, fontFace: FONT.body, color: COLORS.secondary
 });
@@ -243,7 +243,7 @@ const tocItems = [
   { num: "01", title: "精益基础", desc: "精益哲学 · 八大浪费 · TPS体系 · 术语表", color: COLORS.primary },
   { num: "02", title: "核心工具（13+）", desc: "看板 · VSM · 安灯 · 标准作业 · TPM · 5S · 改善 · 平准化 · 防错 · SMED · 自働化 · JIT · 可视化管理", color: COLORS.teal },
   { num: "03", title: "问题解决方法", desc: "Gemba Walk · A3 · PDCA · DMAIC · VA/VE", color: COLORS.success },
-  { num: "04", title: "紧固件行业应用", desc: "冷镦 · 搓丝 · 热处理 · 表面处理 · 包装", color: COLORS.warning },
+  { num: "04", title: "制造工序应用", desc: "机加工 · 精加工 · 热处理 · 表面处理 · 包装", color: COLORS.warning },
   { num: "05", title: "实践案例集", desc: "SMED改善案例 · 改善提案模板 · 实施指南", color: COLORS.danger },
   { num: "06", title: "深度专题研究", desc: "变革管理 · VSM高级实战 · 质量标准整合 · 精益数字化", color: COLORS.primary },
 ];

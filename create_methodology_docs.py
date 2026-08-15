@@ -363,7 +363,7 @@ def create_tps_doc():
     add_bullet(doc, "预防型防错（Prevention Poka-Yoke）：使错误不可能发生")
     add_bullet(doc, "检测型防错（Detection Poka-Yoke）：使错误在发生时立即被发现")
     add_bullet(doc, "警告型防错（Warning Poka-Yoke）：通过声光信号提醒操作者")
-    add_paragraph(doc, "紧固件行业应用：螺纹通止规、扭矩限制器、颜色编码料盒、光电传感器检测漏装等。")
+    add_paragraph(doc, "制造工序应用：量规、扭矩限制器、颜色编码料盒、光电传感器检测漏装等。")
 
     add_heading3(doc, "3.1.4 安灯系统（Andon）")
     add_paragraph(doc,
@@ -483,26 +483,26 @@ def create_tps_doc():
 
     add_page_break(doc)
 
-    # --- 6. TPS 在紧固件行业的应用 ---
-    add_heading1(doc, "6. TPS 在紧固件行业的应用框架")
+    # --- 6. TPS 在制造业的应用 ---
+    add_heading1(doc, "6. TPS 在制造业的应用框架")
     add_paragraph(doc,
-        "紧固件行业（螺栓、螺母、垫圈、螺丝等）具有多品种、大批量、连续制造的特点，"
-        "TPS 的许多原则可以直接应用。以下是紧固件行业应用 TPS 的框架：")
+        "制造业（工件、工件、工件、螺丝等）具有多品种、大批量、连续制造的特点，"
+        "TPS 的许多原则可以直接应用。以下是制造工序应用 TPS 的框架：")
 
-    add_heading2(doc, "6.1 自働化在紧固件行业的应用")
-    add_bullet(doc, "在线检测：利用机器视觉和激光测量技术，实时检测螺纹尺寸、头部形状、表面缺陷")
+    add_heading2(doc, "6.1 自働化在制造业的应用")
+    add_bullet(doc, "在线检测：利用机器视觉和激光测量技术，实时检测尺寸精度、外形、表面缺陷")
     add_bullet(doc, "异常停止：当检测到尺寸超差时自动停机，防止批量不良")
     add_bullet(doc, "防错装置：使用模具编号标识、料盒防错、换型确认清单")
-    add_bullet(doc, "安灯系统：在冷镦、搓丝、热处理等关键工序设置安灯呼叫点")
+    add_bullet(doc, "安灯系统：在机加工、精加工、热处理等关键工序设置安灯呼叫点")
 
-    add_heading2(doc, "6.2 JIT 在紧固件行业的应用")
+    add_heading2(doc, "6.2 JIT 在制造业的应用")
     add_bullet(doc, "节拍时间：根据客户订单计算各工序的生产节拍")
-    add_bullet(doc, "连续流：将冷镦→搓丝→热处理→表面处理→检验包装尽量安排在连续流程中")
+    add_bullet(doc, "连续流：将机加工→精加工→热处理→表面处理→检验包装尽量安排在连续流程中")
     add_bullet(doc, "看板拉动：成品仓库向生产线发出看板信号，按实际消耗生产")
     add_bullet(doc, "平准化排程：将不同规格的产品均匀分配到各班次，减少换型次数")
 
-    add_heading2(doc, "6.3 标准化作业在紧固件行业")
-    add_bullet(doc, "冷镦工序标准作业：模具安装参数、润滑频次、首件检验流程")
+    add_heading2(doc, "6.3 标准化作业在制造业")
+    add_bullet(doc, "机加工工序标准作业：模具安装参数、润滑频次、首件检验流程")
     add_bullet(doc, "热处理工序标准作业：温度曲线、时间控制、冷却介质管理")
     add_bullet(doc, "检验工序标准作业：抽样方案、测量方法、判定标准")
 
@@ -739,14 +739,14 @@ def create_wcm_doc():
 
     add_page_break(doc)
 
-    add_heading1(doc, "6. WCM 在紧固件行业的应用")
+    add_heading1(doc, "6. WCM 在制造业的应用")
     add_paragraph(doc,
-        "紧固件行业的特点——多工序连续制造、设备密集、品种多、质量要求高——"
+        "制造业的特点——多工序连续制造、设备密集、品种多、质量要求高——"
         "非常适合 WCM 体系的应用。")
-    add_bullet(doc, "AM 自主维护：冷镦机、搓丝机、热处理炉的日常点检由操作员负责")
-    add_bullet(doc, "PM 计划维护：关键设备（如多工位冷镦机）的预防性维护计划")
-    add_bullet(doc, "QM 质量管理：螺纹通止规管理、扭矩强度在线监控、SPC 控制图")
-    add_bullet(doc, "DM 交期管理：从冷镦到成品的全流程前置时间压缩")
+    add_bullet(doc, "AM 自主维护：机加工设备、精加工设备、热处理炉的日常点检由操作员负责")
+    add_bullet(doc, "PM 计划维护：关键设备（如多工位机加工设备）的预防性维护计划")
+    add_bullet(doc, "QM 质量管理：量规管理、扭矩强度在线监控、SPC 控制图")
+    add_bullet(doc, "DM 交期管理：从机加工到成品的全流程前置时间压缩")
     add_bullet(doc, "LM 精益管理：5S 推行、快速换模（模具更换时间缩短）、看板系统")
     add_bullet(doc, "SM 安全管理：冲压设备安全防护、化学品管理、噪音防护")
     add_bullet(doc, "CM 成本管理：材料利用率提升、能耗降低、换型损失减少")
@@ -899,8 +899,8 @@ def create_lean_six_sigma_doc():
     add_paragraph(doc,
         "DPMO = (Defects x 1,000,000) / (Opportunities x Units)")
     add_paragraph(doc,
-        "在紧固件行业，典型目标为 4-5 西格玛水平。例如，对于螺纹精度控制，"
-        "如果规格为 M10x1.5 的中径公差为 +/-0.05mm，过程标准差为 0.015mm，"
+        "在制造业，典型目标为 4-5 西格玛水平。例如，对于尺寸精度控制，"
+        "如果规格为 某型号 的关键尺寸公差为 +/-0.05mm，过程标准差为 0.015mm，"
         "则 Cpk = 0.05/(3*0.015) = 1.11，约对应 3.3 西格玛水平。")
 
     add_page_break(doc)
@@ -917,12 +917,12 @@ def create_lean_six_sigma_doc():
 
     add_page_break(doc)
 
-    add_heading1(doc, "6. LSS 在紧固件行业的应用案例")
-    add_heading2(doc, "案例：降低六角螺母冷镦工序不良率")
+    add_heading1(doc, "6. LSS 在制造业的应用案例")
+    add_heading2(doc, "案例：降低工件机加工工序不良率")
     add_paragraph(doc, "项目背景：", bold=True)
     add_paragraph(doc,
-        "某紧固件企业六角螺母冷镦工序月产量 500 万件，不良率 2.8%（PPM = 28,000），"
-        "主要缺陷为头部裂纹（45%）和对角尺寸超差（30%）。项目目标将不良率降至 0.5%。")
+        "某制造企业工件机加工工序月产量 500 万件，不良率 2.8%（PPM = 28,000），"
+        "主要缺陷为表面裂纹（45%）和对角尺寸超差（30%）。项目目标将不良率降至 0.5%。")
 
     add_paragraph(doc, "DMAIC 过程：", bold=True)
     add_bullet(doc, "Define：项目章程定义问题、目标、范围。SIPOC 分析确定过程边界。")
@@ -1079,14 +1079,14 @@ def create_toc_doc():
 
     add_page_break(doc)
 
-    add_heading1(doc, "6. TOC 在紧固件行业的应用")
+    add_heading1(doc, "6. TOC 在制造业的应用")
     add_paragraph(doc,
-        "紧固件生产中，热处理工序通常是典型的瓶颈。以下以热处理为约束进行分析：")
+        "产品生产中，热处理工序通常是典型的瓶颈。以下以热处理为约束进行分析：")
 
     add_heading2(doc, "6.1 识别瓶颈")
     add_paragraph(doc,
         "热处理炉的特点：投资大、升温时间长、批次处理（非连续流）、产能有限。"
-        "在紧固件工厂，冷镦和搓丝的速度远高于热处理，导致热处理成为系统瓶颈。")
+        "在制造工厂，机加工和精加工的速度远高于热处理，导致热处理成为系统瓶颈。")
 
     add_heading2(doc, "6.2 挖尽热处理产能")
     add_bullet(doc, "减少热处理炉的空炉时间和升降温次数")
@@ -1096,7 +1096,7 @@ def create_toc_doc():
     add_bullet(doc, "通过工艺优化缩短保温时间（在质量允许的范围内）")
 
     add_heading2(doc, "6.3 迁就约束")
-    add_bullet(doc, "冷镦和搓丝工序按热处理的节拍生产，避免过量生产导致库存积压")
+    add_bullet(doc, "机加工和精加工工序按热处理的节拍生产，避免过量生产导致库存积压")
     add_bullet(doc, "原材料投放由热处理消耗量拉动")
     add_bullet(doc, "非瓶颈工序在完成热处理需求后可以安排维护或培训")
 
@@ -1262,9 +1262,9 @@ def create_excellence_model_doc():
 
     add_heading2(doc, "6.3 Fastenal（快扣）")
     add_paragraph(doc,
-        "Fastenal 是紧固件分销行业的标杆。其 VMI（供应商管理库存）模式和"
+        "Fastenal 是产品分销行业的标杆。其 VMI（供应商管理库存）模式和"
         "自动化分销系统体现了卓越运营的理念。通过精益物流和数字化技术，"
-        "Fastenal 实现了高效的紧固件分销服务。")
+        "Fastenal 实现了高效的产品分销服务。")
 
     add_page_break(doc)
 
@@ -1354,7 +1354,7 @@ def create_comparison_doc():
         ["维度", "TPS", "Lean", "WCM", "Six Sigma", "LSS", "TOC"],
         [
             ["最佳适用", "重复性制造", "多品种小批量", "大型制造企业", "质量改进项目", "综合改进项目", "有明显瓶颈的系统"],
-            ["行业偏好", "汽车、电子", "通用制造", "汽车、食品、紧固件", "半导体、医疗", "通用", "制造、项目管理"],
+            ["行业偏好", "汽车、电子", "通用制造", "汽车、食品、产品", "半导体、医疗", "通用", "制造、项目管理"],
             ["企业规模", "中大型", "不限", "大型", "中大型", "中大型", "不限"],
             ["实施复杂度", "高", "中", "很高", "中高", "中高", "中"],
         ])
@@ -1417,19 +1417,19 @@ def create_comparison_doc():
 
     add_page_break(doc)
 
-    add_heading1(doc, "4. 紧固件行业推荐路径")
+    add_heading1(doc, "4. 制造业推荐路径")
     add_paragraph(doc,
-        "基于紧固件行业特点（多品种、大批量、连续制造、设备密集、质量要求高），"
+        "基于制造业特点（多品种、大批量、连续制造、设备密集、质量要求高），"
         "推荐以下实施路径：")
 
     add_heading2(doc, "Phase 1: 基础期（0-6个月）-- Lean 基础工具")
-    add_bullet(doc, "5S 现场管理：冷镦车间、搓丝车间、热处理车间、成品仓库")
+    add_bullet(doc, "5S 现场管理：机加工车间、精加工车间、热处理车间、成品仓库")
     add_bullet(doc, "标准作业：关键工序建立标准作业指导书")
     add_bullet(doc, "目视管理：在制品标识、设备状态看板、质量控制图")
     add_bullet(doc, "基础培训：全员精益意识培训")
 
     add_heading2(doc, "Phase 2: 设备保障期（6-12个月）-- TPM 自主维护")
-    add_bullet(doc, "自主维护：冷镦机、搓丝机、热处理炉的日常点检")
+    add_bullet(doc, "自主维护：机加工设备、精加工设备、热处理炉的日常点检")
     add_bullet(doc, "计划维护：关键设备预防性维护计划")
     add_bullet(doc, "OEE 监控：建立 OEE 数据采集和分析系统")
     add_bullet(doc, "目标：OEE 从当前水平提升至 75%")
@@ -1437,14 +1437,14 @@ def create_comparison_doc():
     add_heading2(doc, "Phase 3: 流动优化期（12-18个月）-- Lean 流程优化")
     add_bullet(doc, "价值流图：绘制从原材料到成品的全流程 VSM")
     add_bullet(doc, "瓶颈识别：用 TOC 方法找到系统瓶颈（通常是热处理）")
-    add_bullet(doc, "SMED：冷镦机快速换型，缩短换型时间 50%")
+    add_bullet(doc, "SMED：机加工设备快速换型，缩短换型时间 50%")
     add_bullet(doc, "看板拉动：建立成品仓库向生产线的看板信号")
 
     add_heading2(doc, "Phase 4: 质量提升期（18-24个月）-- Six Sigma 质量改进")
-    add_bullet(doc, "SPC：关键尺寸（螺纹中径、头部高度等）实施统计过程控制")
+    add_bullet(doc, "SPC：关键尺寸（关键直径、外形高度等）实施统计过程控制")
     add_bullet(doc, "Cp/Cpk 目标：核心尺寸 Cp >= 1.33, Cpk >= 1.0")
     add_bullet(doc, "绿带培养：培养 3-5 名绿带，领导质量改进项目")
-    add_bullet(doc, "FMEA：冷镦、热处理等关键工序进行失效模式分析")
+    add_bullet(doc, "FMEA：机加工、热处理等关键工序进行失效模式分析")
 
     add_heading2(doc, "Phase 5: 卓越运营期（24个月+）-- WCM 整合")
     add_bullet(doc, "WCM 评估：按照 DC/JD/WD 标准进行内部评估")
@@ -1595,7 +1595,7 @@ def create_wcm_ppt():
           "  - 安全行为观察（BBS）",
           "  - 应急响应预案",
           "  - 安全培训与意识提升",
-          "紧固件行业重点：",
+          "制造业重点：",
           "  - 冲压设备安全防护",
           "  - 化学品管理（表面处理）",
           "  - 噪音防护",
@@ -1621,7 +1621,7 @@ def create_wcm_ppt():
           "  - 成本改善课题：专项降本活动",
           "  - 价值工程（VA/VE）：设计端降本",
           "  - 采购成本管理：供应链协同",
-          "紧固件行业成本重点：",
+          "制造业成本重点：",
           "  - 材料利用率（钢材利用率）",
           "  - 能耗成本（电力、天然气）",
           "  - 换型损失（停机时间）",
@@ -1674,17 +1674,17 @@ def create_wcm_ppt():
             ["适用", "大型制造企业", "通用", "设备密集型"],
         ])
 
-    # --- Slide 16: Fastener Industry ---
+    # --- Slide 16: Manufacturing Industry ---
     slide = prs.slides.add_slide(blank_layout)
     ppt_add_header_bar(slide, DARK_BLUE)
-    ppt_add_title_text(slide, "紧固件行业应用案例", top=0.2)
+    ppt_add_title_text(slide, "制造工序应用案例", top=0.2)
     lines = [
-        "WCM 在紧固件行业的全面应用：",
+        "WCM 在制造业的全面应用：",
         "",
-        "AM 自主维护：冷镦机、搓丝机、热处理炉日常点检",
+        "AM 自主维护：机加工设备、精加工设备、热处理炉日常点检",
         "PM 计划维护：关键设备预防性维护，OEE提升至80%+",
-        "QM 质量管理：螺纹通止规、SPC控制图、Cpk提升",
-        "DM 交期管理：从冷镦到成品的全流程前置时间压缩",
+        "QM 质量管理：量规、SPC控制图、Cpk提升",
+        "DM 交期管理：从机加工到成品的全流程前置时间压缩",
         "EM 环境管理：废水处理、粉尘收集、能耗优化",
         "LM 精益管理：5S推行、快速换模、看板系统",
         "SM 安全管理：冲压安全防护、噪音控制、化学品管理",
@@ -1705,7 +1705,7 @@ def create_wcm_ppt():
         "1. WCM 是全面整合的制造管理体系（9大支柱）",
         "2. 以 Lean + TPM 为核心，覆盖质量、安全、环境、成本等维度",
         "3. 采用 DC → JD → WD 分级评估，持续提升",
-        "4. 紧固件行业全面适用，每个支柱都有具体应用场景",
+        "4. 制造业全面适用，每个支柱都有具体应用场景",
         "",
         "行动计划：",
         "  [ ] 第1周：完成 WCM 现状评估（每个支柱打分）",
@@ -1790,7 +1790,7 @@ def create_lss_ppt():
             "  - 关键质量特性（CTQ）",
             "     将 VOC 转化为可测量的指标",
             "",
-            "紧固件案例：定义\"降低M10螺栓冷镦不良率\"项目",
+            "产品案例：定义\"降低某型号工件机加工不良率\"项目",
         ]),
         ("Measure 测量", DARK_GREEN, [
             "目标：收集数据，建立当前基线",
@@ -1805,7 +1805,7 @@ def create_lss_ppt():
             "  - 价值流图（VSM）",
             "     量化时间和库存",
             "",
-            "紧固件案例：当前Cpk=0.89，PPM=28,000",
+            "产品案例：当前Cpk=0.89，PPM=28,000",
         ]),
         ("Analyze 分析", DARK_GREEN, [
             "目标：识别根本原因和关键影响因素",
@@ -1821,7 +1821,7 @@ def create_lss_ppt():
             "     X 和 Y 的数学关系",
             "  - 帕累托分析（80/20法则）",
             "",
-            "紧固件案例：根因为材料硬度波动(45%)、模具温度(25%)",
+            "产品案例：根因为材料硬度波动(45%)、模具温度(25%)",
         ]),
         ("Improve 改进", DARK_GREEN, [
             "目标：制定和实施改进方案",
@@ -1837,7 +1837,7 @@ def create_lss_ppt():
             "  - 试运行（Pilot）",
             "     小范围验证效果",
             "",
-            "紧固件案例：DOE优化模具温度和润滑参数",
+            "产品案例：DOE优化模具温度和润滑参数",
         ]),
         ("Control 控制", DARK_GREEN, [
             "目标：维持改进成果，防止回退",
@@ -1854,7 +1854,7 @@ def create_lss_ppt():
             "  - 项目成果报告",
             "     总结收益和经验教训",
             "",
-            "紧固件案例：不良率从2.8%降至0.3%，年节约120万元",
+            "产品案例：不良率从2.8%降至0.3%，年节约120万元",
         ]),
     ]
     for title, color, content in dmaic_phases:
@@ -1889,7 +1889,7 @@ def create_lss_ppt():
             ["1 sigma", "691,462", "30.85%", "过程极不稳定"],
             ["2 sigma", "308,538", "69.15%", "过程不稳定"],
             ["3 sigma", "66,807", "93.32%", "一般制造水平"],
-            ["4 sigma", "6,210", "99.38%", "较好水平（紧固件目标）"],
+            ["4 sigma", "6,210", "99.38%", "较好水平（产品目标）"],
             ["5 sigma", "233", "99.977%", "优秀水平"],
             ["6 sigma", "3.4", "99.99966%", "世界级水平"],
         ])
@@ -1907,16 +1907,16 @@ def create_lss_ppt():
             ["大黑带", "MBB", "战略规划、培训", "持续", "领导组织级推行"],
         ])
 
-    # --- Slide 12: Fastener Case ---
+    # --- Slide 12: Manufacturing Case ---
     slide = prs.slides.add_slide(blank_layout)
     ppt_add_header_bar(slide, DARK_GREEN)
-    ppt_add_title_text(slide, "紧固件行业应用案例", top=0.2)
+    ppt_add_title_text(slide, "制造工序应用案例", top=0.2)
     lines = [
-        "案例：降低六角螺母冷镦工序不良率",
+        "案例：降低工件机加工工序不良率",
         "",
         "项目背景：",
         "  月产量500万件，不良率2.8%（PPM=28,000）",
-        "  主要缺陷：头部裂纹(45%) + 对角尺寸超差(30%)",
+        "  主要缺陷：表面裂纹(45%) + 对角尺寸超差(30%)",
         "  目标：不良率降至0.5%",
         "",
         "DMAIC 过程：",
@@ -1958,7 +1958,7 @@ def create_lss_ppt():
         "2. DMAIC 是结构化问题解决的核心框架",
         "3. 数据驱动、统计严谨、工具丰富",
         "4. GB/BB/MBB 角色体系支撑持续改进",
-        "5. 紧固件行业全面适用",
+        "5. 制造业全面适用",
         "",
         "下一步行动计划：",
         "  [ ] 第1周：选定1个试点项目（建议从质量改进开始）",

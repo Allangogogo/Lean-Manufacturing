@@ -27,7 +27,7 @@ def seed():
     aid = cur.lastrowid
     print(f"[OK] Created assessment #{aid}")
 
-    # Insert dimension scores (typical fastener factory profile)
+    # Insert dimension scores (typical manufacturing factory profile)
     scores = [
         ("O", 2.8, 0.30),  # Operations - developing
         ("D", 1.8, 0.20),  # Digital - early stage

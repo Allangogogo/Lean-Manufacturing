@@ -19,7 +19,7 @@ class EquipmentCreateRequest(BaseModel):
     """添加设备。"""
     equipment_code: str = Field(..., min_length=1, max_length=30, description="设备编号")
     equipment_name: str = Field(..., min_length=1, max_length=200, description="设备名称")
-    equipment_type: str = Field(..., description="类型: cold_header/thread_roller/heat_treat/electroplating/sorter/packager")
+    equipment_type: str = Field(..., description="类型: machining/precision_machining/heat_treatment/surface_treatment/assembly/packaging")
     location: Optional[str] = Field(None, description="位置")
     manufacturer: Optional[str] = Field(None, description="制造商")
     model: Optional[str] = Field(None, description="型号")

@@ -195,7 +195,7 @@
     <div class="page-header-info">
       <div style="display: flex; align-items: center; gap: var(--space-3);">
         <a :href="'/project/' + projectId" class="btn btn-ghost btn-sm" style="padding: 2px 6px;">
-          <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path d="M12 5l-5 5 5 5" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+          <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path d="M 5l-5 5 5 5" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
         </a>
         <h1>项目甘特图</h1>
       </div>
@@ -230,7 +230,7 @@
             <template x-if="item.custom_class !== 'milestone'">
               <svg width="12" height="12" viewBox="0 0 20 20" fill="currentColor" style="color: var(--color-primary-500); flex-shrink: 0;">
                 <rect x="2" y="2" width="16" height="16" rx="3" fill="none" stroke="currentColor" stroke-width="1.5"/>
-                <path d="M6 10l3 3 5-5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+                <path d="M 10l3 3 5-5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/>
               </svg>
             </template>
             <span class="name" x-text="item.name"></span>
@@ -292,7 +292,7 @@
   <!-- Empty State -->
   <div class="empty-state" x-show="!loading && items.length === 0">
     <div class="empty-state-icon">
-      <svg width="48" height="48" viewBox="0 0 20 20" fill="currentColor" opacity="0.3"><path d="M2 4h4v3H2V4zm6 0h4v3H8V4zm6 0h4v3h-4V4zM2 9h4v3H2V9zm6 0h4v3H8V9zm6 0h4v3h-4V9zM2 14h4v3H2v-3zm6 0h4v3H8v-3z"/></svg>
+      <svg width="48" height="48" viewBox="0 0 20 20" fill="currentColor" opacity="0.3"><path d="M 4h4v3H2V4zm6 0h4v3H8V4zm6 0h4v3h-4V4zM2 9h4v3H2V9zm6 0h4v3H8V9zm6 0h4v3h-4V9zM2 14h4v3H2v-3zm6 0h4v3H8v-3z"/></svg>
     </div>
     <div class="empty-state-title">暂无甘特数据</div>
     <div class="empty-state-desc">该项目暂无任务和里程碑</div>

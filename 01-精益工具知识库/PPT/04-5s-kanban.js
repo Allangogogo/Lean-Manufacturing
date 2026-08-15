@@ -49,7 +49,7 @@ function createSlide1() {
   slide.addShape(S.ellipse, { x: -1, y: H - 3, w: 4, h: 4, fill: { color: C.G  }, line: { color: "FFFFFF" } });
   slide.addText("04", { x: 0.8, y: 1.2, w: 3.5, h: 3.5, fontFace: "Arial", fontSize: 120, bold: true, color: C.S , align: "left", valign: "middle" });
   slide.addText("5S 管理与看板详解", { x: 0.8, y: 4.2, w: 11, h: 1.2, fontFace: "Microsoft YaHei", fontSize: 40, bold: true, color: C.A, align: "left", valign: "middle" });
-  slide.addText("5S Management & Kanban System\n紧固件制造精益生产实践", { x: 0.8, y: 5.4, w: 11, h: 0.8, fontFace: "Microsoft YaHei", fontSize: 16, color: C.S, align: "left", valign: "middle" });
+  slide.addText("5S Management & Kanban System\n制造精益生产实践", { x: 0.8, y: 5.4, w: 11, h: 0.8, fontFace: "Microsoft YaHei", fontSize: 16, color: C.S, align: "left", valign: "middle" });
   slide.addShape(S.rect, { x: 0.8, y: 6.4, w: 3, h: 0.05, fill: { color: C.G } });
   addFooter(slide);
 }
@@ -59,7 +59,7 @@ function createSlide2() {
   var slide = pptx.addSlide();
   setBg(slide);
   addTopBar(slide, C.P, 0.06);
-  addTitleBand(slide, "5S 五个步骤详解", "Five Steps of 5S · 紧固件制造应用");
+  addTitleBand(slide, "5S 五个步骤详解", "Five Steps of 5S · 制造应用");
   addFooter(slide);
 
   var sData = [
@@ -94,7 +94,7 @@ function createSlide2() {
   });
 
   slide.addShape(S.roundRect, { x: 0.4, y: startY + boxH + 0.1, w: W - 0.8, h: 0.32, rectRadius: 0.06, fill: { color: C.P  }, line: { color: C.S  } });
-  slide.addText("紧固件制造要点：从原材料仓→冷镦车间→搓丝工位→热处理→表面处理→包装发货，全面推行5S确保品质与效率", { x: 0.6, y: startY + boxH + 0.1, w: W - 1.2, h: 0.32, fontFace: "Microsoft YaHei", fontSize: 10, color: C.TL, align: "left", valign: "middle" });
+  slide.addText("制造要点：从原材料仓→机加工车间→精加工工位→热处理→表面处理→包装发货，全面推行5S确保品质与效率", { x: 0.6, y: startY + boxH + 0.1, w: W - 1.2, h: 0.32, fontFace: "Microsoft YaHei", fontSize: 10, color: C.TL, align: "left", valign: "middle" });
 }
 
 // ===== SLIDE 3: 5S Implementation Tools =====
@@ -172,8 +172,8 @@ function createSlide3() {
   // 5S Zones
   slide.addText("5S 责任区域划分：", { x: 9.15, y: 4.55, w: 3.6, h: 0.28, fontFace: "Microsoft YaHei", fontSize: 9, bold: true, color: C.T });
   var zones = [
-    { label: "A区 - 冷镦车间", color: C.D },
-    { label: "B区 - 搓丝工位", color: C.W },
+    { label: "A区 - 机加工车间", color: C.D },
+    { label: "B区 - 精加工工位", color: C.W },
     { label: "C区 - 热处理区", color: C.G },
     { label: "D区 - 表面处理", color: C.TE },
     { label: "E区 - 包装发货", color: C.P },
@@ -238,7 +238,7 @@ function createSlide4() {
   // Right: Improvement Cases
   slide.addShape(S.roundRect, { x: 6.85, y: 1.5, w: 6.1, h: 5.4, rectRadius: 0.1, fill: { color: C.A }, line: { color: C.P, width: 2 } });
   slide.addShape(S.rect, { x: 6.85, y: 1.5, w: 6.1, h: 0.75, fill: { color: C.P }, line: { color: C.P } });
-  slide.addText("紧固件工厂 5S 改善案例", { x: 6.85, y: 1.5, w: 6.1, h: 0.75, fontFace: "Microsoft YaHei", fontSize: 14, bold: true, color: C.A, align: "center", valign: "middle" });
+  slide.addText("制造工厂 5S 改善案例", { x: 6.85, y: 1.5, w: 6.1, h: 0.75, fontFace: "Microsoft YaHei", fontSize: 14, bold: true, color: C.A, align: "center", valign: "middle" });
 
   var cases = [
     { title: "案例1 - 工具寻找改善", before: "平均寻找工具: 3.5分钟/次", after: "形迹管理后: 15秒/次", pct: "↓ 93%", color: C.D },
@@ -300,7 +300,7 @@ function createSlide5() {
 
   // Bottom: Kanban Flow Diagram
   slide.addShape(S.roundRect, { x: 0.35, y: 6.9, w: 12.6, h: 0.35, rectRadius: 0.06, fill: { color: C.P  }, line: { color: C.S  } });
-  slide.addText("看板循环流程：供应商 → [原料仓] → [冷镦工序] → [搓丝工序] → [热处理] → [表面处理] → [包装发货] → 客户    ·    信息流（看板）逆流而下，物流顺流而下", { x: 0.55, y: 6.9, w: 12.2, h: 0.35, fontFace: "Microsoft YaHei", fontSize: 9, color: C.TL, align: "left", valign: "middle" });
+  slide.addText("看板循环流程：供应商 → [原料仓] → [机加工工序] → [精加工工序] → [热处理] → [表面处理] → [包装发货] → 客户    ·    信息流（看板）逆流而下，物流顺流而下", { x: 0.55, y: 6.9, w: 12.2, h: 0.35, fontFace: "Microsoft YaHei", fontSize: 9, color: C.TL, align: "left", valign: "middle" });
 }
 
 // ===== SLIDE 6: Kanban Calculation =====
@@ -333,11 +333,11 @@ function createSlide6() {
   // Numerical examples
   slide.addShape(S.roundRect, { x: 6.85, y: 1.5, w: 6.1, h: 2.4, rectRadius: 0.1, fill: { color: C.A }, line: { color: C.G, width: 2 } });
   slide.addShape(S.rect, { x: 6.85, y: 1.5, w: 6.1, h: 0.7, fill: { color: C.G }, line: { color: C.G } });
-  slide.addText("螺栓生产实例计算", { x: 6.85, y: 1.5, w: 6.1, h: 0.7, fontFace: "Microsoft YaHei", fontSize: 14, bold: true, color: C.A, align: "center", valign: "middle" });
+  slide.addText("工件生产实例计算", { x: 6.85, y: 1.5, w: 6.1, h: 0.7, fontFace: "Microsoft YaHei", fontSize: 14, bold: true, color: C.A, align: "center", valign: "middle" });
   var calcRows = [
-    { p: "产品", v: "M10×50 六角螺栓" },
+    { p: "产品", v: "某型号 工件" },
     { p: "日需求量", v: "20,000 件/天" },
-    { p: "补充周期", v: "冷镦→包装: 0.5天" },
+    { p: "补充周期", v: "机加工→包装: 0.5天" },
     { p: "安全系数", v: "10%" },
     { p: "单箱装载", v: "500 件/箱" },
   ];
@@ -386,14 +386,14 @@ function createSlide7() {
   var slide = pptx.addSlide();
   setBg(slide);
   addTopBar(slide, C.TE, 0.06);
-  addTitleBand(slide, "看板实施案例", "Fastener Production Kanban · Cold Heading → Thread Rolling → Heat Treatment → Surface Treatment");
+  addTitleBand(slide, "看板实施案例", "Manufacturing Production Kanban · Machining → Precision Machining → Heat Treatment → Surface Treatment");
   addFooter(slide);
 
   // Top: Flow diagram of processes
   var processes = [
     { name: "原料仓\nMaterial\nWarehouse",   color: C.P },
-    { name: "冷镦\nCold\nHeading",            color: C.D },
-    { name: "搓丝\nThread\nRolling",           color: C.W },
+    { name: "机加工\nMachining",            color: C.D },
+    { name: "精加工\nPrecision\nMachining",           color: C.W },
     { name: "热处理\nHeat\nTreatment",         color: C.G },
     { name: "表面处理\nSurface\nTreatment",    color: C.TE },
     { name: "包装发货\nPack &\nShip",         color: C.P },
@@ -430,7 +430,7 @@ function createSlide7() {
   slide.addShape(S.roundRect, { x: 0.55, y: 4.4, w: 2.8, h: 2.15, rectRadius: 0.06, fill: { color: C.L }, line: { color: C.G, width: 1.5 } });
   slide.addShape(S.rect, { x: 0.55, y: 4.4, w: 2.8, h: 0.35, fill: { color: C.G }, line: { color: C.G } });
   slide.addText("生产看板", { x: 0.55, y: 4.4, w: 2.8, h: 0.35, fontFace: "Microsoft YaHei", fontSize: 9, bold: true, color: C.A, align: "center", valign: "middle" });
-  var card1Fields = ["产品: M10×50六角螺栓", "数量: 5,000件", "工序: 冷镦→搓丝", "交期: 当日14:00", "看板号: P-001"];
+  var card1Fields = ["产品: 某型号工件", "数量: 5,000件", "工序: 机加工→精加工", "交期: 当日14:00", "看板号: P-001"];
   card1Fields.forEach(function(f, fi) {
     slide.addText(f, { x: 0.65, y: 4.85 + fi * 0.28, w: 2.6, h: 0.24, fontFace: "Microsoft YaHei", fontSize: 8, color: C.T, align: "left", valign: "middle" });
   });
@@ -439,7 +439,7 @@ function createSlide7() {
   slide.addShape(S.roundRect, { x: 3.55, y: 4.4, w: 2.8, h: 2.15, rectRadius: 0.06, fill: { color: C.L }, line: { color: C.TE, width: 1.5 } });
   slide.addShape(S.rect, { x: 3.55, y: 4.4, w: 2.8, h: 0.35, fill: { color: C.TE }, line: { color: C.TE } });
   slide.addText("搬运看板", { x: 3.55, y: 4.4, w: 2.8, h: 0.35, fontFace: "Microsoft YaHei", fontSize: 9, bold: true, color: C.A, align: "center", valign: "middle" });
-  var card2Fields = ["物料: 冷镦半成品", "数量: 500件/箱 × 2箱", "从: 冷镦车间", "到: 搓丝工位", "看板号: W-003"];
+  var card2Fields = ["物料: 机加工半成品", "数量: 500件/箱 × 2箱", "从: 机加工车间", "到: 精加工工位", "看板号: W-003"];
   card2Fields.forEach(function(f, fi) {
     slide.addText(f, { x: 3.65, y: 4.85 + fi * 0.28, w: 2.6, h: 0.24, fontFace: "Microsoft YaHei", fontSize: 8, color: C.T, align: "left", valign: "middle" });
   });
@@ -465,7 +465,7 @@ function createSlide7() {
 
   // Bottom: Results
   slide.addShape(S.roundRect, { x: 0.35, y: 7.0, w: 12.6, h: 0.22, rectRadius: 0.06, fill: { color: C.G  }, line: { color: C.G  } });
-  slide.addText("实施效果：某紧固件厂推行看板后，在制品库存降低45%，交期缩短30%，换线时间减少25%，月产能提升15%", { x: 0.55, y: 7.0, w: 12.2, h: 0.22, fontFace: "Microsoft YaHei", fontSize: 9, bold: true, color: C.G, align: "left", valign: "middle" });
+  slide.addText("实施效果：某工厂推行看板后，在制品库存降低45%，交期缩短30%，换线时间减少25%，月产能提升15%", { x: 0.55, y: 7.0, w: 12.2, h: 0.22, fontFace: "Microsoft YaHei", fontSize: 9, bold: true, color: C.G, align: "left", valign: "middle" });
 }
 
 // ===== SLIDE 8: Summary =====

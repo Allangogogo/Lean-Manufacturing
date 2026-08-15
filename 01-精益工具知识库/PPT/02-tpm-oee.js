@@ -89,7 +89,7 @@ losses.forEach((l,i) => {
   s.addShape(S.rect, { x:x+0.15, y:y+1.35, w:3.7, h:0.12, fill:{color:"E2E8F0"}, rectRadius:0.04 });
   let fillW = (parseInt(l.p)/35) * 3.7;
   s.addShape(S.rect, { x:x+0.15, y:y+1.35, w:fillW, h:0.12, fill:{color:l.col}, rectRadius:0.04 });
-  s.addText("紧固件行业重点：减少故障和换型损失可显著提升OEE", { x:x+0.15, y:y+1.6, w:3.7, h:0.3, fontFace:"Arial", fontSize:8.5, color:C.TL });
+  s.addText("制造业重点：减少故障和换型损失可显著提升OEE", { x:x+0.15, y:y+1.6, w:3.7, h:0.3, fontFace:"Arial", fontSize:8.5, color:C.TL });
 });
 addFooter(s, "六大损失是OEE下降的根本原因 | 针对性改善可快速提升设备效率");
 
@@ -141,14 +141,14 @@ chain.forEach((c,i) => {
 s.addText("清扫即点检：通过日常清扫发现设备微缺陷，在故障发生前消除隐患", { x:0.8, y:3.7, w:11.7, h:0.35, fontFace:"Arial", fontSize:12, color:C.TL });
 addFooter(s, "自主维护是TPM的基石 | 操作员是设备的第一责任人");
 
-// Slide 6: OEE行业基准与紧固件KPI
-s = pptx.addSlide(); setBg(s); addTopBar(s, C.TE); addTitleBand(s, "OEE 行业基准与紧固件KPI", "OEE Benchmarks & Fastener KPIs");
+// Slide 6: OEE行业基准与产品KPI
+s = pptx.addSlide(); setBg(s); addTopBar(s, C.TE); addTitleBand(s, "OEE 行业基准与产品KPI", "OEE Benchmarks & Manufacturing KPIs");
 statCard(s, 0.4, 1.3, ">90%", "世界级\nWorld Class", C.G, "所有三项指标>90%");
 statCard(s, 3.6, 1.3, "80-90%", "优秀\nExcellent", C.TE, "行业领先水平");
 statCard(s, 6.8, 1.3, "65-80%", "发展中\nDeveloping", C.W, "有较大改善空间");
 statCard(s, 10.0, 1.3, "<65%", "落后\nPoor", C.D, "急需系统性改善");
 s.addShape(S.rect, { x:0.5, y:3.2, w:12.33, h:0.04, fill:{color:C.P}, line:{color:C.P,width:0} });
-s.addText("紧固件制造关键KPI", { x:0.8, y:3.4, w:5, h:0.4, fontFace:"Arial Black", fontSize:18, color:C.P, bold:true });
+s.addText("制造关键KPI", { x:0.8, y:3.4, w:5, h:0.4, fontFace:"Arial Black", fontSize:18, color:C.P, bold:true });
 const kpiRows = [
   ["KPI", "当前水平", "改善目标", "世界级标准"],
   ["OEE", "72%", "85%", ">90%"],
@@ -167,7 +167,7 @@ kpiRows.forEach((row,ri) => {
     s.addText(cell, { x:x+0.1, y:y+0.04, w:kpiW[ci]-0.2, h:0.3, fontFace:ri===0?"Arial Black":"Arial", fontSize:10, color:txtColor, align:"center", valign:"middle", margin:0 });
   });
 });
-addFooter(s, "OEE从72%提升至85%是紧固件企业3年精益转型的核心目标");
+addFooter(s, "OEE从72%提升至85%是制造企业3年精益转型的核心目标");
 
 pptx.writeFile({ fileName: path.join(OUT, "02-TPM与OEE详解.pptx") }).then(() => {
   console.log("✅ 02-TPM与OEE详解.pptx created!");

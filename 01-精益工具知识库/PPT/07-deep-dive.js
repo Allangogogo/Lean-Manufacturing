@@ -58,7 +58,7 @@ function drawRow(s,x,y,w,h,cells,cw,bg,isH){
   s.addText("07",{x:0.8,y:1.0,w:5,h:3,fontSize:100,bold:true,color:SC,fontFace:"Arial",valign:"middle",transparency:18});
   s.addShape(S.rect,{x:0.8,y:3.8,w:6,h:0.05,fill:{color:TE},line:{color:TE}});
   s.addText("深度专题研究",{x:0.8,y:3.9,w:12,h:1.2,fontSize:40,bold:true,color:AC,fontFace:"Microsoft YaHei",valign:"middle"});
-  s.addText("Deep Dive Research Topics  |  紧固件制造专用",{x:0.8,y:5.0,w:12,h:0.6,fontSize:16,color:SC,fontFace:"Microsoft YaHei",valign:"middle"});
+  s.addText("Deep Dive Research Topics  |  制造专用",{x:0.8,y:5.0,w:12,h:0.6,fontSize:16,color:SC,fontFace:"Microsoft YaHei",valign:"middle"});
   s.addShape(S.rect,{x:0.8,y:5.7,w:3,h:0.03,fill:{color:TL2},line:{color:TL2}});
   s.addText("变革管理  Change Management",{x:0.8,y:5.9,w:3.8,h:0.35,fontSize:11,color:TE,fontFace:"Microsoft YaHei",valign:"middle"});
   s.addText("质量标准整合  Quality Standards Integration",{x:4.8,y:5.9,w:4.5,h:0.35,fontSize:11,color:G,fontFace:"Microsoft YaHei",valign:"middle"});
@@ -75,7 +75,7 @@ function drawRow(s,x,y,w,h,cells,cw,bg,isH){
   s.addShape(S.rect,{x:0.8,y:1.85,w:0.8,h:0.45,fill:{color:TE},line:{color:TE}});
   s.addText("01",{x:0.8,y:1.85,w:0.8,h:0.45,fontSize:22,bold:true,color:AC,fontFace:"Arial",align:"center",valign:"middle"});
   s.addText("变革管理",{x:2.0,y:1.8,w:10,h:1.5,fontSize:52,bold:true,color:AC,fontFace:"Microsoft YaHei",valign:"middle"});
-  s.addText("Change Management  |  Leading Transformation in Fastener Plants",{x:0.8,y:3.4,w:12,h:0.6,fontSize:16,color:SC,fontFace:"Microsoft YaHei",valign:"middle"});
+  s.addText("Change Management  |  Leading Transformation in Manufacturing Plants",{x:0.8,y:3.4,w:12,h:0.6,fontSize:16,color:SC,fontFace:"Microsoft YaHei",valign:"middle"});
   s.addShape(S.rect,{x:0.8,y:4.2,w:4,h:0.04,fill:{color:TE},line:{color:TE}});
   s.addShape(S.rect,{x:0.8,y:4.6,w:0.1,h:0.38,fill:{color:TE},line:{color:TE}});
   s.addText("科特八步变革模型  —  Kotter's 8-Step Change Model",{x:1.1,y:4.6,w:10,h:0.4,fontSize:14,bold:true,color:AC,fontFace:"Microsoft YaHei",valign:"middle"});
@@ -88,13 +88,13 @@ function drawRow(s,x,y,w,h,cells,cw,bg,isH){
 // ============================================================
 (function(){
   var s=pptx.addSlide(); setBg(s); addTopBar(s,TE,0.06);
-  addTitleBand(s,"科特八步变革模型","Kotter's 8-Step Change Model — Fastener Manufacturing Application");
+  addTitleBand(s,"科特八步变革模型","Kotter's 8-Step Change Model — Discrete Manufacturing Application");
   addFooter(s,"变革管理  |  Change Management");
   var steps=[
     {cn:"建立紧迫感",en:"Create Urgency",c:D,action:"展示交期延误、客户投诉、利润下降数据；对标行业最佳实践"},
     {cn:"组建领导联盟",en:"Form Coalition",c:"6B21A8",action:"生产/质量/工程/HR总监组成跨部门变革核心小组"},
     {cn:"构建战略愿景",en:"Build Vision",c:P,action:"定义精益工厂愿景：换型<5min，OEE>85%，零缺陷交货"},
-    {cn:"沟通变革愿景",en:"Communicate Vision",c:"3B82F6",action:"全员大会、看板、班前会反复传递，用螺栓实物展示缺陷成本"},
+    {cn:"沟通变革愿景",en:"Communicate Vision",c:"3B82F6",action:"全员大会、看板、班前会反复传递，用工件实物展示缺陷成本"},
     {cn:"授权行动",en:"Enable Action",c:WA,action:"消除障碍：老旧设备更新、作业员提案制度、跨车间改善团队"},
     {cn:"创造短期成果",en:"Quick Wins",c:G,action:"选定试点产线30天内OEE提升10%，可视化成果公开展示"},
     {cn:"巩固成果深化",en:"Consolidate",c:"0891B2",action:"推广至全厂，用数据证明效益，调整KPI体系对齐精益目标"},
@@ -171,7 +171,7 @@ function drawRow(s,x,y,w,h,cells,cw,bg,isH){
   s.addShape(S.rect,{x:0.8,y:1.85,w:0.8,h:0.45,fill:{color:G},line:{color:G}});
   s.addText("02",{x:0.8,y:1.85,w:0.8,h:0.45,fontSize:22,bold:true,color:AC,fontFace:"Arial",align:"center",valign:"middle"});
   s.addText("质量标准整合",{x:2.0,y:1.8,w:10,h:1.5,fontSize:52,bold:true,color:AC,fontFace:"Microsoft YaHei",valign:"middle"});
-  s.addText("Quality Standards Integration  |  IATF 16949 & CQI-9 for Fasteners",{x:0.8,y:3.4,w:12,h:0.6,fontSize:16,color:SC,fontFace:"Microsoft YaHei",valign:"middle"});
+  s.addText("Quality Standards Integration  |  IATF 16949 & CQI-9 for Manufacturings",{x:0.8,y:3.4,w:12,h:0.6,fontSize:16,color:SC,fontFace:"Microsoft YaHei",valign:"middle"});
   s.addShape(S.rect,{x:0.8,y:4.2,w:4,h:0.04,fill:{color:G},line:{color:G}});
   s.addShape(S.rect,{x:0.8,y:4.6,w:0.1,h:0.38,fill:{color:G},line:{color:G}});
   s.addText("IATF 16949与精益整合  —  IATF 16949 Mapped to Lean Tools",{x:1.1,y:4.6,w:10,h:0.4,fontSize:14,bold:true,color:AC,fontFace:"Microsoft YaHei",valign:"middle"});
@@ -188,11 +188,11 @@ function drawRow(s,x,y,w,h,cells,cw,bg,isH){
   addFooter(s,"质量标准整合  |  Quality Standards Integration");
   var tw=W-1, th=0.42;
   var cw=[3.2,3.3,3.7];
-  drawRow(s,0.5,1.75,tw,th,["IATF核心要求","对应精益工具","紧固件实施要点"],cw,P,true);
+  drawRow(s,0.5,1.75,tw,th,["IATF核心要求","对应精益工具","产品实施要点"],cw,P,true);
   var rows=[
     ["APQP 产品质量先期策划","VSM 价值流图","VSM分析从原材料到成品全过程，识别增值/非增值环节"],
-    ["FMEA 潜在失效模式分析","Poka-Yoke 防错","在冷镦/搓丝/热处理工序设置防错装置，防止缺陷流出"],
-    ["SPC 统计过程控制","标准作业 Standard Work","标准作业确保过程稳定性，SPC监控关键尺寸如螺纹中径"],
+    ["FMEA 潜在失效模式分析","Poka-Yoke 防错","在机加工/精加工/热处理工序设置防错装置，防止缺陷流出"],
+    ["SPC 统计过程控制","标准作业 Standard Work","标准作业确保过程稳定性，SPC监控关键尺寸如关键直径"],
     ["MSA 测量系统分析","TPM 全面生产维护","测量设备TPM管理确保GRR<10%，保障检测数据可靠性"],
     ["PPAP 生产件批准程序","看板 Kanban","看板系统确保供应与节拍匹配，PPAP阶段的产能验证"]
   ];
@@ -239,7 +239,7 @@ function drawRow(s,x,y,w,h,cells,cw,bg,isH){
   // Monitoring parameters
   s.addText("关键炉内监控参数",{x:0.5,y:4.4,w:8,h:0.3,fontSize:11,bold:true,color:G,fontFace:"Microsoft YaHei"});
   var params=[
-    {name:"炉温均匀性",spec:"+-14C 连续炉",crit:"直接影响螺栓抗拉/硬度",c:G},
+    {name:"炉温均匀性",spec:"+-14C 连续炉",crit:"直接影响工件抗拉/硬度",c:G},
     {name:"保温时间",spec:"按材质计算",crit:"不足则组织转变不完全",c:P},
     {name:"碳势控制",spec:"0.75+-0.05 %C",crit:"影响表面碳含量与渗层",c:TE},
     {name:"冷却速率",spec:"C/s 按材料定",crit:"过快裂纹，过慢效率低",c:WA},
@@ -266,7 +266,7 @@ function drawRow(s,x,y,w,h,cells,cw,bg,isH){
   s.addShape(S.rect,{x:0.8,y:1.85,w:0.8,h:0.45,fill:{color:WA},line:{color:WA}});
   s.addText("03",{x:0.8,y:1.85,w:0.8,h:0.45,fontSize:22,bold:true,color:AC,fontFace:"Arial",align:"center",valign:"middle"});
   s.addText("精益数字化",{x:2.0,y:1.8,w:10,h:1.5,fontSize:52,bold:true,color:AC,fontFace:"Microsoft YaHei",valign:"middle"});
-  s.addText("Lean Digitalization  |  Industry 4.0 for Fastener Manufacturing",{x:0.8,y:3.4,w:12,h:0.6,fontSize:16,color:SC,fontFace:"Microsoft YaHei",valign:"middle"});
+  s.addText("Lean Digitalization  |  Industry 4.0 for Discrete Manufacturing",{x:0.8,y:3.4,w:12,h:0.6,fontSize:16,color:SC,fontFace:"Microsoft YaHei",valign:"middle"});
   s.addShape(S.rect,{x:0.8,y:4.2,w:4,h:0.04,fill:{color:WA},line:{color:WA}});
   s.addShape(S.rect,{x:0.8,y:4.6,w:0.1,h:0.38,fill:{color:WA},line:{color:WA}});
   s.addText("精益数字化路线图  —  4-Phase Digital Transformation Roadmap",{x:1.1,y:4.6,w:10,h:0.4,fontSize:14,bold:true,color:AC,fontFace:"Microsoft YaHei",valign:"middle"});
@@ -322,9 +322,9 @@ function drawRow(s,x,y,w,h,cells,cw,bg,isH){
   addFooter(s,"精益数字化  |  Lean Digitalization");
   // Three sensor type cards
   var sensors=[
-    {name:"振动监测",unit:"mm/s",c:D,items:["冷镦机轴承磨损预警","搓丝机刀具断裂检测","主电机不平衡监测","频谱偏差>20%触发报警"]},
+    {name:"振动监测",unit:"mm/s",c:D,items:["机加工设备轴承磨损预警","精加工设备刀具断裂检测","主电机不平衡监测","频谱偏差>20%触发报警"]},
     {name:"温度监测",unit:"C",c:WA,items:["炉温均匀性持续监控","轴承温度异常预警","电机绕组过热保护","温升>5C/小时触发报警"]},
-    {name:"电流监测",unit:"A",c:TE,items:["冷镦负载变化监测","空载能耗异常识别","刀具磨损间接判断","电流波动>15%触发报警"]}
+    {name:"电流监测",unit:"A",c:TE,items:["机加工负载变化监测","空载能耗异常识别","刀具磨损间接判断","电流波动>15%触发报警"]}
   ];
   var sw4=(W-1.5)/3, sx4=0.5, sy4=1.75;
   sensors.forEach(function(sen,i){
@@ -340,7 +340,7 @@ function drawRow(s,x,y,w,h,cells,cw,bg,isH){
   // Digital twin section
   s.addText("数字孪生四层架构",{x:0.5,y:4.5,w:8,h:0.3,fontSize:11,bold:true,color:WA,fontFace:"Microsoft YaHei"});
   var dt=[
-    {t:"物理层 Physical",x:0.5,w:2.8,c:P,d:"冷镦机/搓丝机/热处理炉 + IoT传感器实时采集"},
+    {t:"物理层 Physical",x:0.5,w:2.8,c:P,d:"机加工设备/精加工设备/热处理炉 + IoT传感器实时采集"},
     {t:"数据层 Data",x:3.7,w:2.8,c:TE,d:"边缘计算网关到云端时序数据库，清洗+聚合"},
     {t:"模型层 Model",x:6.9,w:2.8,c:"3B82F6",d:"3D物理仿真 + 退化模型 + 异常检测算法"},
     {t:"应用层 Apply",x:10.1,w:2.6,c:G,d:"预测性维护决策、远程监控、工艺参数优化"}
@@ -365,15 +365,15 @@ function drawRow(s,x,y,w,h,cells,cw,bg,isH){
 // ============================================================
 (function(){
   var s=pptx.addSlide(); setBg(s); addTopBar(s,WA,0.06);
-  addTitleBand(s,"AI质量预测","AI/ML for Quality Prediction in Fastener Manufacturing");
+  addTitleBand(s,"AI质量预测","AI/ML for Quality Prediction in Discrete Manufacturing");
   addFooter(s,"精益数字化  |  Lean Digitalization");
   var apps=[
     {t:"缺陷预测模型",st:"Defect Prediction",c:P,
-      items:["输入: 温度/压力/速度/时间/材质批号","模型: XGBoost + 随机森林集成","输出: 缺陷概率预测 + 关键因子排名","应用: 冷镦裂纹预测、螺纹不完整预警"]},
+      items:["输入: 温度/压力/速度/时间/材质批号","模型: XGBoost + 随机森林集成","输出: 缺陷概率预测 + 关键因子排名","应用: 机加工裂纹预测、加工不完整预警"]},
     {t:"智能SPC",st:"AI-Enhanced SPC",c:TE,
-      items:["传统SPC: 事后发现、批量报废风险","AI-SPC: 趋势预测、提前调整、防患未然","模式识别: 自动分类普通/特殊原因变异","应用: 螺纹中径趋势预测、硬度分布预警"]},
+      items:["传统SPC: 事后发现、批量报废风险","AI-SPC: 趋势预测、提前调整、防患未然","模式识别: 自动分类普通/特殊原因变异","应用: 关键尺寸趋势预测、硬度分布预警"]},
     {t:"自动视觉检测",st:"Automated Visual Insp.",c:WA,
-      items:["技术: 深度学习CNN + 工业相机","检测项: 表面裂纹/头部变形/螺纹缺损","速度: >600件/分钟，超越人工检测极限","准确率: >99.5%，持续学习迭代优化"]}
+      items:["技术: 深度学习CNN + 工业相机","检测项: 表面裂纹/端部变形/加工缺损","速度: >600件/分钟，超越人工检测极限","准确率: >99.5%，持续学习迭代优化"]}
   ];
   var aw5=(W-1.5)/3, ax5=0.5, ay5=1.75;
   apps.forEach(function(app,i){

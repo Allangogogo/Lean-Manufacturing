@@ -122,8 +122,8 @@ function statCard(slide, x, y, number, unit, label, color) {
   // Checklist
   s.addText("Gemba Walk 观察清单（连接件工厂专用）", { x: 0.5, y: 5.25, w: 7, h: 0.35, fontFace: "Microsoft YaHei", fontSize: 12, color: C.P, bold: true, valign: "middle" });
   var checks = [
-    "冷镦机首件检验记录是否按时填写？",
-    "攻牙工序是否有漏攻防错装置？",
+    "机加工设备首件检验记录是否按时填写？",
+    "精加工工序是否有漏攻防错装置？",
     "热处理炉温监控是否在标准范围内？",
     "包装工位称重扫码系统是否正常？",
     "操作员是否按标准作业顺序执行？",
@@ -214,12 +214,12 @@ function statCard(slide, x, y, number, unit, label, color) {
   s.addShape(S.ellipse, { x: bx + 4.93, y: by + 1.3, w: 2.2, h: 1.5, fill: { color: "EEF2FF" }, line: { color: C.P } });
   s.addText("持续改善\nKaizen\n螺旋上升", { x: bx + 4.93, y: by + 1.3, w: 2.2, h: 1.5, fontFace: "Microsoft YaHei", fontSize: 11, color: C.P, bold: true, align: "center", valign: "middle" });
 
-  // Fastener example
+  // Manufacturing example
   s.addShape(S.rect, { x: 0.5, y: 5.25, w: 12.33, h: 0.06, fill: { color: C.G }, line: { color: "000000" } });
-  s.addText("连接件实例：减少螺栓螺纹缺陷率（从 3.2% 降至 <0.5%）", { x: 0.5, y: 5.35, w: 12.33, h: 0.35, fontFace: "Microsoft YaHei", fontSize: 11, color: C.P, bold: true, align: "center" });
+  s.addText("连接件实例：减少工件尺寸缺陷率（从 3.2% 降至 <0.5%）", { x: 0.5, y: 5.35, w: 12.33, h: 0.35, fontFace: "Microsoft YaHei", fontSize: 11, color: C.P, bold: true, align: "center" });
   var exSteps = [
     { t: "PLAN: 数据分析，设定 0.5% 缺陷目标", c: C.P, w: 2.95 },
-    { t: "DO: 调整攻牙速度/更换丝锥材质试跑", c: C.G, w: 2.95 },
+    { t: "DO: 调整加工速度/更换刀具材质试跑", c: C.G, w: 2.95 },
     { t: "CHECK: 统计 3 批缺陷率对比效果", c: C.W, w: 2.95 },
     { t: "ACT: 更新标准作业，培训推广", c: C.TE, w: 2.95 },
   ];
@@ -289,9 +289,9 @@ function statCard(slide, x, y, number, unit, label, color) {
   // When to use
   s.addText("何时使用 DMAIC？  数据量大 + 根因不明确 + 需要严谨验证    何时使用 A3？  问题简单 + 团队共识 + 快速对策", { x: 0.55, y: 6.25, w: 12.23, h: 0.35, fontFace: "Microsoft YaHei", fontSize: 10, color: C.P, bold: true, align: "center" });
 
-  // Fastener example
+  // Manufacturing example
   s.addShape(S.roundRect, { x: 0.55, y: 6.65, w: 12.23, h: 0.42, fill: { color: "FEF3C7" }, rectRadius: 0.08, line: { color: C.W } });
-  s.addText("冷镦机 OEE 提升：D(OEE<60%) -> M(数据采集30天) -> A(停机分析找TOP5) -> I(快速换模+预防保养) -> C(SPC监控稳定>85%)", { x: 0.55, y: 6.65, w: 12.23, h: 0.42, fontFace: "Microsoft YaHei", fontSize: 10, color: C.T, bold: true, align: "center", valign: "middle" });
+  s.addText("机加工设备 OEE 提升：D(OEE<60%) -> M(数据采集30天) -> A(停机分析找TOP5) -> I(快速换模+预防保养) -> C(SPC监控稳定>85%)", { x: 0.55, y: 6.65, w: 12.23, h: 0.42, fontFace: "Microsoft YaHei", fontSize: 10, color: C.T, bold: true, align: "center", valign: "middle" });
 })();
 
 // ===== SLIDE 06: VA/VE =====
@@ -346,10 +346,10 @@ function statCard(slide, x, y, number, unit, label, color) {
   }
   s.addText("低成本高价值", { x: mx + mw + 0.05, y: my + mh * 0.5 - 0.15, w: 0.25, h: 0.3, fontFace: "Arial", fontSize: 8, color: C.TL, align: "center", valign: "middle" });
 
-  // Right side: fastener example
+  // Right side: manufacturing example
   cardB(s, 7.2, 5.05, 5.63, 2.05, C.TE, [
-    { t: "螺栓材料替代 VA/VE 实例", y: 0.08, size: 12, bold: true, color: C.P },
-    { t: "Q: 304不锈钢螺栓能否替换？", y: 0.4, size: 10, bold: true, color: C.W },
+    { t: "工件材料替代 VA/VE 实例", y: 0.08, size: 12, bold: true, color: C.P },
+    { t: "Q: 304不锈钢工件能否替换？", y: 0.4, size: 10, bold: true, color: C.W },
     { t: "分析：功能需求：防锈+强度 400MPa", y: 0.63, size: 9.5, color: C.T },
     { t: "方案：冷拉碳钢+达克罗涂层", y: 0.86, size: 9.5, color: C.T },
     { t: "效果：材料成本降低 35%（304: 18元/kg vs 碳钢: 6元/kg）", y: 1.09, size: 9.5, color: C.T },
@@ -389,7 +389,7 @@ function statCard(slide, x, y, number, unit, label, color) {
     ["数据需求", "低", "高", "低-中", "中", "无"],
     ["解决周期", "1-2 周", "1-3 月", "2-4 周", "2-4 周", "持续"],
     ["团队规模", "1-3 人", "3-6 人", "2-5 人", "3-5 人", "1-2 人"],
-    ["典型场景", "攻牙缺陷率上升", "冷镦机 OEE 降低", "包装效率改善", "螺栓材料降本", "日常巡检改善"],
+    ["典型场景", "加工缺陷率上升", "机加工设备 OEE 降低", "包装效率改善", "工件材料降本", "日常巡检改善"],
   ];
   var sceneColors = [C.T, C.TL, C.T, C.T, C.P];
 
@@ -430,20 +430,20 @@ function statCard(slide, x, y, number, unit, label, color) {
 // ===== SLIDE 08: Comprehensive Case Study =====
 (function(){
   var s = pptx.addSlide();
-  setBg(s); addTopBar(s, C.D); addTitleBand(s, "综合案例：多方法组合实战", "End-to-End Problem Solving in Fastener Manufacturing"); addFooter(s, "09 | 问题解决方法 | 综合案例");
+  setBg(s); addTopBar(s, C.D); addTitleBand(s, "综合案例：多方法组合实战", "End-to-End Problem Solving in Discrete Manufacturing"); addFooter(s, "09 | 问题解决方法 | 综合案例");
   sectLabel(s, "组合应用 · 端到端实战");
 
   // Case background
   cardB(s, 0.5, 1.78, 12.33, 0.9, C.D, [
-    { t: "案例背景：M12 高强螺栓的螺纹缺陷率从 1.2% 突增至 5.8%，客户投诉 3 起", y: 0.08, size: 12, bold: true, color: C.A },
-    { t: "挑战：根因不明 | 紧急恢复产能 | 防止复发 | 涉及冷镦-攻牙-热处理三道工序", y: 0.45, size: 10, color: C.A },
+    { t: "案例背景：某型号 高强工件的尺寸缺陷率从 1.2% 突增至 5.8%，客户投诉 3 起", y: 0.08, size: 12, bold: true, color: C.A },
+    { t: "挑战：根因不明 | 紧急恢复产能 | 防止复发 | 涉及机加工-精加工-热处理三道工序", y: 0.45, size: 10, color: C.A },
   ]);
 
   // Method flow
   var methods = [
-    { t: "STEP 1\nGemba Walk\n现场走动", st: "发现问题", d: "冷镦车间首件检查\n发现螺纹烂牙频次增加\n操作员反馈丝锥磨损快", c: C.G, x: 0.5 },
-    { t: "STEP 2\nA3 报告\n结构整理", st: "定义问题", d: "缺陷率趋势图\n划定攻牙工序为瓶颈\n设定目标: <1.5%", c: C.P, x: 3.0 },
-    { t: "STEP 3\nPDCA循环\n小步迭代", st: "快速试跑", d: "调整攻牙速度/频率\n统计改善后数据\n验证丝锥更换周期", c: C.W, x: 5.5 },
+    { t: "STEP 1\nGemba Walk\n现场走动", st: "发现问题", d: "机加工车间首件检查\n发现表面烂纹频次增加\n操作员反馈刀具磨损快", c: C.G, x: 0.5 },
+    { t: "STEP 2\nA3 报告\n结构整理", st: "定义问题", d: "缺陷率趋势图\n划定精加工工序为瓶颈\n设定目标: <1.5%", c: C.P, x: 3.0 },
+    { t: "STEP 3\nPDCA循环\n小步迭代", st: "快速试跑", d: "调整加工速度/频率\n统计改善后数据\n验证刀具更换周期", c: C.W, x: 5.5 },
     { t: "STEP 4\nDMAIC分析\n数据深挖", st: "根因确认", d: "DOE 三因子实验\n确认温度为主因\n优化切削参数组合", c: C.D, x: 8.0 },
     { t: "STEP 5\nResults\n成果验证", st: "标准化", d: "缺陷率降至 0.8%\n更新作业标准\n横向展开至全品类", c: C.TE, x: 10.5 },
   ];

@@ -201,12 +201,12 @@ draft → submitted → reviewing → approved → implementing → verified →
 ### 设备类型 (tpm_equipment.equipment_type)
 | 编码 | 名称 |
 |------|------|
-| `cold_header` | 冷镦机 |
-| `thread_roller` | 搓丝机 |
-| `heat_treat` | 热处理设备 |
-| `electroplating` | 电镀/表面处理设备 |
-| `sorter` | 分选机 |
-| `packager` | 包装机 |
+| `machining` | 机加工设备 |
+| `precision_machining` | 精加工设备 |
+| `heat_treatment` | 热处理设备 |
+| `surface_treatment` | 表面处理设备 |
+| `assembly` | 装配设备 |
+| `packaging` | 包装机 |
 | `other` | 其他 |
 
 ### 项目类型 (projects.project_type)

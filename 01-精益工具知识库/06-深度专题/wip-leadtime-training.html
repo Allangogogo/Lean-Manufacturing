@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>紧固件WIP库存培训动画</title>
+<title>产品WIP库存培训动画</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
@@ -322,7 +322,7 @@
 <div class="main-content">
   <!-- Header -->
   <div class="header">
-    <h1>🔩 紧固件WIP库存与Leadtime关系</h1>
+    <h1>🔩 产品WIP库存与Leadtime关系</h1>
     <p>理解工序瓶颈如何导致在制品(WIP)堆积和资金占用</p>
   </div>
 
@@ -379,11 +379,11 @@
     <div class="ctrl-group">
       <label>瓶颈工序（产出减半）</label>
       <select id="s-bn">
-        <option value="0">冷镦</option>
+        <option value="0">机加工</option>
         <option value="1">搓牙</option>
         <option value="2" selected>热处理</option>
         <option value="3">电镀</option>
-        <option value="4">分选包装</option>
+        <option value="4">装配包装</option>
       </select>
     </div>
     <div class="ctrl-group">
@@ -410,11 +410,11 @@
 <script>
 // ===== State =====
 const PROCESSES = [
-  { name: '冷镦',     icon: '🔨', equip: 3,  baseLT: 1.0, valueAdd: 0.3 },
+  { name: '机加工',     icon: '🔨', equip: 3,  baseLT: 1.0, valueAdd: 0.3 },
   { name: '搓牙',     icon: '⚙️',  equip: 4,  baseLT: 0.8, valueAdd: 0.2 },
   { name: '热处理',   icon: '🔥', equip: 2,  baseLT: 1.5, valueAdd: 0.5 },
   { name: '电镀',     icon: '💧', equip: 2,  baseLT: 1.2, valueAdd: 0.4 },
-  { name: '分选包装', icon: '📦', equip: 2,  baseLT: 0.8, valueAdd: 0.2 }
+  { name: '装配包装', icon: '📦', equip: 2,  baseLT: 0.8, valueAdd: 0.2 }
 ];
 
 let state = {

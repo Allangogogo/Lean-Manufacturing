@@ -105,11 +105,11 @@ s.addShape(S.roundRect,{x:tx+4.28,y:5,w:3.9,h:.38,fill:{color:C.W},rectRadius:.1
 s.addShape(S.rightArrow,{x:tx+3.9,y:5.05,w:.38,h:.28,fill:{color:C.TL},line:{color:C.TL}})})();
 
 // SLIDE 03: Cases
-(function(){var s=pptx.addSlide();setBg(s);addTopBar(s,C.G);addTitleBand(s,"防错装置案例","Poka-Yoke Devices in Fastener Manufacturing");addFooter(s,"05 | 防错与SMED详解 | 防错装置案例");sectLabel(s,"连接件制造 · 实战案例");
+(function(){var s=pptx.addSlide();setBg(s);addTopBar(s,C.G);addTitleBand(s,"防错装置案例","Poka-Yoke Devices in Discrete Manufacturing");addFooter(s,"05 | 防错与SMED详解 | 防错装置案例");sectLabel(s,"连接件制造 · 实战案例");
 cardB(s,.5,1.78,3.9,2.55,C.G,[{t:"案例1：错误模具检测",y:.08,size:12,bold:true,color:C.P},{t:"问题：换模时装错模具导致批量废品",y:.42,size:10,color:C.TL},{t:"方案：模具定位销+接近传感器联动",y:.72,size:10,color:C.TL},{t:"效果：错误安装100%检测并报警停机",y:1.02,size:10,color:C.TL},{t:"防错类型：接触法+定值法",y:1.32,size:9.5,color:C.TE},{t:"Zero Defect Since 2021",y:1.85,size:10,bold:true,color:C.G}]);
-cardB(s,4.7,1.78,3.9,2.55,C.TE,[{t:"案例2：漏螺纹检测",y:.08,size:12,bold:true,color:C.P},{t:"问题：攻牙工序漏攻螺纹流出",y:.42,size:10,color:C.TL},{t:"方案：通止规在线自动检测装置",y:.72,size:10,color:C.TL},{t:"效果：每件自动检测，NG品自动排出",y:1.02,size:10,color:C.TL},{t:"防错类型：接触法+动作步骤法",y:1.32,size:9.5,color:C.TE},{t:"Detection at Every Piece",y:1.85,size:10,bold:true,color:C.TE}]);
+cardB(s,4.7,1.78,3.9,2.55,C.TE,[{t:"案例2：漏尺寸检测",y:.08,size:12,bold:true,color:C.P},{t:"问题：加工工序漏加工尺寸流出",y:.42,size:10,color:C.TL},{t:"方案：量规在线自动检测装置",y:.72,size:10,color:C.TL},{t:"效果：每件自动检测，NG品自动排出",y:1.02,size:10,color:C.TL},{t:"防错类型：接触法+动作步骤法",y:1.32,size:9.5,color:C.TE},{t:"Detection at Every Piece",y:1.85,size:10,bold:true,color:C.TE}]);
 cardB(s,8.9,1.78,3.93,2.55,C.W,[{t:"案例3：材料混料检测",y:.08,size:12,bold:true,color:C.P},{t:"问题：不同钢号（304 vs 316）混料",y:.42,size:10,color:C.TL},{t:"方案：激光光谱在线识别+自动分流",y:.72,size:10,color:C.TL},{t:"效果：实时识别，自动分流至对应料仓",y:1.02,size:10,color:C.TL},{t:"防错类型：成组法",y:1.32,size:9.5,color:C.TE},{t:"Material Mix-up Prevented",y:1.85,size:10,bold:true,color:C.W}]);
-cardB(s,2.6,4.60,8.13,2.15,C.D,[{t:"案例4：包装混装防错  Mix-up Prevention",y:.08,size:12,bold:true,color:C.P},{t:"问题：不同规格螺栓（M8 vs M10）混装出货",y:.42,size:10,color:C.TL},{t:"方案：自动称重扫码系统+条码双重校验",y:.72,size:10,color:C.TL},{t:"效果：错装出货次数降为零；视频联动拍照存档",y:1.02,size:10,color:C.TL},{t:"称重精度：±0.1g   扫码速度：<1秒   追溯保存：3年+",y:1.45,size:9.5,bold:true,color:C.D}]);
+cardB(s,2.6,4.60,8.13,2.15,C.D,[{t:"案例4：包装混装防错  Mix-up Prevention",y:.08,size:12,bold:true,color:C.P},{t:"问题：不同规格工件（某型号 vs 某型号）混装出货",y:.42,size:10,color:C.TL},{t:"方案：自动称重扫码系统+条码双重校验",y:.72,size:10,color:C.TL},{t:"效果：错装出货次数降为零；视频联动拍照存档",y:1.02,size:10,color:C.TL},{t:"称重精度：±0.1g   扫码速度：<1秒   追溯保存：3年+",y:1.45,size:9.5,bold:true,color:C.D}]);
 s.addShape(S.diamond,{x:6,y:4.15,w:1.33,h:.85,fill:{color:"EEF2FF"},line:{color:C.P}});s.addText("均属于",{x:6,y:4.2,w:1.33,h:.75,fontFace:"Microsoft YaHei",fontSize:10,color:C.P,align:"center",valign:"middle",bold:true})})();
 
 // SLIDE 04: Implementation
@@ -142,8 +142,8 @@ s.addShape(S.rect,{x:1,y:dy+.5,w:11.33,h:.5,fill:{color:"FEE2E2"},line:{color:"0
 s.addShape(S.rect,{x:1,y:dy+1.15,w:11.33,h:.5,fill:{color:"ECFDF5"},line:{color:"000000"}});s.addShape(S.rect,{x:1,y:dy+1.15,w:1.5,h:.5,fill:{color:C.G},line:{color:"000000"}});s.addText("换前 Internal <10min（目标）  |  外部准备已全部完成",{x:1,y:dy+1.15,w:11.33,h:.5,fontFace:"Microsoft YaHei",fontSize:11,color:C.G,bold:true,align:"center",valign:"middle"});
 s.addText("压缩率 >80%",{x:1,y:dy+1.75,w:11.33,h:.3,fontFace:"Microsoft YaHei",fontSize:18,color:C.G,bold:true,align:"center",valign:"middle"})})();
 
-// SLIDE 06: SMED Fastener Case Study
-(function(){var s=pptx.addSlide();setBg(s);addTopBar(s,C.TE);addTitleBand(s,"SMED 连接件案例","Cold Heading Die Change: 60min → <10min");addFooter(s,"05 | 防错与SMED详解 | SMED 连接件案例");sectLabel(s,"冷镦模换模改善实例");
+// SLIDE 06: SMED Manufacturing Case Study
+(function(){var s=pptx.addSlide();setBg(s);addTopBar(s,C.TE);addTitleBand(s,"SMED 连接件案例","Machining Die Change: 60min → <10min");addFooter(s,"05 | 防错与SMED详解 | SMED 连接件案例");sectLabel(s,"机加工模换模改善实例");
 // Before/After columns
 // Before header
 s.addShape(S.rect,{x:.5,y:1.78,w:5.9,h:.44,fill:{color:C.D},line:{color:C.D}});s.addText("改善前 BEFORE（合计 60 分钟）",{x:.5,y:1.78,w:5.9,h:.44,fontFace:"Microsoft YaHei",fontSize:13,color:C.A,bold:true,align:"center",valign:"middle"});

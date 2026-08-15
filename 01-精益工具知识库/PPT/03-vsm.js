@@ -119,13 +119,13 @@ addFooter(s3, "VSM不是一次性项目，而是持续改善的循环 | 建议�
 
 // ======== Slide 4: VSM当前状态图 ========
 var s4 = pptx.addSlide(); setBg(s4); addTopBar(s4, C.TE); addTitleBand(s4, "VSM 当前状态图", "Current State Map");
-s4.addText("当前状态图绘制要素 — 以紧固件生产为例", { x:0.5, y:1.15, w:12.33, h:0.4, fontFace:"Arial Black", fontSize:16, color:C.P, bold:true });
+s4.addText("当前状态图绘制要素 — 以产品生产为例", { x:0.5, y:1.15, w:12.33, h:0.4, fontFace:"Arial Black", fontSize:16, color:C.P, bold:true });
 var processes = [
-  { n:"冷镦\nCold Forging", t:"2.5min", u:"85%", d:"2000" },
-  { n:"搓丝\nThread Roll", t:"1.8min", u:"90%", d:"2500" },
+  { n:"机加工\nMachining", t:"2.5min", u:"85%", d:"2000" },
+  { n:"精加工\nPrecision Mach.", t:"1.8min", u:"90%", d:"2500" },
   { n:"热处理\nHeat Treat.", t:"45min", u:"75%", d:"500" },
   { n:"表面处理\nSurface Tr.", t:"30min", u:"80%", d:"800" },
-  { n:"分选\nInspection", t:"0.5min", u:"95%", d:"3000" },
+  { n:"装配\nAssembly", t:"0.5min", u:"95%", d:"3000" },
   { n:"包装\nPackaging", t:"0.3min", u:"98%", d:"5000" }
 ];
 processes.forEach(function(p,i) {
@@ -186,18 +186,18 @@ s5.addShape(S.roundRect, { x:0.5, y:5.1, w:12.33, h:0.45, fill:{color:C.G}, tran
 s5.addText("目标指标：Lead Time -50% | 库存 -60% | 增值比 >5% | OEE >85%", { x:0.5, y:5.12, w:12.33, h:0.42, fontFace:"Arial Black", fontSize:13, color:C.G, align:"center", valign:"middle" });
 addFooter(s5, "未来状态图是改善的蓝图 | 从现状到未来需要分阶段实施");
 
-// ======== Slide 6: 紧固件行业VSM应用 ========
-var s6 = pptx.addSlide(); setBg(s6); addTopBar(s6, C.TE); addTitleBand(s6, "紧固件行业 VSM 应用", "VSM in Fastener Manufacturing");
-s6.addText("典型紧固件生产价值流", { x:0.5, y:1.15, w:12.33, h:0.4, fontFace:"Arial Black", fontSize:16, color:C.P, bold:true });
-var fastenerSteps = [
-  { n:"冷镦", sub:"Cold Forging", ct:"2.5", up:"85%", bt:"500", c:C.P },
-  { n:"搓丝", sub:"Thread Roll", ct:"1.8", up:"90%", bt:"700", c:C.TE },
+// ======== Slide 6: 制造业VSM应用 ========
+var s6 = pptx.addSlide(); setBg(s6); addTopBar(s6, C.TE); addTitleBand(s6, "制造业 VSM 应用", "VSM in Discrete Manufacturing");
+s6.addText("典型产品生产价值流", { x:0.5, y:1.15, w:12.33, h:0.4, fontFace:"Arial Black", fontSize:16, color:C.P, bold:true });
+var manufacturingSteps = [
+  { n:"机加工", sub:"Machining", ct:"2.5", up:"85%", bt:"500", c:C.P },
+  { n:"精加工", sub:"Precision Mach.", ct:"1.8", up:"90%", bt:"700", c:C.TE },
   { n:"热处理", sub:"Heat Treat.", ct:"45", up:"75%", bt:"1200", c:C.W },
   { n:"表面处理", sub:"Surface Tr.", ct:"30", up:"80%", bt:"1000", c:C.D },
-  { n:"分选", sub:"Inspection", ct:"0.5", up:"95%", bt:"300", c:C.G },
+  { n:"装配", sub:"Assembly", ct:"0.5", up:"95%", bt:"300", c:C.G },
   { n:"包装", sub:"Packaging", ct:"0.3", up:"98%", bt:"200", c:C.TE }
 ];
-fastenerSteps.forEach(function(fs,i) {
+manufacturingSteps.forEach(function(fs,i) {
   var x = 0.3 + i*2.1;
   s6.addShape(S.roundRect, { x:x, y:1.7, w:1.95, h:1.8, fill:{color:C.A}, shadow:{type:"outer",color:"000000",blur:4,offset:1,angle:135,opacity:0.08}, rectRadius:0.08 });
   s6.addShape(S.rect, { x:x, y:1.7, w:1.95, h:0.28, fill:{color:fs.c}, line:{color:fs.c,width:0} });
@@ -216,7 +216,7 @@ s6.addShape(S.roundRect, { x:0.5, y:3.8, w:12.33, h:1.6, fill:{color:C.P}, trans
 s6.addText("关键改善机会", { x:0.8, y:3.9, w:11.7, h:0.35, fontFace:"Arial Black", fontSize:14, color:C.P, bold:true });
 var opportunities = [
   { t:"热处理瓶颈", d:"CT=45min是最大瓶颈，建议增加设备或优化装炉量", c:C.D, num:"01" },
-  { t:"换型时间长", d:"冷镦换型>60min，实施SMED可降至<10min", c:C.W, num:"02" },
+  { t:"换型时间长", d:"机加工换型>60min，实施SMED可降至<10min", c:C.W, num:"02" },
   { t:"在制品积压", d:"总WIP达3900件，拉动式可减少60%", c:C.TE, num:"03" },
   { t:"信息流断裂", d:"计划到现场信息传递滞后，建议电子看板", c:C.G, num:"04" }
 ];
@@ -227,7 +227,7 @@ opportunities.forEach(function(opp,i) {
   s6.addText(opp.num + " " + opp.t, { x:x+0.1, y:4.32, w:2.6, h:0.2, fontFace:"Arial Black", fontSize:9, color:C.A, bold:true, margin:0 });
   s6.addText(opp.d, { x:x+0.1, y:4.58, w:2.6, h:0.65, fontFace:"Arial", fontSize:8, color:C.T, valign:"top" });
 });
-addFooter(s6, "紧固件行业VSM核心：减少热处理瓶颈和换型时间 | 建立拉动式生产体系");
+addFooter(s6, "制造业VSM核心：减少热处理瓶颈和换型时间 | 建立拉动式生产体系");
 
 // ======== Slide 7: VSM关键指标 ========
 var s7 = pptx.addSlide(); setBg(s7); addTopBar(s7, C.TE); addTitleBand(s7, "VSM 关键指标与KPI", "Key Performance Indicators");

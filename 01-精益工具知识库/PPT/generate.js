@@ -88,7 +88,7 @@ s1.addText("精益工具知识库", {
   fontFace: "Arial Black", fontSize: 44, color: "FFFFFF",
   bold: true, valign: "middle"
 });
-s1.addText("金属紧固件制造企业精益转型核心指南", {
+s1.addText("离散制造企业精益转型核心指南", {
   x: 0.8, y: 2.3, w: 7.5, h: 0.6,
   fontFace: "Arial", fontSize: 20, color: "CADCFC",
   valign: "middle"
@@ -103,7 +103,7 @@ s1.addShape(pptx.ShapeType.rect, {
   fill: { color: "F59E0B" }, line: { color: "F59E0B", width: 0 }
 });
 
-s1.addText("打造适合紧固件行业的精益知识体系", {
+s1.addText("打造适合制造业的精益知识体系", {
   x: 0.8, y: 3.55, w: 6.5, h: 0.5,
   fontFace: "Arial", fontSize: 14, color: "94A3B8",
   valign: "middle"
@@ -157,7 +157,7 @@ const tocItems = [
   { title: "01 精益基础",        desc: "精益哲学 . 八大浪费 . TPS体系 . 术语表",              color: "0D9488" },
   { title: "02 核心工具（13+）", desc: "看板 . VSM . 安灯 . 标准作业 . TPM . 5S 等",         color: "1E2761" },
   { title: "03 问题解决方法",    desc: "Gemba Walk . A3 . PDCA . DMAIC . VA/VE",             color: "F59E0B" },
-  { title: "04 紧固件行业应用",  desc: "冷镦 . 搓丝 . 热处理 . 表面处理 . 包装",             color: "0891B2" },
+  { title: "04 制造工序应用",  desc: "机加工 . 精加工 . 热处理 . 表面处理 . 包装",             color: "0891B2" },
   { title: "05 实践案例集",      desc: "SMED改善案例 . 改善提案模板 . 实施指南",              color: "7C3AED" },
   { title: "06 深度专题研究",    desc: "变革管理 . VSM高级实战 . 质量标准整合 . 精益数字化",  color: "DC2626" }
 ];
@@ -204,7 +204,7 @@ tocItems.forEach(function(item, i) {
   });
 });
 
-addFooter(s2, "共 6 大模块 | 13+ 核心工具 | 覆盖紧固件制造全流程");
+addFooter(s2, "共 6 大模块 | 13+ 核心工具 | 覆盖制造全流程");
 
 // ============ SLIDE 3: FIVE PRINCIPLES ============
 const s3 = pptx.addSlide();
@@ -404,7 +404,7 @@ wastes.forEach(function(w, i) {
   });
 });
 
-addFooter(s4, "紧固件行业重点关注：过量生产、库存积压、搬运频繁");
+addFooter(s4, "制造业重点关注：过量生产、库存积压、搬运频繁");
 
 // ============ SLIDE 5: 13+ TOOLS OVERVIEW ============
 const s5 = pptx.addSlide();

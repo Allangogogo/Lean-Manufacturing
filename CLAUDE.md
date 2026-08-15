@@ -4,9 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Knowledge Base Overview
 
-This is a comprehensive Lean Manufacturing knowledge base and management system for metal fastener manufacturing. It covers lean tools, training, maturity assessment, implementation strategy, and project management.
+This is a comprehensive Lean Manufacturing knowledge base and management system for discrete manufacturing. It covers lean tools, training, maturity assessment, implementation strategy, and project management.
 
-**Industry**: Metal fasteners (cold heading → thread rolling → heat treatment → surface treatment → sorting → packaging)
+**Industry**: Discrete manufacturing (machining → precision machining → heat treatment → surface treatment → assembly → packaging)
 
 **Target**: Lean transformation from L2 to L4 maturity over 36 months
 
@@ -14,7 +14,7 @@ This is a comprehensive Lean Manufacturing knowledge base and management system 
 
 | Directory | Content Type | Key Topics |
 |-----------|-------------|------------|
-| `01-精益工具知识库/` | Knowledge Base | Lean philosophy, 13 core tools (+深化), 5 problem-solving methods, fastener applications, deep-dive topics, case studies |
+| `01-精益工具知识库/` | Knowledge Base | Lean philosophy, 13 core tools (+深化), 5 problem-solving methods, manufacturing applications, deep-dive topics, case studies |
 | `01-精益工具知识库/06-深度专题/` | Advanced Topics | Change management, advanced VSM, quality standards integration, digital lean & Industry 4.0 |
 | `02-精益培训/` | Training | Training strategy, materials, plans, templates, tracking, feedback |
 | `03-成熟度评估/` | Assessment | 5-level maturity model, factory-wide & process-specific assessments |
@@ -42,11 +42,11 @@ This is a comprehensive Lean Manufacturing knowledge base and management system 
 **Deep-Dive Topics (06-深度专题):**
 - Change Management → `01-精益工具知识库/06-深度专题/01-精益实施变革管理指南.md`
 - Advanced VSM → `01-精益工具知识库/06-深度专题/02-价值流图高级实战指南.md`
-- Quality Standards → `01-精益工具知识库/06-深度专题/03-紧固件行业质量标准与精益整合.md`
+- Quality Standards → `01-精益工具知识库/06-深度专题/03-制造业质量标准与精益整合.md`
 - Digital Lean → `01-精益工具知识库/06-深度专题/04-精益数字化与智能制造.md`
 - **Industry 5.0 & Lean** → `01-精益工具知识库/06-深度专题/06-Industry5.0与精益融合框架.md`
 - **Leagile** → `01-精益工具知识库/06-深度专题/07-Leagile精益敏捷融合策略.md`
-- **Automation & Digital** → `01-精益工具知识库/06-深度专题/08-紧固件自动化与数字化实战.md`
+- **Automation & Digital** → `01-精益工具知识库/06-深度专题/08-制造自动化与数字化实战.md`
 - **Resilient Supply Chain** → `01-精益工具知识库/06-深度专题/09-韧性供应链与精益.md`
 - **Lean Strategy** → `01-精益工具知识库/06-深度专题/10-精益战略思维与商业模式创新.md`
 - **Lean 2.0 Tool Upgrade Index** → `01-精益工具知识库/06-深度专题/11-核心工具Lean2.0升级路径索引.md`
@@ -55,7 +55,7 @@ This is a comprehensive Lean Manufacturing knowledge base and management system 
 - Quick Reference → `01-精益工具知识库/精益工具快速参考指南.md`
 - Tool Relationships → `01-精益工具知识库/工具关联与应用指南.md`
 - Improvement Proposal → `01-精益工具知识库/05-实践案例集/02-精益改善提案模板.md`
-- SMED Case Study → `01-精益工具知识库/05-实践案例集/01-冷镦工序SMED改善案例.md`
+- SMED Case Study → `01-精益工具知识库/05-实践案例集/01-机加工工序SMED改善案例.md`
 
 **Problem Solving:**
 - Gemba Walk → `01-精益工具知识库/03-问题解决方法/01-现场走动GembaWalk.md`
@@ -64,12 +64,12 @@ This is a comprehensive Lean Manufacturing knowledge base and management system 
 - DMAIC → `01-精益工具知识库/03-问题解决方法/04-DMAIC方法论.md`
 - VA/VE → `01-精益工具知识库/03-问题解决方法/05-价值分析VA_VE.md`
 
-**Fastener Industry Applications:**
-- Cold heading → `01-精益工具知识库/04-紧固件行业应用/01-冷镦工序精益应用.md`
-- Thread rolling → `01-精益工具知识库/04-紧固件行业应用/02-搓丝工序精益应用.md`
-- Heat treatment → `01-精益工具知识库/04-紧固件行业应用/03-热处理工序精益应用.md`
-- Surface treatment → `01-精益工具知识库/04-紧固件行业应用/04-表面处理工序精益应用.md`
-- Packaging → `01-精益工具知识库/04-紧固件行业应用/05-包装工序精益应用.md`
+**Manufacturing Process Applications:**
+- Machining → `01-精益工具知识库/04-制造工序应用/01-机加工工序精益应用.md`
+- Precision machining → `01-精益工具知识库/04-制造工序应用/02-精加工工序精益应用.md`
+- Heat treatment → `01-精益工具知识库/04-制造工序应用/03-热处理工序精益应用.md`
+- Surface treatment → `01-精益工具知识库/04-制造工序应用/04-表面处理工序精益应用.md`
+- Packaging → `01-精益工具知识库/04-制造工序应用/05-包装工序精益应用.md`
 
 **Maturity Assessment:**
 - 5-level model → `03-成熟度评估/01-评估框架/01-精益成熟度模型(5级).md`
@@ -114,6 +114,6 @@ This is a comprehensive Lean Manufacturing knowledge base and management system 
 
 **For PMO:** Use `05-项目管理/` for project templates. Reference `04-实施战略/02-详细计划/` for implementation planning.
 
-**For Engineers/Team Leaders:** Start with `01-精益工具知识库/02-核心工具/` for specific tools. See `01-精益工具知识库/04-紧固件行业应用/` for industry practice.
+**For Engineers/Team Leaders:** Start with `01-精益工具知识库/02-核心工具/` for specific tools. See `01-精益工具知识库/04-制造工序应用/` for industry practice.
 
 **For AI Assistants:** Use this CLAUDE.md as the entry point. The `appendix/01-精益术语表.md` provides essential domain context.

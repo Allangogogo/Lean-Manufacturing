@@ -177,7 +177,7 @@ CREATE TABLE IF NOT EXISTS kaizen_attachments (
 CREATE TABLE IF NOT EXISTS five_s_areas (
     id          INTEGER PRIMARY KEY AUTOINCREMENT,
     factory_id  INTEGER NOT NULL REFERENCES factories(id),
-    name        VARCHAR(100) NOT NULL,                -- 区域名称（如：冷镦车间A线）
+    name        VARCHAR(100) NOT NULL,                -- 区域名称（如：机加工车间A线）
     code        VARCHAR(20),                          -- 区域编码
     description TEXT,
     responsible_id INTEGER REFERENCES users(id),      -- 区域负责人
@@ -294,7 +294,7 @@ CREATE TABLE IF NOT EXISTS tpm_equipment (
     id                INTEGER PRIMARY KEY AUTOINCREMENT,
     equipment_code    VARCHAR(30)  NOT NULL UNIQUE,    -- 设备编号
     equipment_name    VARCHAR(200) NOT NULL,
-    equipment_type    VARCHAR(30)  NOT NULL,           -- cold_header/thread_roller/heat_treat/electroplating/sorter/packager/other
+    equipment_type    VARCHAR(30)  NOT NULL,           -- machining/precision_machining/heat_treatment/surface_treatment/assembly/packaging/other
     location          VARCHAR(200),
     factory_id        INTEGER      NOT NULL REFERENCES factories(id),
     manufacturer      VARCHAR(100),                    -- 制造商

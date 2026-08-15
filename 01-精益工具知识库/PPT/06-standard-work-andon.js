@@ -1,4 +1,4 @@
-// 06-标准作业与安灯详解.pptx - Standard Work & Andon for Fastener Manufacturing
+// 06-标准作业与安灯详解.pptx - Standard Work & Andon for Discrete Manufacturing
 const PptxGenJS = require("pptxgenjs");
 const path = require("path");
 const OUT = __dirname;
@@ -46,7 +46,7 @@ function drawRow(s,x,y,w,h,cells,cw,bg,isH){
   s.addText("06",{x:0.8,y:1.5,w:4,h:2.5,fontSize:100,bold:true,color:SC,fontFace:"Arial",valign:"middle",transparency:18});
   s.addShape(S.rect,{x:0.8,y:4.1,w:5.5,h:0.05,fill:{color:TE},line:{color:TE}});
   s.addText("标准作业与安灯详解",{x:0.8,y:4.25,w:12,h:1.1,fontSize:38,bold:true,color:AC,fontFace:"Microsoft YaHei",valign:"middle"});
-  s.addText("Standard Work & Andon System  |  紧固件制造专用",{x:0.8,y:5.3,w:12,h:0.6,fontSize:16,color:SC,fontFace:"Microsoft YaHei",valign:"middle"});
+  s.addText("Standard Work & Andon System  |  制造专用",{x:0.8,y:5.3,w:12,h:0.6,fontSize:16,color:SC,fontFace:"Microsoft YaHei",valign:"middle"});
 })();
 
 // ========== SLIDE 2: 标准作业三要素 ==========
@@ -59,22 +59,22 @@ function drawRow(s,x,y,w,h,cells,cw,bg,isH){
   addCard(s,sX,cY,cW,cH,"节拍时间  Takt Time",[
     {text:"定义: 生产一个产品的必需时间",bold:true},{text:""},
     {text:"公式:"},{text:"Takt = 可用时间 / 客户需求数量",color:T},{text:""},
-    {text:"紧固件案例:",bold:true},{text:"可用时间 = 480 - 30 = 450 min"},
+    {text:"产品案例:",bold:true},{text:"可用时间 = 480 - 30 = 450 min"},
     {text:"客户需求 = 18,000 件/天"},{text:"Takt = 450 / 18000 = 1.5 秒/件",color:G,bold:true},
-    {text:""},{text:"意味着每1.5秒产出一个螺栓"}
+    {text:""},{text:"意味着每1.5秒产出一个工件"}
   ],P);
   addCard(s,sX+cW+gap,cY,cW,cH,"作业循环  Work Sequence",[
     {text:"定义: 操作员在节拍内的标准步骤",bold:true},{text:""},
     {text:"内容:"},{text:"操作员的操作顺序",bullet:true},
     {text:"手持半成品的标准WIP",bullet:true},{text:"机器自动运行时间",bullet:true},
-    {text:""},{text:"紧固件案例:",bold:true},{text:"冷镦: 送料成形冲裁收集"},
+    {text:""},{text:"产品案例:",bold:true},{text:"机加工: 送料成形冲裁收集"},
     {text:"每个动作精确到秒，无浪费",color:G},{text:""},{text:"作业顺序 = 最佳动作序列"}
   ],TE);
   addCard(s,sX+(cW+gap)*2,cY,cW,cH,"标准WIP  Standard WIP",[
     {text:"定义: 维持循环的最小在制品",bold:true},{text:""},
     {text:"包括:"},{text:"工序间库存",bullet:true},{text:"夹具上待加工品",bullet:true},{text:"自动运行中的半成品",bullet:true},
-    {text:""},{text:"紧固件案例:",bold:true},{text:"冷镦自动运行: 约200件"},
-    {text:"搓丝缓冲: 约50件"},{text:"检测等待: 约20件"},
+    {text:""},{text:"产品案例:",bold:true},{text:"机加工自动运行: 约200件"},
+    {text:"精加工缓冲: 约50件"},{text:"检测等待: 约20件"},
     {text:"标准WIP = 270件",color:G,bold:true}
   ],WA);
   s.addShape(S.roundRect,{x:0.5,y:cY+cH+0.18,w:W-1,h:0.42,fill:{color:"E0E7FF"},line:{color:"C7D2FE"},rectRadius:0.08});
@@ -90,7 +90,7 @@ function drawRow(s,x,y,w,h,cells,cw,bg,isH){
   var cw=[2.3,1.7,1.7,1.7,1.7],tw=9.7,th=0.42,tY=2.2;
   drawRow(s,0.5,tY,tw,th,["作业要素","作业时间(s)","机器时间(s)","步行时间(s)","结束时间(s)"],cw,P,true);
   var rows=[
-    ["送料至冷镦机","0.5","0","0","0.5"],["冷镦自动成形","0.3","4.2","0","4.5"],
+    ["送料至机加工设备","0.5","0","0","0.5"],["机加工自动成形","0.3","4.2","0","4.5"],
     ["离开模具","0.4","0","0.3","4.9"],["收集成品","0.6","0","0.2","5.5"],
     ["走至打孔区","0.8","0","0.5","6.3"],["打孔后重新开始","0.4","3.8","0","6.7"]
   ];
@@ -119,13 +119,13 @@ function drawRow(s,x,y,w,h,cells,cw,bg,isH){
   addFooter(s,"标准作业  |  Standard Work");
   addCard(s,0.5,1.8,3.8,2.5,"工作标准化  Standardized Work",
     [{text:"每一项作业都建立标准",bold:true},{text:""},{text:". 明确每个动作的顺序"},
-     {text:". 规定时间标准"},{text:". 消除个人差异"},{text:""},{text:"紧固件: 冷镦作业标准书",color:G}],P);
+     {text:". 规定时间标准"},{text:". 消除个人差异"},{text:""},{text:"产品: 机加工作业标准书",color:G}],P);
   addCard(s,4.95,1.8,3.8,2.5,"设备改善  Equipment Kaizen",
     [{text:"让设备更好配合标准作业",bold:true},{text:""},{text:". 减少机器等待时间"},
-     {text:". 优化换模流程"},{text:". 提升自动化水平"},{text:""},{text:"紧固件: 快速换模<10min",color:G}],TE);
+     {text:". 优化换模流程"},{text:". 提升自动化水平"},{text:""},{text:"产品: 快速换模<10min",color:G}],TE);
   addCard(s,9.4,1.8,3.5,2.5,"布局优化  Layout Optimization",
     [{text:"减少搬运和步行浪费",bold:true},{text:""},{text:". U型产线布局"},
-     {text:". 零件就近供应"},{text:". 消除交叉物流"},{text:""},{text:"紧固件: 连续流布局",color:G}],WA);
+     {text:". 零件就近供应"},{text:". 消除交叉物流"},{text:""},{text:"产品: 连续流布局",color:G}],WA);
   var iy=4.6,steps=["制定SOP","培训执行","发现问题","改善标准"];
   var sColors=[P,TE,G,WA],sx2=[0.6,3.8,7.0,10.2],sw=2.0,sh=1.3;
   steps.forEach(function(step,i){
@@ -184,9 +184,9 @@ function drawRow(s,x,y,w,h,cells,cw,bg,isH){
   var tcw=[2.0,1.8,2.2,2.2,2.5],ttw=10.7;
   drawRow(s,0.5,tY2,ttw,0.28,["异常类型","触发信号","响应级别","响应时间","典型案例"],tcw,P,true);
   var trows=[
-    ["质量问题","黄灯","Level 1","< 30s","螺栓头部开裂"],
-    ["设备故障","红灯","Level 2","< 2min","冷镦机卡料"],
-    ["物料短缺","黄闪","Level 2","< 2min","线材不足"],
+    ["质量问题","黄灯","Level 1","< 30s","工件表面开裂"],
+    ["设备故障","红灯","Level 2","< 2min","机加工设备卡料"],
+    ["物料短缺","黄闪","Level 2","< 2min","原材料不足"],
     ["安全问题","红灯+声音","Level 3","< 5min","操作员受伤"]
   ];
   var tcy2=tY2+0.28;

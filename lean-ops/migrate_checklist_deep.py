@@ -1,6 +1,6 @@
 """
 Lean 2.0 Deep Checklist Migration - 60 items (12 per dimension)
-Replaces the original 31 items with comprehensive, fastener-industry-specific questions.
+Replaces the original 31 items with comprehensive, manufacturing-industry-specific questions.
 Each item has detailed L1-L5 descriptions with concrete examples.
 """
 import sqlite3

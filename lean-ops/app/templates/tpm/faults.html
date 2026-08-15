@@ -12,7 +12,7 @@
     </div>
     <div class="page-header-actions">
       <button class="btn btn-danger" @click="openReportModal()">
-        <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path d="M10 2v16m-8-8h16" stroke="currentColor" stroke-width="2" fill="none"/></svg>
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path d="M 2v16m-8-8h16" stroke="currentColor" stroke-width="2" fill="none"/></svg>
         报修
       </button>
     </div>
@@ -22,7 +22,7 @@
   <div class="stat-grid" x-show="!loading">
     <div class="stat-card">
       <div class="stat-icon danger">
-        <svg width="22" height="22" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"/></svg>
+        <svg width="22" height="22" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"/></svg>
       </div>
       <div class="stat-content">
         <div class="stat-value" x-text="faultStats.monthly_count || 0"></div>
@@ -31,7 +31,7 @@
     </div>
     <div class="stat-card">
       <div class="stat-icon warning">
-        <svg width="22" height="22" viewBox="0 0 20 20" fill="currentColor"><path d="M10 2a8 8 0 100 16 8 8 0 000-16zm0 2a6 6 0 110 12 6 6 0 010-12zm1 5v4H9V9h2zm0-2H9V5h2v2z"/></svg>
+        <svg width="22" height="22" viewBox="0 0 20 20" fill="currentColor"><path d="M 2a8 8 0 100 16 8 8 0 000-16zm0 2a6 6 0 110 12 6 6 0 010-12zm1 5v4H9V9h2zm0-2H9V5h2v2z"/></svg>
       </div>
       <div class="stat-content">
         <div class="stat-value" x-text="(faultStats.avg_repair_hours ?? 0).toFixed(1) + 'h'"></div>
@@ -40,7 +40,7 @@
     </div>
     <div class="stat-card">
       <div class="stat-icon primary">
-        <svg width="22" height="22" viewBox="0 0 20 20" fill="currentColor"><path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6z"/></svg>
+        <svg width="22" height="22" viewBox="0 0 20 20" fill="currentColor"><path d="M 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6z"/></svg>
       </div>
       <div class="stat-content">
         <div class="stat-value" x-text="faultStats.pending || 0"></div>
@@ -49,7 +49,7 @@
     </div>
     <div class="stat-card">
       <div class="stat-icon success">
-        <svg width="22" height="22" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/></svg>
+        <svg width="22" height="22" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/></svg>
       </div>
       <div class="stat-content">
         <div class="stat-value" x-text="faultStats.resolved || 0"></div>
@@ -133,7 +133,7 @@
     <!-- Empty State -->
     <div class="empty-state" x-show="!loading && items.length === 0">
       <div class="empty-state-icon">
-        <svg width="48" height="48" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"/></svg>
+        <svg width="48" height="48" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"/></svg>
       </div>
       <div class="empty-state-title">暂无故障记录</div>
       <div class="empty-state-desc">设备运行良好，继续保持</div>
@@ -145,10 +145,10 @@
       <span x-text="'第 ' + pagination.page + ' / ' + pagination.total_pages + ' 页'"></span>
       <div class="pagination">
         <button class="page-btn" :disabled="!pagination.has_prev" @click="changePage(pagination.page - 1)">
-          <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"/></svg>
+          <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"/></svg>
         </button>
         <button class="page-btn" :disabled="!pagination.has_next" @click="changePage(pagination.page + 1)">
-          <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
+          <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
         </button>
       </div>
     </div>
@@ -160,7 +160,7 @@
       <div class="modal-header">
         <h3 class="modal-title">设备报修</h3>
         <button class="btn btn-ghost btn-icon" @click="showReportModal = false">
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg>
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg>
         </button>
       </div>
       <div class="modal-body">
@@ -201,7 +201,7 @@
       <div class="modal-header">
         <h3 class="modal-title">完成维修</h3>
         <button class="btn btn-ghost btn-icon" @click="showCompleteModal = false">
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg>
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg>
         </button>
       </div>
       <div class="modal-body">
