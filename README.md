@@ -31,9 +31,9 @@ lean-management-system/
 │   ├── app/services/           # 业务逻辑层
 │   ├── app/templates/          # Jinja2 页面模板
 │   ├── migrate_*.py            # 数据库迁移与种子脚本
-│   ├── scripts/                # 种子数据与工具脚本
+│   ├── scripts/                # 种子数据与工具脚本（rebuild_db.py 一键重建）
 │   ├── tests/                  # pytest 测试
-│   ├── data/leanops.db         # SQLite 生产数据库
+│   ├── data/leanops.db         # SQLite 生产数据库（不入库，rebuild_db.py 重建）
 │   └── Dockerfile / docker-compose.yml
 │
 ├── 01-精益工具知识库/           # 精益哲学、13 个核心工具、问题解决方法、行业应用
@@ -62,11 +62,22 @@ lean-management-system/
 ### 启动服务
 
 ```bash
-cd webapp
-python app.py
+cd lean-ops
+python run.py
 ```
 
-服务默认运行在 `http://localhost:8000`，启用热重载（`reload=True`）。
+服务默认运行在 `http://localhost:8000`。
+
+### 数据库初始化
+
+数据库文件（`data/leanops.db`）不入库（见 `.gitignore`），首次启动或重置数据时运行一键重建：
+
+```bash
+cd lean-ops
+py scripts/rebuild_db.py
+```
+
+该脚本自动完成：ORM 建表（43 张）→ migrate 脚本建表（9 张）→ 种子数据（工厂/角色/权限/部门/用户/5S/Lean 2.0 清单/支柱/WIP 工单）。默认登录账号见脚本输出（密码均为 `123456`）。
 
 ### 访问页面
 

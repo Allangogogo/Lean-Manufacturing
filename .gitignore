@@ -10,6 +10,7 @@ ENV/
 .venv/
 
 # Database backups & local data
+*.db
 *.db.bak*
 *.db-journal
 *.sqlite3-journal
