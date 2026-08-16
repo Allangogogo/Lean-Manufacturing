@@ -7,7 +7,7 @@
   <div class="page-header">
     <div class="page-header-info">
       <h1>鐢ㄦ埛绠＄悊</h1>
-      <p>绠＄悊绯荤粺鐢ㄦ埛銆佽鑹蹭笌鏉冮檺</p>
+      <p>管理系统用户、角色与权限</p>
     </div>
     <div class="page-header-actions">
       <button class="btn btn-primary" @click="openCreateModal()">
@@ -24,7 +24,7 @@
       </div>
       <div class="stat-content">
         <div class="stat-value" x-text="stats.total_users || 0"></div>
-        <div class="stat-label">鎬荤敤鎴锋暟</div>
+        <div class="stat-label">总用户数</div>
       </div>
     </div>
     <div class="stat-card">
@@ -58,7 +58,7 @@
 
   <div class="table-container">
     <div class="table-header">
-      <div class="table-title">鐢ㄦ埛鍒楄〃</div>
+      <div class="table-title">用户列表</div>
       <div class="table-actions filter-bar">
         <div class="search-input">
           <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"/></svg>
@@ -66,13 +66,13 @@
         </div>
         <select class="form-select" style="width: auto;" x-model="filter.role" @change="loadData()">
           <option value="">鍏ㄩ儴瑙掕壊</option>
-          <option value="lean_mgr">绮剧泭缁忕悊</option>
-          <option value="manager">缁忕悊</option>
-          <option value="supervisor">涓荤</option>
+          <option value="lean_mgr">精益经理</option>
+          <option value="manager">经理</option>
+          <option value="supervisor">主管</option>
           <option value="worker">鍛樺伐</option>
         </select>
         <select class="form-select" style="width: auto;" x-model="filter.active" @change="loadData()">
-          <option value="">鍏ㄩ儴鐘舵€?/option>
+          <option value="">全部状态/option>
           <option value="active">娲昏穬</option>
           <option value="disabled">绂佺敤</option>
         </select>
@@ -83,7 +83,7 @@
 
     <table class="data-table" x-show="!loading && users.length > 0">
       <thead>
-        <tr><th>鐢ㄦ埛</th><th>鐢ㄦ埛鍚?/th><th>瑙掕壊</th><th>閮ㄩ棬</th><th>鐘舵€?/th><th>鏈€鍚庣櫥褰?/th><th>鎿嶄綔</th></tr>
+        <tr><th>用户</th><th>用户鍚?/th><th>角色</th><th>部门</th><th>状态/th><th>最后登录/th><th>操作</th></tr>
       </thead>
       <tbody>
         <template x-for="u in users" :key="u.id">
@@ -103,7 +103,7 @@
               <div style="display: flex; gap: var(--space-1);">
                 <button class="btn btn-secondary btn-sm" @click="openEditModal(u)">缂栬緫</button>
                 <button class="btn btn-sm" :class="u.is_active ? 'btn-danger' : 'btn-success'" @click="toggleUser(u)">
-                  <span x-text="u.is_active ? '绂佺敤' : '鍚敤'"></span>
+                  <span x-text="u.is_active ? '禁用' : '启用'"></span>
                 </button>
               </div>
             </td>
@@ -114,8 +114,8 @@
 
     <div class="empty-state" x-show="!loading && users.length === 0">
       <div class="empty-state-icon"><svg width="48" height="48" viewBox="0 0 20 20" fill="currentColor"><path d="M 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/></svg></div>
-      <div class="empty-state-title">鏆傛棤鐢ㄦ埛</div>
-      <div class="empty-state-desc">鍒涘缓涓€涓柊鐢ㄦ埛寮€濮嬩娇鐢ㄧ郴缁?/div>
+      <div class="empty-state-title">暂无用户</div>
+      <div class="empty-state-desc">创建一个新用户开始使用系统/div>
     </div>
 
     <div class="table-footer" x-show="!loading && users.length > 0">
@@ -141,8 +141,8 @@
       </div>
       <div class="modal-body">
         <div class="form-group">
-          <label class="form-label">鏄剧ず鍚嶇О <span class="required">*</span></label>
-          <input type="text" class="form-input" x-model="form.display_name" placeholder="渚嬪锛氬紶涓?>
+          <label class="form-label">显示名称 <span class="required">*</span></label>
+          <input type="text" class="form-input" x-model="form.display_name" placeholder="例如：张三>
         </div>
         <div class="form-group">
           <label class="form-label">鐢ㄦ埛鍚?<span class="required">*</span></label>
@@ -150,10 +150,10 @@
         </div>
         <div class="form-group" x-show="!editingUser">
           <label class="form-label">瀵嗙爜 <span class="required">*</span></label>
-          <input type="password" class="form-input" x-model="form.password" placeholder="鑷冲皯6浣?>
+          <input type="password" class="form-input" x-model="form.password" placeholder="至少6位>
         </div>
         <div class="form-group">
-          <label class="form-label">閭</label>
+          <label class="form-label">邮箱</label>
           <input type="email" class="form-input" x-model="form.email" placeholder="email@factory.com">
         </div>
         <div class="form-row">
@@ -161,9 +161,9 @@
             <label class="form-label">瑙掕壊</label>
             <select class="form-select" x-model="form.role_code">
               <option value="worker">鍛樺伐</option>
-              <option value="supervisor">涓荤</option>
-              <option value="manager">缁忕悊</option>
-              <option value="lean_mgr">绮剧泭缁忕悊</option>
+              <option value="supervisor">主管</option>
+              <option value="manager">经理</option>
+              <option value="lean_mgr">精益经理</option>
             </select>
           </div>
           <div class="form-group">
@@ -180,7 +180,7 @@
       <div class="modal-footer">
         <button class="btn btn-secondary" @click="showModal = false">鍙栨秷</button>
         <button class="btn btn-primary" @click="submitUser()" :disabled="submitting">
-          <span x-text="submitting ? '鎻愪氦涓?..' : (editingUser ? '淇濆瓨' : '鍒涘缓')"></span>
+          <span x-text="submitting ? '提交中..' : (editingUser ? '保存' : '创建')"></span>
         </button>
       </div>
     </div>
@@ -213,7 +213,7 @@ function userManager() {
         this.users = data.data || [];
         this.pagination = data.pagination || {};
       } catch (e) {
-        LeanOps.toast(e.detail || '鍔犺浇澶辫触', 'error');
+        LeanOps.toast(e.detail || '加载失败', 'error');
       } finally { this.loading = false; }
     },
     async loadDepartments() {
@@ -228,9 +228,9 @@ function userManager() {
     },
     roleBadge(role) {
       const m = {
-        lean_mgr: { label: '绮剧泭缁忕悊', class: 'badge-primary' },
-        manager: { label: '缁忕悊', class: 'badge-info' },
-        supervisor: { label: '涓荤', class: 'badge-warning' },
+        lean_mgr: { label: '精益经理', class: 'badge-primary' },
+        manager: { label: '经理', class: 'badge-info' },
+        supervisor: { label: '主管', class: 'badge-warning' },
         worker: { label: '鍛樺伐', class: 'badge-gray' },
       };
       const item = m[role] || { label: role, class: 'badge-gray' };
@@ -260,11 +260,11 @@ function userManager() {
     },
     async submitUser() {
       if (!this.form.display_name || !this.form.username) {
-        LeanOps.toast('璇峰～鍐欐樉绀哄悕绉板拰鐢ㄦ埛鍚?, 'warning');
+        LeanOps.toast('请填写显示名称和用户名, 'warning');
         return;
       }
       if (!this.editingUser && !this.form.password) {
-        LeanOps.toast('璇峰～鍐欏瘑鐮?, 'warning');
+        LeanOps.toast('请填写密码, 'warning');
         return;
       }
       this.submitting = true;
@@ -306,8 +306,8 @@ function userManager() {
       } finally { this.submitting = false; }
     },
     async toggleUser(u) {
-      const action = u.is_active ? '绂佺敤' : '鍚敤';
-      if (!confirm('纭' + action + '鐢ㄦ埛 ' + u.display_name + '锛?)) return;
+      const action = u.is_active ? '禁用' : '启用';
+      if (!confirm('确认' + action + '鐢ㄦ埛 ' + u.display_name + '？)) return;
       try {
         await LeanOps.api('/admin/users/' + u.id, {
           method: 'PUT',
@@ -325,3 +325,27 @@ function userManager() {
 }
 </script>
 {% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

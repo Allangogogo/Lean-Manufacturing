@@ -1,18 +1,18 @@
 ﻿{% extends "base.html" %}
 {% block page_id %}maturity{% endblock %}
-{% block page_title %}鎴愮啛搴﹁瘎浼版墦鍒唟% endblock %}
+{% block page_title %}成熟度评估打分{% endblock %}
 {% block content %}
 <div x-data="assessmentForm()" x-init="init()">
 
   <div class="page-header">
     <div class="page-header-info">
-      <h1 x-text="'璇勪及鎵撳垎: ' + (assessment.area_name || '')"></h1>
-      <p x-text="'璇勪及浜? ' + (assessment.assessor_name || '') + ' | 鏃ユ湡: ' + LeanOps.fmtDate(assessment.assessment_date) + ' | 鐘舵€? ' + assessment.status"></p>
+      <h1 x-text="'评估打分: ' + (assessment.area_name || '')"></h1>
+      <p x-text="'评估人 ' + (assessment.assessor_name || '') + ' | 日期: ' + LeanOps.fmtDate(assessment.assessment_date) + ' | 状态 ' + assessment.status"></p>
     </div>
     <div class="page-header-actions">
       <a href="/maturity" class="btn btn-secondary">
         <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"/></svg>
-        杩斿洖鍒楄〃
+        返回列表
       </a>
     </div>
   </div>
@@ -28,7 +28,7 @@
           </div>
           <div style="flex: 1;">
             <div class="card-title" x-text="dim.dimension_name" style="font-size: var(--text-base);"></div>
-            <div style="font-size: var(--text-xs); color: var(--text-tertiary); margin-top: 2px;">鏉冮噸: <span x-text="dim.weight"></span> | 婊″垎: <span x-text="dim.max_score"></span></div>
+            <div style="font-size: var(--text-xs); color: var(--text-tertiary); margin-top: 2px;">权重: <span x-text="dim.weight"></span> | 满分: <span x-text="dim.max_score"></span></div>
           </div>
           <div style="font-weight: 600; color: var(--color-primary); font-size: var(--text-lg);">
             <span x-text="dimAvg(dim)"></span>
@@ -37,7 +37,7 @@
         </div>
         <div class="card-body">
           <table class="data-table">
-            <thead><tr><th style="width: 35%;">璇勪及鏉＄洰</th><th style="width: 10%;">鏉冮噸</th><th>璇勫垎 (1-5)</th><th>澶囨敞</th></tr></thead>
+            <thead><tr><th style="width: 35%;">评估条目</th><th style="width: 10%;">权重</th><th>评分 (1-5)</th><th>备注</th></tr></thead>
             <tbody>
               <template x-for="(crit, ci) in dim.criteria" :key="crit.id">
                 <tr>
@@ -57,7 +57,7 @@
                     </div>
                   </td>
                   <td>
-                    <input type="text" class="form-input" placeholder="澶囨敞/璇佹嵁..." x-model="crit.remarks" style="font-size: var(--text-xs); padding: 2px 6px;">
+                    <input type="text" class="form-input" placeholder="备注/证据..." x-model="crit.remarks" style="font-size: var(--text-xs); padding: 2px 6px;">
                   </td>
                 </tr>
               </template>
@@ -68,33 +68,33 @@
     </template>
 
     <div class="card" style="margin-bottom: var(--space-6);">
-      <div class="card-header"><div class="card-title">璇勪及鎬荤粨</div></div>
+      <div class="card-header"><div class="card-title">评估总结</div></div>
       <div class="card-body">
         <div class="form-group">
           <label class="form-label">鎬荤粨</label>
-          <textarea class="form-textarea" x-model="summary" placeholder="鎻忚堪鏈璇勪及鐨勬暣浣撳彂鐜?.." rows="3"></textarea>
+          <textarea class="form-textarea" x-model="summary" placeholder="描述本次评估的整体发现.." rows="3"></textarea>
         </div>
         <div class="form-group">
-          <label class="form-label">寤鸿</label>
-          <textarea class="form-textarea" x-model="recommendations" placeholder="鍚庣画鏀瑰杽寤鸿..." rows="3"></textarea>
+          <label class="form-label">建议</label>
+          <textarea class="form-textarea" x-model="recommendations" placeholder="后续改进建议..." rows="3"></textarea>
         </div>
       </div>
     </div>
 
     <div style="display: flex; align-items: center; justify-content: space-between; padding: var(--space-5); background: var(--bg-surface); border: 2px solid var(--color-primary-200); border-radius: var(--radius-lg); margin-bottom: var(--space-6);">
       <div>
-        <div style="font-size: var(--text-xs); color: var(--text-tertiary); margin-bottom: 2px;">璇勪及鎬诲垎</div>
+        <div style="font-size: var(--text-xs); color: var(--text-tertiary); margin-bottom: 2px;">评估总分</div>
         <div style="font-size: var(--text-2xl); font-weight: 700; color: var(--text-primary);" x-text="totalScore()"></div>
         <div class="badge" :class="levelBadgeClass()" x-text="overallLevel()" style="margin-top: var(--space-1);"></div>
       </div>
       <div style="display: flex; gap: var(--space-3);">
         <button class="btn btn-secondary btn-lg" @click="saveScores()" :disabled="saving">
           <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path d="M 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z"/></svg>
-          <span x-text="saving ? '淇濆瓨涓?..' : '淇濆瓨璇勫垎'"></span>
+          <span x-text="saving ? '保存中..' : '保存评分'"></span>
         </button>
         <button class="btn btn-primary btn-lg" @click="completeAssessment()" :disabled="saving">
           <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path d="M 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/></svg>
-          <span x-text="saving ? '鎻愪氦涓?..' : '瀹屾垚璇勪及'"></span>
+          <span x-text="saving ? '提交中..' : '完成评估'"></span>
         </button>
       </div>
     </div>
@@ -121,7 +121,7 @@ function assessmentForm() {
           (d.criteria || []).forEach(c => { if (!c.score) c.score = null; });
         });
       } catch (e) {
-        LeanOps.toast(e.detail || '鍔犺浇澶辫触', 'error');
+        LeanOps.toast(e.detail || '加载失败', 'error');
       } finally { this.loading = false; }
     },
     dimAvg(dim) {
@@ -142,10 +142,10 @@ function assessmentForm() {
       const ms = parseFloat(this.assessment.max_score) || 100;
       const pct = ts / ms * 100;
       if (pct >= 90) return 'L5 - 鍗撹秺';
-      if (pct >= 70) return 'L4 - 鎴愮啛';
+      if (pct >= 70) return 'L4 - 成熟';
       if (pct >= 50) return 'L3 - 瑙勮寖';
       if (pct >= 30) return 'L2 - 鍙戝睍';
-      return 'L1 - 鍒濆';
+      return 'L1 - 初创';
     },
     levelBadgeClass() {
       const l = this.overallLevel();
@@ -173,13 +173,13 @@ function assessmentForm() {
           body: JSON.stringify(this.buildScorePayload()),
           headers: { 'Content-Type': 'application/json' },
         });
-        LeanOps.toast('璇勫垎宸蹭繚瀛?, 'success');
+        LeanOps.toast('评分已保存, 'success');
       } catch (e) {
-        LeanOps.toast(e.detail || '淇濆瓨澶辫触', 'error');
+        LeanOps.toast(e.detail || '保存失败', 'error');
       } finally { this.saving = false; }
     },
     async completeAssessment() {
-      if (!confirm('纭瀹屾垚姝ゆ璇勪及锛熷畬鎴愬悗涓嶅彲淇敼銆?)) return;
+      if (!confirm('确认完成本次评估？完成后不可修改。)) return;
       this.saving = true;
       try {
         await this.saveScores();
@@ -188,13 +188,24 @@ function assessmentForm() {
           body: JSON.stringify({ summary: this.summary, recommendations: this.recommendations }),
           headers: { 'Content-Type': 'application/json' },
         });
-        LeanOps.toast('璇勪及宸插畬鎴?, 'success');
+        LeanOps.toast('评估已完成, 'success');
         window.location.href = '/maturity';
       } catch (e) {
-        LeanOps.toast(e.detail || '瀹屾垚澶辫触', 'error');
+        LeanOps.toast(e.detail || '完成失败', 'error');
       } finally { this.saving = false; }
     },
   };
 }
 </script>
 {% endblock %}
+
+
+
+
+
+
+
+
+
+
+

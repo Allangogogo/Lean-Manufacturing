@@ -1,13 +1,13 @@
 ﻿{% extends "base.html" %}
 {% block page_id %}reports{% endblock %}
-{% block page_title %}鎶ヨ〃涓績{% endblock %}
+{% block page_title %}报表中心{% endblock %}
 {% block content %}
 <div x-data="reportsCenter()" x-init="init()">
 
   <div class="page-header">
     <div class="page-header-info">
-      <h1>鎶ヨ〃涓績</h1>
-      <p>绮剧泭杩愯惀鏁版嵁涓€瑙堬紝鍏抽敭鎸囨爣灏藉湪鎺屾彙</p>
+      <h1>报表中心</h1>
+      <p>精益运营数据一览，关键指标尽在掌握</p>
     </div>
   </div>
 
@@ -18,9 +18,9 @@
       <div class="stat-icon primary" style="margin: 0 auto var(--space-3); width: 48px; height: 48px;">
         <svg width="24" height="24" viewBox="0 0 20 20" fill="currentColor"><path d="M 7H7v6h6V7z"/><path fill-rule="evenodd" d="M 2a1 1 0 012 0v1h2V2a1 1 0 112 0v1h2a2 2 0 012 2v2h1a1 1 0 110 2h-1v2h1a1 1 0 110 2h-1v2a2 2 0 01-2 2h-2v1a1 1 0 11-2 0v-1H9v1a1 1 0 11-2 0v-1H5a2 2 0 01-2-2v-2H2a1 1 0 110-2h1V9H2a1 1 0 010-2h1V5a2 2 0 012-2h2V2zM5 5h10v10H5V5z"/></svg>
       </div>
-      <div class="card-title" style="margin-bottom: var(--space-2);">鏀瑰杽鎻愭鎶ヨ〃</div>
+      <div class="card-title" style="margin-bottom: var(--space-2);">改善提案报表</div>
       <p style="font-size: var(--text-sm); color: var(--text-tertiary); margin-bottom: var(--space-3);">
-        鎬昏 <strong x-text="kpi.kaizen ? kpi.kaizen.total : 0" style="color: var(--color-primary);"></strong> 鏉?        | 瀹炴柦鐜?<strong x-text="kpi.kaizen ? kpi.kaizen.rate + '%' : '0%'" style="color: var(--color-success);"></strong>
+        总计 <strong x-text="kpi.kaizen ? kpi.kaizen.total : 0" style="color: var(--color-primary);"></strong> 条        | 瀹炴柦鐜?<strong x-text="kpi.kaizen ? kpi.kaizen.rate + '%' : '0%'" style="color: var(--color-success);"></strong>
       </p>
       <div style="display: flex; gap: var(--space-2); justify-content: center;">
         <button class="btn btn-primary btn-sm" @click="generateReport('kaizen')">
@@ -40,7 +40,7 @@
       </div>
       <div class="card-title" style="margin-bottom: var(--space-2);">5S瀹℃牳鎶ヨ〃</div>
       <p style="font-size: var(--text-sm); color: var(--text-tertiary); margin-bottom: var(--space-3);">
-        鎬昏 <strong x-text="kpi.fives ? kpi.fives.total : 0" style="color: var(--color-primary);"></strong> 娆?        | 鍧囧垎 <strong x-text="kpi.fives ? kpi.fives.avg_score : 0" style="color: var(--color-success);"></strong>
+        总计 <strong x-text="kpi.fives ? kpi.fives.total : 0" style="color: var(--color-primary);"></strong> 次        | 均分 <strong x-text="kpi.fives ? kpi.fives.avg_score : 0" style="color: var(--color-success);"></strong>
       </p>
       <div style="display: flex; gap: var(--space-2); justify-content: center;">
         <button class="btn btn-primary btn-sm" @click="generateReport('fives')">鐢熸垚鎶ヨ〃</button>
@@ -52,9 +52,9 @@
       <div class="stat-icon accent" style="margin: 0 auto var(--space-3); width: 48px; height: 48px;">
         <svg width="24" height="24" viewBox="0 0 20 20" fill="currentColor"><path d="M 4l8 3 8-3-8-3-8 3zm0 5l8 3 8-3M2 14l8 3 8-3"/></svg>
       </div>
-      <div class="card-title" style="margin-bottom: var(--space-2);">鍩硅鎶ヨ〃</div>
+      <div class="card-title" style="margin-bottom: var(--space-2);">培训报表</div>
       <p style="font-size: var(--text-sm); color: var(--text-tertiary); margin-bottom: var(--space-3);">
-        鎬昏 <strong x-text="kpi.training ? kpi.training.total : 0" style="color: var(--color-primary);"></strong> 娆?      </p>
+        总计 <strong x-text="kpi.training ? kpi.training.total : 0" style="color: var(--color-primary);"></strong> 次      </p>
       <div style="display: flex; gap: var(--space-2); justify-content: center;">
         <button class="btn btn-primary btn-sm" @click="generateReport('training')">鐢熸垚鎶ヨ〃</button>
         <button class="btn btn-secondary btn-sm" @click="exportReport('training')">瀵煎嚭Excel</button>
@@ -65,9 +65,9 @@
       <div class="stat-icon warning" style="margin: 0 auto var(--space-3); width: 48px; height: 48px;">
         <svg width="24" height="24" viewBox="0 0 20 20" fill="currentColor"><path d="M 2a3 3 0 00-3 3v4a3 3 0 006 0V5a3 3 0 00-3-3zM5 9v0a5 5 0 0010 0M10 14v4M7 18h6"/></svg>
       </div>
-      <div class="card-title" style="margin-bottom: var(--space-2);">TPM璁惧鎶ヨ〃</div>
+      <div class="card-title" style="margin-bottom: var(--space-2);">TPM设备报表</div>
       <p style="font-size: var(--text-sm); color: var(--text-tertiary); margin-bottom: var(--space-3);">
-        璁惧 <strong x-text="kpi.tpm ? kpi.tpm.equipment_total : 0" style="color: var(--color-primary);"></strong> 鍙?        | 鍙敤鐜?<strong x-text="kpi.tpm ? kpi.tpm.availability + '%' : '0%'" style="color: var(--color-success);"></strong>
+        设备 <strong x-text="kpi.tpm ? kpi.tpm.equipment_total : 0" style="color: var(--color-primary);"></strong> 台        | 可动率<strong x-text="kpi.tpm ? kpi.tpm.availability + '%' : '0%'" style="color: var(--color-success);"></strong>
       </p>
       <div style="display: flex; gap: var(--space-2); justify-content: center;">
         <button class="btn btn-primary btn-sm" @click="generateReport('tpm')">鐢熸垚鎶ヨ〃</button>
@@ -81,7 +81,7 @@
       </div>
       <div class="card-title" style="margin-bottom: var(--space-2);">椤圭洰鎶ヨ〃</div>
       <p style="font-size: var(--text-sm); color: var(--text-tertiary); margin-bottom: var(--space-3);">
-        椤圭洰 <strong x-text="kpi.projects ? kpi.projects.total : 0" style="color: var(--color-primary);"></strong> 涓?        | 浠诲姟瀹屾垚鐜?<strong x-text="kpi.projects ? kpi.projects.task_rate + '%' : '0%'" style="color: var(--color-success);"></strong>
+        项目 <strong x-text="kpi.projects ? kpi.projects.total : 0" style="color: var(--color-primary);"></strong> 个        | 任务完成率<strong x-text="kpi.projects ? kpi.projects.task_rate + '%' : '0%'" style="color: var(--color-success);"></strong>
       </p>
       <div style="display: flex; gap: var(--space-2); justify-content: center;">
         <button class="btn btn-primary btn-sm" @click="generateReport('projects')">鐢熸垚鎶ヨ〃</button>
@@ -93,9 +93,9 @@
       <div class="stat-icon primary" style="margin: 0 auto var(--space-3); width: 48px; height: 48px;">
         <svg width="24" height="24" viewBox="0 0 20 20" fill="currentColor"><path d="M 2a8 8 0 100 16 8 8 0 000-16zm0 2a6 6 0 110 12 6 6 0 010-12z"/><path d="M 6v4l3 2"/></svg>
       </div>
-      <div class="card-title" style="margin-bottom: var(--space-2);">鎴愮啛搴︽姤琛?/div>
+      <div class="card-title" style="margin-bottom: var(--space-2);">成熟度报表/div>
       <p style="font-size: var(--text-sm); color: var(--text-tertiary); margin-bottom: var(--space-3);">
-        鍧囧垎 <strong x-text="kpi.maturity ? kpi.maturity.avg_score : 0" style="color: var(--color-primary);"></strong>
+        均分 <strong x-text="kpi.maturity ? kpi.maturity.avg_score : 0" style="color: var(--color-primary);"></strong>
       </p>
       <div style="display: flex; gap: var(--space-2); justify-content: center;">
         <button class="btn btn-primary btn-sm" @click="generateReport('maturity')">鐢熸垚鎶ヨ〃</button>
@@ -105,16 +105,16 @@
   </div>
 
   <div class="table-container" x-show="!loading">
-    <div class="table-header"><div class="table-title">鏈€杩戞姤琛ㄨ褰?/div></div>
+    <div class="table-header"><div class="table-title">最近报表列表/div></div>
     <table class="data-table" x-show="recentReports && recentReports.length > 0">
-      <thead><tr><th>鎶ヨ〃绫诲瀷</th><th>鐢熸垚鏃堕棿</th><th>鐘舵€?/th><th>鎿嶄綔</th></tr></thead>
+      <thead><tr><th>报表类型</th><th>生成时间</th><th>状态/th><th>操作</th></tr></thead>
       <tbody>
         <template x-for="r in recentReports" :key="r.id || r.type">
           <tr>
             <td x-text="reportLabel(r.type)"></td>
             <td x-text="r.generated_at ? LeanOps.fmtDateTime(r.generated_at) : '--'"></td>
             <td>
-              <span class="badge badge-success" x-show="r.status === 'completed'">宸插畬鎴?/span>
+              <span class="badge badge-success" x-show="r.status === 'completed'">已完成/span>
               <span class="badge badge-warning" x-show="r.status === 'pending'">澶勭悊涓?/span>
               <span class="badge badge-gray" x-show="!r.status || r.status === 'unknown'">--</span>
             </td>
@@ -126,7 +126,7 @@
       </tbody>
     </table>
     <div x-show="!recentReports || recentReports.length === 0" class="empty-state">
-      <div class="empty-state-desc">鏆傛棤鎶ヨ〃璁板綍</div>
+      <div class="empty-state-desc">暂无报表记录</div>
     </div>
   </div>
 
@@ -155,7 +155,7 @@ function reportsCenter() {
       this.loading = false;
     },
     reportLabel(type) {
-      const m = { kaizen: '鏀瑰杽鎻愭鎶ヨ〃', fives: '5S瀹℃牳鎶ヨ〃', training: '鍩硅鎶ヨ〃', tpm: 'TPM璁惧鎶ヨ〃', projects: '椤圭洰鎶ヨ〃', maturity: '鎴愮啛搴︽姤琛? };
+      const m = { kaizen: '改善提案报表', fives: '5S审核报表', training: '培训报表', tpm: 'TPM设备报表', projects: '项目报表', maturity: '成熟度报表 };
       return m[type] || type;
     },
     generateReport(type) {
@@ -168,3 +168,31 @@ function reportsCenter() {
 }
 </script>
 {% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

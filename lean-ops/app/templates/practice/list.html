@@ -1,13 +1,13 @@
 ﻿{% extends "base.html" %}
 {% block page_id %}practices{% endblock %}
-{% block page_title %}鏈€浣冲疄璺靛簱{% endblock %}
+{% block page_title %}最佳实践库{% endblock %}
 {% block content %}
 <div x-data="practiceList()" x-init="init()">
 
   <div class="page-header">
     <div class="page-header-info">
-      <h1>鏈€浣冲疄璺靛簱</h1>
-      <p>鍏变韩绮剧泭鏀瑰杽鏅烘収锛岃濂芥柟娉曞湪鍏ㄧ粍缁囨祦鍔?/p>
+      <h1>最佳实践库</h1>
+      <p>共享精益改善智慧，让好方法在全组织流动/p>
     </div>
     <div class="page-header-actions">
       <a href="/practices/new" class="btn btn-primary">
@@ -24,20 +24,20 @@
         <input type="text" class="form-input" placeholder="鎼滅储瀹炶返..." x-model="filter.keyword" @input.debounce.300ms="loadData()">
       </div>
       <select class="form-select" style="width: auto;" x-model="filter.category" @change="loadData()">
-        <option value="">鍏ㄩ儴鍒嗙被</option>
+        <option value="">全部分类</option>
         <option value="tool">宸ュ叿</option>
         <option value="method">鏂规硶</option>
         <option value="mindset">鎬濈淮</option>
         <option value="process">娴佺▼</option>
       </select>
       <select class="form-select" style="width: auto;" x-model="filter.sort" @change="loadData()">
-        <option value="newest">鏈€鏂?/option>
-        <option value="popular">鏈€鐑?/option>
-        <option value="saving">鏈€楂樿妭鐪?/option>
+        <option value="newest">最新/option>
+        <option value="popular">最热/option>
+        <option value="saving">最高节省/option>
       </select>
       <select class="form-select" style="width: auto;" x-model="filter.status" @change="loadData()">
-        <option value="">鍏ㄩ儴鐘舵€?/option>
-        <option value="draft">鑽夌</option>
+        <option value="">全部状态/option>
+        <option value="draft">草稿</option>
         <option value="published">宸插彂甯?/option>
       </select>
     </div>
@@ -84,8 +84,8 @@
 
   <div class="empty-state" x-show="!loading && items.length === 0">
     <div class="empty-state-icon"><svg width="48" height="48" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z"/></svg></div>
-    <div class="empty-state-title">鏆傛棤鏈€浣冲疄璺?/div>
-    <div class="empty-state-desc">鎻愪氦绗竴涓渶浣冲疄璺碉紝鍒嗕韩浣犵殑鏀瑰杽缁忛獙</div>
+    <div class="empty-state-title">暂无最佳实践/div>
+    <div class="empty-state-desc">提交第一个最佳实践，分享你的改善经验</div>
   </div>
 
   <div style="margin-top: var(--space-6);" x-show="!loading && items.length > 0">
@@ -122,7 +122,7 @@ function practiceList() {
         this.items = data.data || [];
         this.pagination = data.pagination || {};
       } catch (e) {
-        LeanOps.toast(e.detail || '鍔犺浇澶辫触', 'error');
+        LeanOps.toast(e.detail || '加载失败', 'error');
       } finally { this.loading = false; }
     },
     changePage(p) { if (p >= 1) { this.pagination.page = p; this.loadData(); } },
@@ -139,7 +139,7 @@ function practiceList() {
       return m[d] || 'badge-gray';
     },
     diffLabel(d) {
-      const m = { easy: '绠€鍗?, medium: '涓瓑', hard: '鍥伴毦' };
+      const m = { easy: '简单, medium: '中等', hard: '困难' };
       return m[d] || d;
     },
     parseTags(tags) {
@@ -152,3 +152,16 @@ function practiceList() {
 }
 </script>
 {% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+
+

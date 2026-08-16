@@ -1,12 +1,12 @@
 ﻿{% extends "base.html" %}
 {% block page_id %}practices{% endblock %}
-{% block page_title %}鏈€浣冲疄璺佃鎯厈% endblock %}
+{% block page_title %}最佳实践详情{% endblock %}
 {% block content %}
 <div x-data="practiceDetail()" x-init="init()">
 
   <div class="page-header">
     <div class="page-header-info">
-      <h1 x-text="practice.title || '鍔犺浇涓?..'"></h1>
+      <h1 x-text="practice.title || '加载中..'"></h1>
       <p>
         <span class="badge" :class="categoryClass(practice.category)" x-text="categoryLabel(practice.category)"></span>
         <span style="margin: 0 var(--space-2); color: var(--text-tertiary);">|</span>
@@ -28,30 +28,30 @@
   <div x-show="!loading && practice.id" class="grid-2">
     <div>
       <div class="card" style="margin-bottom: var(--space-5);">
-        <div class="card-header"><div class="card-title">瑙ｅ喅鏂规</div></div>
+        <div class="card-header"><div class="card-title">解决方案</div></div>
         <div class="card-body" style="line-height: 1.8; white-space: pre-wrap;" x-text="practice.solution || '--'"></div>
         <div class="card-footer" x-show="practice.results">
-          <div class="detail-label">瀹炴柦鏁堟灉</div>
+          <div class="detail-label">实施效果</div>
           <div style="line-height: 1.8; white-space: pre-wrap;" x-text="practice.results"></div>
         </div>
       </div>
 
       <div class="card" style="margin-bottom: var(--space-5);" x-show="practice.problem_statement || practice.root_cause">
-        <div class="card-header"><div class="card-title">鑳屾櫙淇℃伅</div></div>
+        <div class="card-header"><div class="card-title">背景信息</div></div>
         <div class="card-body">
           <div x-show="practice.problem_statement" style="margin-bottom: var(--space-4);">
-            <div class="detail-label">闂鎻忚堪</div>
+            <div class="detail-label">问题描述</div>
             <div style="line-height: 1.8; white-space: pre-wrap;" x-text="practice.problem_statement"></div>
           </div>
           <div x-show="practice.root_cause">
-            <div class="detail-label">鏍规湰鍘熷洜</div>
+            <div class="detail-label">根本原因</div>
             <div style="line-height: 1.8; white-space: pre-wrap;" x-text="practice.root_cause"></div>
           </div>
         </div>
       </div>
 
       <div class="card" style="margin-bottom: var(--space-5);" x-show="practice.description">
-        <div class="card-header"><div class="card-title">璇︾粏鎻忚堪</div></div>
+        <div class="card-header"><div class="card-title">详细描述</div></div>
         <div class="card-body" style="line-height: 1.8; white-space: pre-wrap;" x-text="practice.description"></div>
       </div>
     </div>
@@ -61,11 +61,11 @@
         <div class="card-header"><div class="card-title">鍩烘湰淇℃伅</div></div>
         <div class="detail-grid">
           <div class="detail-item">
-            <div class="detail-label">鍒嗙被</div>
+            <div class="detail-label">分类</div>
             <div class="detail-value"><span class="badge" :class="categoryClass(practice.category)" x-text="categoryLabel(practice.category)"></span></div>
           </div>
           <div class="detail-item">
-            <div class="detail-label">瀛愮被</div>
+            <div class="detail-label">子类</div>
             <div class="detail-value" x-text="practice.subcategory || '--'"></div>
           </div>
           <div class="detail-item">
@@ -85,16 +85,16 @@
             <div class="detail-value" x-text="practice.actual_saving ? LeanOps.fmtMoney(practice.actual_saving) : '--'" style="color: var(--color-success); font-weight: 600;"></div>
           </div>
           <div class="detail-item">
-            <div class="detail-label">娴忚</div>
+            <div class="detail-label">浏览</div>
             <div class="detail-value" x-text="practice.view_count || 0"></div>
           </div>
           <div class="detail-item">
-            <div class="detail-label">搴旂敤娆℃暟</div>
+            <div class="detail-label">应用次数</div>
             <div class="detail-value" x-text="practice.usage_count || 0"></div>
           </div>
         </div>
         <div x-show="practice.tags" style="margin-top: var(--space-4);">
-          <div class="detail-label">鏍囩</div>
+          <div class="detail-label">标签</div>
           <div style="display: flex; flex-wrap: wrap; gap: var(--space-1); margin-top: var(--space-1);">
             <template x-for="tag in parseTags(practice.tags)" :key="tag">
               <span class="badge badge-outline" x-text="tag"></span>
@@ -104,17 +104,17 @@
       </div>
 
       <div class="card" style="margin-bottom: var(--space-5);">
-        <div class="card-header"><div class="card-title">璇勮鍖?/div></div>
+        <div class="card-header"><div class="card-title">评价区/div></div>
         <div x-show="comments.length > 0">
           <div class="timeline">
             <template x-for="c in comments" :key="c.id">
               <div class="timeline-item">
                 <div class="timeline-marker" :style="{ background: 'var(--color-primary-500)' }"></div>
                 <div class="timeline-content">
-                  <div class="timeline-title" x-text="c.user_name || '鍖垮悕鐢ㄦ埛'"></div>
+                  <div class="timeline-title" x-text="c.user_name || '匿名用户'"></div>
                   <div class="timeline-time" x-text="LeanOps.fmtDateTime(c.created_at)"></div>
                   <div x-show="c.rating" style="margin: var(--space-1) 0;">
-                    <span class="badge badge-warning" x-text="c.rating + ' 鍒?"></span>
+                    <span class="badge badge-warning" x-text="c.rating + ' 分"></span>
                   </div>
                   <div class="timeline-desc" x-text="c.comment"></div>
                 </div>
@@ -123,11 +123,11 @@
           </div>
         </div>
         <div x-show="comments.length === 0" style="padding: var(--space-4); text-align: center; color: var(--text-tertiary);">
-          鏆傛棤璇勮锛屽揩鏉ュ彂琛ㄧ涓€鏉¤瘎璁哄惂
+          暂无评价，快来发表第一条评论吧
         </div>
         <div class="card-footer">
           <div style="display: flex; gap: var(--space-2);">
-            <input type="text" class="form-input" placeholder="鍐欎笅浣犵殑璇勮..." x-model="newComment" @keyup.enter="submitComment()" style="flex: 1;">
+            <input type="text" class="form-input" placeholder="写下你的评价..." x-model="newComment" @keyup.enter="submitComment()" style="flex: 1;">
             <button class="btn btn-primary" @click="submitComment()">鍙戣〃</button>
           </div>
         </div>
@@ -164,7 +164,7 @@ function practiceDetail() {
         this.practice = res.data || {};
         this.comments = this.practice.comments || [];
       } catch (e) {
-        LeanOps.toast(e.detail || '鍔犺浇澶辫触', 'error');
+        LeanOps.toast(e.detail || '加载失败', 'error');
       } finally { this.loading = false; }
     },
     categoryClass(c) {
@@ -180,7 +180,7 @@ function practiceDetail() {
       return m[d] || 'badge-gray';
     },
     diffLabel(d) {
-      const m = { easy: '绠€鍗?, medium: '涓瓑', hard: '鍥伴毦' };
+      const m = { easy: '简单, medium: '中等', hard: '困难' };
       return m[d] || d;
     },
     parseTags(tags) {
@@ -223,14 +223,29 @@ function practiceDetail() {
         });
         const c = res.data || {};
         this.comments.push({
-          id: c.id, user_name: c.user_name || LeanOps.user?.display_name || '鎴?,
+          id: c.id, user_name: c.user_name || LeanOps.user?.display_name || '我,
           comment: this.newComment, created_at: new Date().toISOString(),
         });
         this.newComment = '';
-        LeanOps.toast('璇勮宸插彂琛?, 'success');
+        LeanOps.toast('评价已发表, 'success');
       } catch (e) { LeanOps.toast(e.detail || '鍙戣〃澶辫触', 'error'); }
     },
   };
 }
 </script>
 {% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

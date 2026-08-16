@@ -1,18 +1,18 @@
 ﻿{% extends "base.html" %}
 {% block page_id %}maturity{% endblock %}
-{% block page_title %}鎴愮啛搴﹁秼鍔垮垎鏋恵% endblock %}
+{% block page_title %}成熟度趋势分析{% endblock %}
 {% block content %}
 <div x-data="maturityTrends()" x-init="init()">
 
   <div class="page-header">
     <div class="page-header-info">
-      <h1>鎴愮啛搴﹁秼鍔垮垎鏋?/h1>
-      <p>鍘嗗彶璇勪及瓒嬪娍杩借釜锛岃瘑鍒敼杩涙柟鍚戜笌钖勫急鐜妭</p>
+      <h1>成熟度趋势分析</h1>
+      <p>历史评估趋势追踪，识别改进方向与薄弱环节</p>
     </div>
     <div class="page-header-actions">
       <a href="/maturity" class="btn btn-secondary">
         <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"/></svg>
-        杩斿洖鍒楄〃
+        返回列表
       </a>
     </div>
   </div>
@@ -21,26 +21,26 @@
 
   <div x-show="!loading" class="grid-2" style="margin-bottom: var(--space-6);">
     <div class="card">
-      <div class="card-header"><div class="card-title">鎬诲垎瓒嬪娍</div></div>
+      <div class="card-header"><div class="card-title">总分趋势</div></div>
       <div x-show="trends.length > 0" x-html="trendLineChart()" style="display: flex; justify-content: center;"></div>
       <div x-show="trends.length === 0" class="empty-state">
-        <div class="empty-state-desc">鏆傛棤瓒嬪娍鏁版嵁</div>
+        <div class="empty-state-desc">暂无趋势数据</div>
       </div>
     </div>
     <div class="card">
-      <div class="card-header"><div class="card-title">鍚勭淮搴﹀緱鍒嗗姣?/div></div>
+      <div class="card-header"><div class="card-title">各维度得分对比/div></div>
       <div x-show="dimensionData.length > 0" x-html="dimensionBarChart()" style="display: flex; justify-content: center;"></div>
       <div x-show="dimensionData.length === 0" class="empty-state">
-        <div class="empty-state-desc">鍔犺浇鏈€杩戣瘎浼颁互鏌ョ湅缁村害瀵规瘮</div>
+        <div class="empty-state-desc">加载最近评估以查看维度对比</div>
       </div>
     </div>
   </div>
 
   <div class="table-container">
-    <div class="table-header"><div class="table-title">鍘嗗彶璇勪及璁板綍</div></div>
+    <div class="table-header"><div class="table-title">历史评估记录</div></div>
     <table class="data-table" x-show="trends.length > 0">
       <thead>
-        <tr><th>ID</th><th>璇勪及鏃ユ湡</th><th>鍖哄煙</th><th>鎬诲垎</th><th>绾у埆</th><th>鎿嶄綔</th></tr>
+        <tr><th>ID</th><th>评估日期</th><th>区域</th><th>总分</th><th>级别</th><th>操作</th></tr>
       </thead>
       <tbody>
         <template x-for="t in trends" :key="t.assessment_id">
@@ -63,8 +63,8 @@
     </table>
     <div x-show="trends.length === 0" class="empty-state">
       <div class="empty-state-icon"><svg width="48" height="48" viewBox="0 0 20 20" fill="currentColor"><path d="M 3h16v2H2V3zm0 4h16v2H2V7zm0 4h16v2H2v-2zm0 4h10v2H2v-2z"/></svg></div>
-      <div class="empty-state-title">鏆傛棤鍘嗗彶璇勪及鏁版嵁</div>
-      <div class="empty-state-desc">瀹屾垚璇勪及鍚庯紝瓒嬪娍鏁版嵁灏嗗湪姝ゅ睍绀?/div>
+      <div class="empty-state-title">暂无历史评估数据</div>
+      <div class="empty-state-desc">完成评估后，趋势数据将在此展示/div>
     </div>
   </div>
 
@@ -92,7 +92,7 @@ function maturityTrends() {
           }
         }
       } catch (e) {
-        LeanOps.toast(e.detail || '鍔犺浇澶辫触', 'error');
+        LeanOps.toast(e.detail || '加载失败', 'error');
       } finally { this.loading = false; }
     },
     levelClass(l) {
@@ -121,3 +121,8 @@ function maturityTrends() {
 }
 </script>
 {% endblock %}
+
+
+
+
+

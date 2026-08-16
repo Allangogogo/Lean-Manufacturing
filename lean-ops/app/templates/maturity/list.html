@@ -1,18 +1,18 @@
 ﻿{% extends "base.html" %}
 {% block page_id %}maturity{% endblock %}
-{% block page_title %}鎴愮啛搴﹁瘎浼皗% endblock %}
+{% block page_title %}成熟度评估{% endblock %}
 {% block content %}
 <div x-data="maturityList()" x-init="init()">
 
   <div class="page-header">
     <div class="page-header-info">
-      <h1>鎴愮啛搴﹁瘎浼?/h1>
-      <p>绮剧泭鎴愮啛搴﹁瘎浼颁笌鍘嗗彶鍒嗘瀽锛屾寔缁拷韪粍缁囩簿鐩婅兘鍔涜繘鍖?/p>
+      <h1>成熟度评估</h1>
+      <p>精益成熟度评估与历史分析，持续追踪组织精益能力进化/p>
     </div>
     <div class="page-header-actions">
       <button class="btn btn-primary" @click="newAssessment()">
         <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path d="M 2v16m-8-8h16" stroke="currentColor" stroke-width="2" fill="none"/></svg>
-        鍙戣捣璇勪及
+        发起评估
       </button>
     </div>
   </div>
@@ -24,7 +24,7 @@
       </div>
       <div class="stat-content">
         <div class="stat-value" x-text="stats.total || 0"></div>
-        <div class="stat-label">绱璇勪及娆℃暟</div>
+        <div class="stat-label">累计评估次数</div>
       </div>
     </div>
     <div class="stat-card">
@@ -33,7 +33,7 @@
       </div>
       <div class="stat-content">
         <div class="stat-value" x-text="stats.avg_score || 0"></div>
-        <div class="stat-label">鏈€鏂版€诲垎</div>
+        <div class="stat-label">最新总分</div>
       </div>
     </div>
     <div class="stat-card">
@@ -42,7 +42,7 @@
       </div>
       <div class="stat-content">
         <div class="stat-value" x-text="topDimension || '--'"></div>
-        <div class="stat-label">鏈€楂樼淮搴?/div>
+        <div class="stat-label">最高维度</div>
       </div>
     </div>
     <div class="stat-card">
@@ -51,7 +51,7 @@
       </div>
       <div class="stat-content">
         <div class="stat-value" x-text="bottomDimension || '--'"></div>
-        <div class="stat-label">鏈€浣庣淮搴?/div>
+        <div class="stat-label">最低维度</div>
       </div>
     </div>
   </div>
@@ -59,20 +59,20 @@
   <div class="grid-2" style="margin-bottom: var(--space-6);">
     <div class="table-container">
       <div class="table-header">
-        <div class="table-title">璇勪及璁板綍</div>
+        <div class="table-title">评估记录</div>
         <div class="table-actions">
           <select class="form-select" style="width: auto;" x-model="filter.status" @change="loadData()">
-            <option value="">鍏ㄩ儴鐘舵€?/option>
-            <option value="draft">鑽夌</option>
-            <option value="in_progress">杩涜涓?/option>
-            <option value="completed">宸插畬鎴?/option>
+            <option value="">全部状态/option>
+            <option value="draft">草稿</option>
+            <option value="in_progress">进行中/option>
+            <option value="completed">已完成/option>
           </select>
         </div>
       </div>
       <div class="loading-spinner" x-show="loading"><div class="spinner"></div></div>
       <table class="data-table" x-show="!loading && items.length > 0">
         <thead>
-          <tr><th>ID</th><th>璇勪及鏃ユ湡</th><th>璇勪及浜?/th><th>鎬诲垎</th><th>绾у埆</th><th>鐘舵€?/th><th>鎿嶄綔</th></tr>
+          <tr><th>ID</th><th>评估日期</th><th>评估人</th><th>总分</th><th>级别</th><th>状态</th><th>操作</th></tr>
         </thead>
         <tbody>
           <template x-for="item in items" :key="item.id">
@@ -87,13 +87,13 @@
               <td>
                 <span class="badge" :class="levelClass(item.overall_level)" x-text="item.overall_level || '--'"></span>
               </td>
-              <td x-html="LeanOps.statusBadge(item.status, {draft:{label:'鑽夌',class:'badge-gray'},in_progress:{label:'杩涜涓?,class:'badge-primary'},completed:{label:'宸插畬鎴?,class:'badge-success'}})"></td>
+              <td x-html="LeanOps.statusBadge(item.status, {draft:{label:'草稿',class:'badge-gray'},in_progress:{label:'进行中',class:'badge-primary'},completed:{label:'已完成',class:'badge-success'}})"></td>
               <td>
                 <template x-if="item.status === 'completed'">
                   <a :href="'/maturity/trends'" class="btn btn-secondary btn-sm">瓒嬪娍</a>
                 </template>
                 <template x-if="item.status !== 'completed'">
-                  <a :href="'/maturity/' + item.id" class="btn btn-primary btn-sm">鎵撳垎</a>
+                  <a :href="'/maturity/' + item.id" class="btn btn-primary btn-sm">打分</a>
                 </template>
               </td>
             </tr>
@@ -102,8 +102,8 @@
       </table>
       <div class="empty-state" x-show="!loading && items.length === 0">
         <div class="empty-state-icon"><svg width="48" height="48" viewBox="0 0 20 20" fill="currentColor"><path d="M 2a8 8 0 100 16 8 8 0 000-16zm0 2a6 6 0 110 12 6 6 0 010-12z"/><path d="M 6v4l3 2"/></svg></div>
-        <div class="empty-state-title">鏆傛棤璇勪及璁板綍</div>
-        <div class="empty-state-desc">鐐瑰嚮涓婃柟鎸夐挳鍙戣捣棣栨鎴愮啛搴﹁瘎浼?/div>
+        <div class="empty-state-title">暂无评估记录</div>
+        <div class="empty-state-desc">点击上方按钮发起首次成熟度评估/div>
       </div>
       <div class="table-footer" x-show="!loading && items.length > 0">
         <span x-text="'绗?' + pagination.page + ' / ' + pagination.total_pages + ' 椤?"></span>
@@ -119,11 +119,11 @@
     </div>
 
     <div class="card" style="display: flex; flex-direction: column; align-items: center; min-height: 300px;">
-      <div class="card-header" style="width: 100%;"><div class="card-title">缁村害闆疯揪鍥?/div></div>
+      <div class="card-header" style="width: 100%;"><div class="card-title">维度雷达图/div></div>
       <div x-show="latestAssessment" x-html="renderRadar()" style="width: 100%; display: flex; justify-content: center; flex: 1; align-items: center;"></div>
       <div x-show="!latestAssessment" class="empty-state" style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;">
         <div class="empty-state-icon"><svg width="48" height="48" viewBox="0 0 20 20" fill="currentColor"><path d="M 2a8 8 0 100 16 8 8 0 000-16zm0 2a6 6 0 110 12 6 6 0 010-12z"/></svg></div>
-        <div class="empty-state-desc">鏆傛棤璇勫垎鏁版嵁</div>
+        <div class="empty-state-desc">暂无评分数据</div>
       </div>
     </div>
   </div>
@@ -169,7 +169,7 @@ function maturityList() {
         this.items = data.data || [];
         this.pagination = data.pagination || {};
       } catch (e) {
-        LeanOps.toast(e.detail || '鍔犺浇澶辫触', 'error');
+        LeanOps.toast(e.detail || '加载失败', 'error');
       } finally { this.loading = false; }
     },
     changePage(p) { if (p >= 1) { this.pagination.page = p; this.loadData(); } },
@@ -182,17 +182,17 @@ function maturityList() {
       return 'badge-gray';
     },
     newAssessment() {
-      const type = prompt('璇勪及绫诲瀷 (overall / lean20):', 'overall');
-      const area = prompt('璇勪及鍖哄煙:', '鍏ㄥ巶');
+      const type = prompt('评估类型 (overall / lean20):', 'overall');
+      const area = prompt('评估区域:', '全厂');
       if (!type || !area) return;
       LeanOps.api('/maturity/assessments', {
         method: 'POST',
         body: JSON.stringify({ assessment_type: type, area_name: area, max_score: type === 'lean20' ? '5' : '100' }),
         headers: { 'Content-Type': 'application/json' },
       }).then(data => {
-        LeanOps.toast('璇勪及宸插垱寤?, 'success');
+        LeanOps.toast('评估已创建, 'success');
         window.location.href = '/maturity/' + data.data.id;
-      }).catch(e => LeanOps.toast(e.detail || '鍒涘缓澶辫触', 'error'));
+      }).catch(e => LeanOps.toast(e.detail || '创建失败', 'error'));
     },
     renderRadar() {
       if (!this.latestAssessment || !this.latestAssessment.dimensions) return '';
@@ -247,3 +247,4 @@ function maturityList() {
 }
 </script>
 {% endblock %}
+
