@@ -1,0 +1,277 @@
+<!-- WIP 在制品管理 Dashboard -->
+{% extends "base.html" %}
+
+{% block title %}WIP 在制品管理{% endblock %}
+
+{% block head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+    .kpi-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px 20px; }
+    .kpi-value { font-size: 28px; font-weight: 700; line-height: 1.2; margin-top: 4px; }
+    .kpi-label { font-size: 12px; color: var(--text-secondary); }
+    .kpi-status { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+    .status-green { background: #22c55e; }
+    .status-yellow { background: #eab308; }
+    .status-red { background: #ef4444; }
+    .op-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+    .op-row:last-child { border-bottom: none; }
+    .op-name { width: 90px; font-weight: 600; flex-shrink: 0; }
+    .op-bar-wrap { flex: 1; background: var(--surface-2, #f1f5f9); border-radius: 6px; height: 18px; overflow: hidden; }
+    .op-bar { height: 100%; border-radius: 6px; transition: width .4s; }
+    .op-wip { width: 120px; text-align: right; font-variant-numeric: tabular-nums; }
+    .bottleneck-badge { background: #fef2f2; color: #dc2626; font-size: 11px; padding: 2px 8px; border-radius: 10px; }
+    .order-table td, .order-table th { padding: 8px 12px; }
+    .badge { font-size: 11px; padding: 3px 10px; border-radius: 10px; }
+    .badge-pending { background: #f1f5f9; color: #64748b; }
+    .badge-in_progress { background: #dbeafe; color: #2563eb; }
+    .badge-completed { background: #dcfce7; color: #16a34a; }
+    .badge-high { background: #fee2e2; color: #dc2626; }
+    .badge-normal { background: #fef9c3; color: #ca8a04; }
+    .badge-low { background: #e2e8f0; color: #475569; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div x-data="wipDashboard()" x-init="init()" class="page-container">
+
+    <div class="page-header" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+        <div>
+            <h1 style="font-size:20px;font-weight:700;">在制品 (WIP) 管理</h1>
+            <p style="font-size:13px;color:var(--text-secondary);margin-top:4px;">生产工单 · 工序水位 · 流转跟踪</p>
+        </div>
+        <button class="btn btn-primary" @click="openCreateModal = true">+ 新建工单</button>
+    </div>
+
+    <!-- KPI 卡片 -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:20px;">
+        <div class="kpi-card">
+            <div class="kpi-label">总在制 (WIP)</div>
+            <div class="kpi-value" x-text="overview.total_wip ?? '-'"></div>
+            <div style="font-size:12px;margin-top:6px;">
+                <span class="kpi-status" :class="overview.total_wip > 1500 ? 'status-red' : overview.total_wip > 1000 ? 'status-yellow' : 'status-green'"></span>
+                <span x-text="overview.total_wip > 1500 ? '偏高，需关注' : overview.total_wip > 1000 ? '接近上限' : '正常水位'"></span>
+            </div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">在制工单</div>
+            <div class="kpi-value" x-text="overview.active_orders ?? '-'"></div>
+            <div style="font-size:12px;margin-top:6px;color:var(--text-secondary);">执行中工单数</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">今日产出</div>
+            <div class="kpi-value" x-text="overview.today_throughput ?? '-'"></div>
+            <div style="font-size:12px;margin-top:6px;color:var(--text-secondary);">已完工流转件数</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">平均提前期</div>
+            <div class="kpi-value" x-text="(overview.avg_lead_time_days ?? '-') + ' 天'"></div>
+            <div style="font-size:12px;margin-top:6px;color:var(--text-secondary);">已完成工单</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">瓶颈工序</div>
+            <div class="kpi-value" style="font-size:22px;" x-text="overview.bottleneck?.operation_name ?? '-'"></div>
+            <div style="font-size:12px;margin-top:6px;" x-show="overview.bottleneck">
+                <span class="bottleneck-badge">⚠ 水位超标</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 工序水位 + 趋势 -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 20px;">
+            <h3 style="font-size:14px;font-weight:600;margin-bottom:12px;">工序水位（当前）</h3>
+            <template x-for="op in operations" :key="op.operation_name">
+                <div class="op-row">
+                    <div class="op-name">
+                        <span x-text="op.operation_name"></span>
+                        <span x-show="op.is_bottleneck" class="bottleneck-badge">瓶颈</span>
+                    </div>
+                    <div class="op-bar-wrap">
+                        <div class="op-bar"
+                             :style="'width:' + Math.min(100, (op.wip_qty / (op.wip_qty + 600)) * 100) + '%;background:' + (op.is_bottleneck ? '#ef4444' : '#4f46e5')"></div>
+                    </div>
+                    <div class="op-wip">
+                        <span style="font-weight:600;" x-text="op.wip_qty"></span>
+                        <span style="color:var(--text-secondary);font-size:12px;">件</span>
+                    </div>
+                </div>
+            </template>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 20px;">
+            <h3 style="font-size:14px;font-weight:600;margin-bottom:12px;">30 天水位趋势</h3>
+            <canvas id="wipTrendChart" height="200"></canvas>
+        </div>
+    </div>
+
+    <!-- 工单列表 -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 20px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+            <h3 style="font-size:14px;font-weight:600;">生产工单</h3>
+            <select x-model="statusFilter" @change="loadOrders()" style="padding:6px 10px;border-radius:8px;border:1px solid var(--border);background:var(--surface);">
+                <option value="">全部状态</option>
+                <option value="pending">待开始</option>
+                <option value="in_progress">执行中</option>
+                <option value="completed">已完成</option>
+            </select>
+        </div>
+        <table class="order-table" style="width:100%;border-collapse:collapse;font-size:13px;">
+            <thead>
+                <tr style="text-align:left;color:var(--text-secondary);border-bottom:1px solid var(--border);">
+                    <th>工单号</th><th>产品</th><th>数量</th><th>优先级</th><th>状态</th><th>计划交付</th><th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                <template x-for="o in orders" :key="o.id">
+                    <tr style="border-bottom:1px solid var(--border);">
+                        <td style="font-weight:600;" x-text="o.order_no"></td>
+                        <td x-text="o.product_name"></td>
+                        <td x-text="o.quantity"></td>
+                        <td><span class="badge" :class="'badge-' + o.priority" x-text="o.priority === 'high' ? '高' : o.priority === 'low' ? '低' : '中'"></span></td>
+                        <td><span class="badge" :class="'badge-' + o.status" x-text="o.status === 'in_progress' ? '执行中' : o.status === 'completed' ? '已完成' : '待开始'"></span></td>
+                        <td x-text="o.planned_end || '-'"></td>
+                        <td>
+                            <a :href="'/wip/orders/' + o.id" style="color:var(--accent,#4f46e5);text-decoration:none;font-weight:600;">详情 →</a>
+                        </td>
+                    </tr>
+                </template>
+                <tr x-show="orders.length === 0"><td colspan="7" style="text-align:center;padding:24px;color:var(--text-secondary);">暂无工单</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 新建工单弹窗 -->
+    <div x-show="openCreateModal" style="position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:50;display:flex;align-items:center;justify-content:center;" @click.self="openCreateModal = false">
+        <div style="background:var(--surface);border-radius:12px;padding:24px;width:420px;max-width:90vw;">
+            <h3 style="font-size:16px;font-weight:700;margin-bottom:16px;">新建生产工单</h3>
+            <div style="display:grid;gap:12px;">
+                <div>
+                    <label style="font-size:12px;color:var(--text-secondary);">工单号 *</label>
+                    <input x-model="form.order_no" type="text" placeholder="PO-20260816-004" style="width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--border);margin-top:4px;background:var(--surface);">
+                </div>
+                <div>
+                    <label style="font-size:12px;color:var(--text-secondary);">产品名称 *</label>
+                    <input x-model="form.product_name" type="text" placeholder="产品名称" style="width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--border);margin-top:4px;background:var(--surface);">
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                    <div>
+                        <label style="font-size:12px;color:var(--text-secondary);">数量 *</label>
+                        <input x-model="form.quantity" type="number" min="1" placeholder="500" style="width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--border);margin-top:4px;background:var(--surface);">
+                    </div>
+                    <div>
+                        <label style="font-size:12px;color:var(--text-secondary);">优先级</label>
+                        <select x-model="form.priority" style="width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--border);margin-top:4px;background:var(--surface);">
+                            <option value="high">高</option><option value="normal" selected>中</option><option value="low">低</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:20px;">
+                <button class="btn" @click="openCreateModal = false">取消</button>
+                <button class="btn btn-primary" @click="createOrder()">创建</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function wipDashboard() {
+    return {
+        overview: {},
+        operations: [],
+        orders: [],
+        statusFilter: '',
+        openCreateModal: false,
+        form: { order_no: '', product_name: '', quantity: 500, priority: 'normal' },
+        chart: null,
+
+        async init() {
+            await this.loadAll();
+            this.renderChart();
+        },
+
+        async loadAll() {
+            await Promise.all([this.loadOverview(), this.loadOperations(), this.loadOrders()]);
+        },
+
+        async loadOverview() {
+            const r = await fetch('/api/v1/wip/overview');
+            const j = await r.json();
+            this.overview = j.data || {};
+        },
+
+        async loadOperations() {
+            const r = await fetch('/api/v1/wip/operations');
+            const j = await r.json();
+            this.operations = j.data || [];
+        },
+
+        async loadOrders() {
+            const url = '/api/v1/wip/orders' + (this.statusFilter ? '?status=' + this.statusFilter : '');
+            const r = await fetch(url);
+            const j = await r.json();
+            this.orders = j.data || [];
+        },
+
+        async renderChart() {
+            const r = await fetch('/api/v1/wip/trends?days=30');
+            const j = await r.json();
+            const points = j.data || [];
+            const ctx = document.getElementById('wipTrendChart');
+            if (!ctx) return;
+            if (this.chart) this.chart.destroy();
+            this.chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: points.map(p => p.date.slice(5)),
+                    datasets: [{
+                        label: '总在制 WIP',
+                        data: points.map(p => p.total_wip),
+                        borderColor: '#4f46e5',
+                        backgroundColor: 'rgba(79,70,229,.08)',
+                        fill: true,
+                        tension: .3,
+                        pointRadius: 2,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,.05)' } },
+                        x: { grid: { display: false }, ticks: { maxTicksLimit: 8 } }
+                    }
+                }
+            });
+        },
+
+        async createOrder() {
+            if (!this.form.order_no || !this.form.product_name || !this.form.quantity) {
+                alert('请填写工单号、产品名称和数量');
+                return;
+            }
+            const r = await fetch('/api/v1/wip/orders', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    order_no: this.form.order_no,
+                    product_name: this.form.product_name,
+                    quantity: parseInt(this.form.quantity),
+                    priority: this.form.priority,
+                })
+            });
+            const j = await r.json();
+            if (j.success) {
+                this.openCreateModal = false;
+                this.form = { order_no: '', product_name: '', quantity: 500, priority: 'normal' };
+                await this.loadAll();
+                this.renderChart();
+            } else {
+                alert(j.error?.message || '创建失败');
+            }
+        },
+    }
+}
+</script>
+{% endblock %}

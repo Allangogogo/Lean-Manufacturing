@@ -60,3 +60,9 @@ from app.models.lean20 import (  # noqa: F401
     Lean20Assessment,
     Lean20DimensionScore,
 )
+from app.models.wip import (  # noqa: F401
+    ProductionOrder,
+    WIPDailySnapshot,
+    WIPTransaction,
+    WorkOrderOperation,
+)

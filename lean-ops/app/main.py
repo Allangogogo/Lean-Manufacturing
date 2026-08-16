@@ -173,6 +173,18 @@ async def tpm_faults_page(request: Request):
     """故障管理。"""
     return templates.TemplateResponse("tpm/faults.html", {"request": request})
 
+@app.get("/wip", response_class=HTMLResponse)
+async def wip_dashboard_page(request: Request):
+    """WIP 在制品管理。"""
+    return templates.TemplateResponse("wip/dashboard.html", {"request": request})
+
+
+@app.get("/wip/orders/{order_id}", response_class=HTMLResponse)
+async def wip_order_detail_page(request: Request, order_id: int):
+    """WIP 工单详情。"""
+    return templates.TemplateResponse("wip/order_detail.html", {"request": request, "order_id": order_id})
+
+
 
 @app.get("/projects", response_class=HTMLResponse)
 async def projects_list_page(request: Request):

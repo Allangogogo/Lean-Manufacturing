@@ -1,0 +1,129 @@
+<!-- WIP 工单详情 -->
+{% extends "base.html" %}
+
+{% block title %}工单详情{% endblock %}
+
+{% block head %}
+<style>
+    .op-card { border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+    .op-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .op-status { font-size: 11px; padding: 3px 10px; border-radius: 10px; }
+    .op-pending { background: #f1f5f9; color: #64748b; }
+    .op-in_progress { background: #dbeafe; color: #2563eb; }
+    .op-completed { background: #dcfce7; color: #16a34a; }
+    .qty-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .qty-box { background: var(--surface-2, #f8fafc); border-radius: 8px; padding: 10px; text-align: center; }
+    .qty-num { font-size: 22px; font-weight: 700; }
+    .qty-label { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
+    .progress-track { height: 8px; background: var(--surface-2, #f1f5f9); border-radius: 4px; overflow: hidden; margin-top: 10px; }
+    .progress-bar { height: 100%; background: #4f46e5; border-radius: 4px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div x-data="orderDetail({{ order_id }})" x-init="init()" class="page-container">
+
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+        <a href="/wip" style="color:var(--text-secondary);text-decoration:none;">← 返回</a>
+        <h1 style="font-size:20px;font-weight:700;" x-text="order.order_no || '工单详情'"></h1>
+        <span class="badge" :class="'badge-' + order.status" x-text="order.status === 'in_progress' ? '执行中' : order.status === 'completed' ? '已完成' : '待开始'"></span>
+    </div>
+
+    <!-- 工单信息 -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:20px;">
+        <div class="kpi-card" style="padding:14px 18px;">
+            <div style="font-size:12px;color:var(--text-secondary);">产品</div>
+            <div style="font-size:16px;font-weight:600;margin-top:4px;" x-text="order.product_name || '-'"></div>
+        </div>
+        <div class="kpi-card" style="padding:14px 18px;">
+            <div style="font-size:12px;color:var(--text-secondary);">计划数量</div>
+            <div style="font-size:16px;font-weight:600;margin-top:4px;" x-text="order.quantity ?? '-'"></div>
+        </div>
+        <div class="kpi-card" style="padding:14px 18px;">
+            <div style="font-size:12px;color:var(--text-secondary);">优先级</div>
+            <div style="font-size:16px;font-weight:600;margin-top:4px;" x-text="order.priority === 'high' ? '高' : order.priority === 'low' ? '低' : '中'"></div>
+        </div>
+        <div class="kpi-card" style="padding:14px 18px;">
+            <div style="font-size:12px;color:var(--text-secondary);">计划交付</div>
+            <div style="font-size:16px;font-weight:600;margin-top:4px;" x-text="order.planned_end || '-'"></div>
+        </div>
+    </div>
+
+    <!-- 工序进度 -->
+    <h3 style="font-size:14px;font-weight:600;margin-bottom:12px;">工序进度</h3>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;">
+        <template x-for="op in operations" :key="op.id">
+            <div class="op-card">
+                <div class="op-header">
+                    <div style="font-weight:600;">
+                        <span style="color:var(--text-secondary);margin-right:6px;" x-text="op.sequence_no + '.'"></span>
+                        <span x-text="op.operation_name"></span>
+                    </div>
+                    <span class="op-status" :class="'op-' + op.status" x-text="op.status === 'in_progress' ? '进行中' : op.status === 'completed' ? '完成' : '待开始'"></span>
+                </div>
+                <div class="qty-grid">
+                    <div class="qty-box">
+                        <div class="qty-num" x-text="op.input_qty"></div>
+                        <div class="qty-label">投入</div>
+                    </div>
+                    <div class="qty-box">
+                        <div class="qty-num" style="color:#16a34a;" x-text="op.output_qty"></div>
+                        <div class="qty-label">产出</div>
+                    </div>
+                    <div class="qty-box">
+                        <div class="qty-num" style="color:#4f46e5;" x-text="op.wip_qty"></div>
+                        <div class="qty-label">在制</div>
+                    </div>
+                </div>
+                <div class="progress-track">
+                    <div class="progress-bar" :style="'width:' + Math.min(100, (op.output_qty / Math.max(1, order.quantity)) * 100) + '%'"></div>
+                </div>
+                <div style="display:flex;gap:8px;margin-top:12px;" x-show="op.status !== 'completed'">
+                    <button class="btn" style="flex:1;font-size:12px;padding:6px;" @click="move(op.id, 'move_in')">投入 +</button>
+                    <button class="btn btn-primary" style="flex:1;font-size:12px;padding:6px;" @click="move(op.id, 'move_out')">产出 →</button>
+                </div>
+            </div>
+        </template>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function orderDetail(orderId) {
+    return {
+        order: {},
+        operations: [],
+
+        async init() {
+            await this.load();
+        },
+
+        async load() {
+            const r = await fetch('/api/v1/wip/orders/' + orderId);
+            const j = await r.json();
+            if (j.success) {
+                this.order = j.data.order;
+                this.operations = j.data.operations;
+            }
+        },
+
+        async move(opId, moveType) {
+            const qty = prompt(moveType === 'move_in' ? '投入数量：' : '产出数量：', '10');
+            if (!qty) return;
+            const r = await fetch('/api/v1/wip/operations/' + opId + '/move', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ quantity: parseInt(qty), move_type: moveType })
+            });
+            const j = await r.json();
+            if (j.success) {
+                await this.load();
+            } else {
+                alert(j.error?.message || '操作失败');
+            }
+        },
+    }
+}
+</script>
+{% endblock %}

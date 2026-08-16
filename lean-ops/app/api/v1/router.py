@@ -78,3 +78,7 @@ api_router.include_router(pillars_router, prefix="/pillars", tags=["价值支柱
 # Automation Maturity & ROI
 from app.api.v1.automation import router as automation_router
 api_router.include_router(automation_router, prefix="/automation", tags=["自动化成熟度"])
+
+# WIP 在制品管理
+from app.api.v1.wip import router as wip_router
+api_router.include_router(wip_router, prefix="/wip", tags=["WIP在制品"])

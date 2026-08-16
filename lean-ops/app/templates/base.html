@@ -47,6 +47,10 @@
             </a>
 
             <div class="sidebar-section">生产运维</div>
+            <a href="/wip" class="sidebar-link" :class="{ active: currentPage === 'wip' }">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="M 3h14v2H3V3zm0 6h14v2H3V9zm0 6h14v2H3v-2z"/><rect x="3" y="3" width="2" height="2" rx=".5"/><rect x="15" y="9" width="2" height="2" rx=".5"/><rect x="9" y="15" width="2" height="2" rx=".5"/></svg>
+                WIP 在制品
+            </a>
             <a href="/tpm" class="sidebar-link" :class="{ active: currentPage === 'tpm' }">
                 <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="M 2a3 3 0 00-3 3v4a3 3 0 006 0V5a3 3 0 00-3-3zM5 9v0a5 5 0 0010 0M10 14v4M7 18h6"/></svg>
                 TPM 设备

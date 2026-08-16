@@ -218,3 +218,47 @@ GET  /api/v1/wip/bottlenecks        → 瓶颈识别（WIP 最高的工序 + 等
 - [ ] 瓶颈工序自动识别并高亮
 - [ ] 30 天趋势图有数据（种子或真实）
 - [ ] 全量 API 测试通过
+
+---
+
+## 8. 实现状态（2026-08-16 数据层已完成）
+
+### 8.1 已完成（数据层 + API + 页面）
+
+| 层 | 文件 | 状态 |
+|---|---|---|
+| 数据模型 | `lean-ops/app/models/wip.py` | ✅ 4 张表 ORM（ProductionOrder / WorkOrderOperation / WIPTransaction / WIPDailySnapshot） |
+| 迁移 | `lean-ops/migrate_wip.py` | ✅ 建表 + 种子数据（3 工单 / 18 工序 / 180 条 30 天快照） |
+| 数据库 | `lean-ops/data/leanops.db` | ✅ 已迁移（tpm_equipment 外键关联可用） |
+| Schema | `lean-ops/app/schemas/wip.py` | ✅ 请求/响应模型 |
+| 业务逻辑 | `lean-ops/app/services/wip_service.py` | ✅ 工单 CRUD / 流转登记 / 瓶颈识别 / 趋势聚合 |
+| API | `lean-ops/app/api/v1/wip.py` | ✅ 6 端点（overview/operations/trends/orders/orders/{id}/operations/{id}/move） |
+| 页面 | `lean-ops/app/templates/wip/dashboard.html` | ✅ KPI 卡 + 工序水位 + 30 天趋势图 + 工单列表 + 新建工单弹窗 |
+| 页面 | `lean-ops/app/templates/wip/order_detail.html` | ✅ 工序进度 + 投入/产出登记 |
+| 路由 | `lean-ops/app/main.py` | ✅ /wip 与 /wip/orders/{id} 注册 |
+| 侧边栏 | `lean-ops/app/templates/base.html` | ✅ WIP 在制品入口 |
+
+### 8.2 API 端点清单
+
+| 方法 | 路径 | 说明 |
+|---|---|---|
+| GET | `/api/v1/wip/overview` | 全局指标（总在制/在制工单/今日产出/平均提前期/瓶颈工序） |
+| GET | `/api/v1/wip/operations` | 各工序 WIP 水位（含瓶颈标记） |
+| GET | `/api/v1/wip/trends?days=30` | 30 天水住趋势 |
+| GET | `/api/v1/wip/orders` | 工单列表（可状态过滤） |
+| POST | `/api/v1/wip/orders` | 创建工单（自动生成 6 道工序） |
+| GET | `/api/v1/wip/orders/{id}` | 工单详情（含工序进度） |
+| POST | `/api/v1/wip/operations/{id}/move` | 流转登记（move_in/move_out 自动更新 WIP 水位） |
+
+### 8.3 测试结果
+
+- 端到端 API 测试 **10/10 PASS**（登录 → 各端点 → 流转 → 建单 → 详情）
+- 既有页面回归：dashboard/kaizen/fives/training/tpm/projects/practices/reports/admin 全部 200
+- 瓶颈识别：机加工（WIP 150，目标 400 比值最高）正确标记
+
+### 8.4 遗留问题
+
+- `/maturity` 页面 500（`maturity/list.html` 缺 endblock，**既有 bug，非本次引入**，待修）
+- WIP 目标水位（TARGET_WIP）为演示值，v2 需按工序节拍/产能计算
+- 流转登记依赖手动录入，v3 对接 IoT 后自动化
+- 依赖环境需按 `lean-ops/requirements.txt` 锁定版本（本次发现 fastapi 升到 0.137 会破坏模板渲染，已降回 0.115.6）
