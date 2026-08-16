@@ -15,7 +15,7 @@ from pathlib import Path
 from datetime import datetime
 from typing import Optional
 
-app = FastAPI(title="Lean Manufacturing System", version="3.0.0")
+app = FastAPI(title="Lean Manufacturing System", version="2.0.0")
 
 # Static files and templates
 app.mount("/static", StaticFiles(directory="static"), name="static")

@@ -34,3 +34,7 @@ node_modules/
 
 # Byte-compiled Python cache (recursive)
 **/__pycache__/
+.pytest_cache/
+*.egg-info/
+dist/
+build/
