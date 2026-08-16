@@ -30,7 +30,12 @@ from sqlalchemy.orm import selectinload
 
 from app.database import get_db
 from app.core.permissions import CurrentUser, get_current_user
-from app.models.lean20 import Lean20Assessment, Lean20DimensionScore
+from app.models.lean20 import (
+    Lean20Assessment,
+    Lean20ChecklistItem,
+    Lean20ChecklistResponse,
+    Lean20DimensionScore,
+)
 
 router = APIRouter()
 
@@ -931,3 +936,91 @@ async def reassessment_suggestions(
         ))
 
     return suggestions
+
+
+# ---------------------------------------------------------------------------
+# Checklist endpoints (for migrated webapp assessment pages)
+# ---------------------------------------------------------------------------
+
+class ChecklistItemOutput(BaseModel):
+    """清单条目输出。"""
+    id: int
+    dimension_code: str
+    item_code: str
+    item_name: str
+    item_weight: float
+    l1_desc: str
+    l2_desc: str
+    l3_desc: str
+    l4_desc: str
+    l5_desc: str
+    sort_order: int
+
+
+class ChecklistResponseInput(BaseModel):
+    """清单响应输入。"""
+    item_id: int
+    score: int = Field(1, ge=1, le=5)
+    evidence: Optional[str] = None
+
+
+@router.get("/checklist", response_model=list[ChecklistItemOutput])
+async def list_checklist(
+    dimension: Optional[str] = Query(None, pattern="^[ODGRH]$"),
+    db: AsyncSession = Depends(get_db),
+):
+    """获取 Lean 2.0 评估清单（可按维度过滤）。"""
+    query = select(Lean20ChecklistItem).order_by(
+        Lean20ChecklistItem.dimension_code,
+        Lean20ChecklistItem.sort_order,
+    )
+    if dimension:
+        query = query.where(Lean20ChecklistItem.dimension_code == dimension)
+    result = await db.execute(query)
+    items = result.scalars().all()
+    return [
+        ChecklistItemOutput(
+            id=i.id,
+            dimension_code=i.dimension_code,
+            item_code=i.item_code,
+            item_name=i.item_name,
+            item_weight=float(i.item_weight),
+            l1_desc=i.l1_desc,
+            l2_desc=i.l2_desc,
+            l3_desc=i.l3_desc,
+            l4_desc=i.l4_desc,
+            l5_desc=i.l5_desc,
+            sort_order=i.sort_order,
+        )
+        for i in items
+    ]
+
+
+@router.post("/assessments/checklist", response_model=dict)
+async def save_checklist_responses(
+    assessment_id: int,
+    body: list[ChecklistResponseInput],
+    db: AsyncSession = Depends(get_db),
+):
+    """保存评估清单响应（覆盖式）。"""
+    # 校验评估存在
+    assessment = await db.get(Lean20Assessment, assessment_id)
+    if not assessment:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=404, detail="Assessment not found")
+
+    # 删除旧响应，插入新响应
+    await db.execute(
+        __import__("sqlalchemy").delete(Lean20ChecklistResponse).where(
+            Lean20ChecklistResponse.assessment_id == assessment_id
+        )
+    )
+    for item in body:
+        db.add(Lean20ChecklistResponse(
+            assessment_id=assessment_id,
+            item_id=item.item_id,
+            score=item.score,
+            evidence=item.evidence,
+        ))
+    await db.commit()
+    return {"ok": True, "saved": len(body)}

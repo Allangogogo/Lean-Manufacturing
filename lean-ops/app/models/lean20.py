@@ -85,3 +85,41 @@ class Lean20DimensionScore(BaseModel):
     assessment: Mapped["Lean20Assessment"] = relationship(
         back_populates="dimension_scores"
     )
+
+
+class Lean20ChecklistItem(BaseModel):
+    """Lean 2.0 评估清单条目（模板，每维度 5-7 条）。"""
+
+    __tablename__ = "lean20_checklist_items"
+
+    dimension_code: Mapped[str] = mapped_column(
+        String(1), nullable=False, index=True, comment="O/D/G/R/H"
+    )
+    item_code: Mapped[str] = mapped_column(String(10), nullable=False)
+    item_name: Mapped[str] = mapped_column(String(200), nullable=False)
+    item_weight: Mapped[Decimal] = mapped_column(
+        Numeric(3, 2), default=Decimal("0.15"), nullable=False
+    )
+    l1_desc: Mapped[str] = mapped_column(Text, default="", nullable=False)
+    l2_desc: Mapped[str] = mapped_column(Text, default="", nullable=False)
+    l3_desc: Mapped[str] = mapped_column(Text, default="", nullable=False)
+    l4_desc: Mapped[str] = mapped_column(Text, default="", nullable=False)
+    l5_desc: Mapped[str] = mapped_column(Text, default="", nullable=False)
+    sort_order: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+
+
+class Lean20ChecklistResponse(BaseModel):
+    """Lean 2.0 清单响应（每次评估对每个条目的评分）。"""
+
+    __tablename__ = "lean20_checklist_responses"
+
+    assessment_id: Mapped[int] = mapped_column(
+        ForeignKey("lean20_assessments.id", ondelete="CASCADE"),
+        nullable=False, index=True,
+    )
+    item_id: Mapped[int] = mapped_column(
+        ForeignKey("lean20_checklist_items.id", ondelete="CASCADE"),
+        nullable=False, index=True,
+    )
+    score: Mapped[int] = mapped_column(Integer, default=1, nullable=False)
+    evidence: Mapped[Optional[str]] = mapped_column(Text)

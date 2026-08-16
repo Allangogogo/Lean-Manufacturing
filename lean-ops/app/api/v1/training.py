@@ -119,3 +119,69 @@ async def handle_enrollment(
         user_id=user.id,
     )
     return {"success": True, "data": result.model_dump()}
+
+
+@router.get("/enrollments")
+async def list_enrollments(
+    user: CurrentUser = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """获取报名记录列表（含场次标题与用户名）。"""
+    from sqlalchemy import select
+    from sqlalchemy.orm import selectinload
+    from app.models.training import TrainingEnrollment
+
+    query = (
+        select(TrainingEnrollment)
+        .options(
+            selectinload(TrainingEnrollment.session),
+            selectinload(TrainingEnrollment.user),
+        )
+        .order_by(TrainingEnrollment.enrolled_at.desc())
+    )
+    result = await db.execute(query)
+    rows = result.scalars().all()
+    return [
+        {
+            "id": r.id,
+            "session_id": r.session_id,
+            "user_id": r.user_id,
+            "status": r.status,
+            "enrolled_at": r.enrolled_at.isoformat() if r.enrolled_at else None,
+            "session_title": r.session.title if r.session else None,
+            "user_name": r.user.display_name if r.user else None,
+        }
+        for r in rows
+    ]
+
+
+@router.get("/materials")
+async def list_materials(
+    user: CurrentUser = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """获取培训材料列表（含场次标题）。"""
+    from sqlalchemy import select
+    from sqlalchemy.orm import selectinload
+    from app.models.training import TrainingMaterial
+
+    query = (
+        select(TrainingMaterial)
+        .options(selectinload(TrainingMaterial.session))
+        .order_by(TrainingMaterial.created_at.desc())
+    )
+    result = await db.execute(query)
+    rows = result.scalars().all()
+    return [
+        {
+            "id": r.id,
+            "session_id": r.session_id,
+            "material_name": r.material_name,
+            "material_type": r.material_type,
+            "filepath": r.filepath,
+            "filesize": r.filesize,
+            "created_at": r.created_at.isoformat() if r.created_at else None,
+            "session_title": r.session.title if r.session else None,
+        }
+        for r in rows
+    ]

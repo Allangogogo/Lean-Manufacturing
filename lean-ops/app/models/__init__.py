@@ -58,6 +58,8 @@ from app.models.maturity import (  # noqa: F401
 )
 from app.models.lean20 import (  # noqa: F401
     Lean20Assessment,
+    Lean20ChecklistItem,
+    Lean20ChecklistResponse,
     Lean20DimensionScore,
 )
 from app.models.wip import (  # noqa: F401
