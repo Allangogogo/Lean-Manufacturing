@@ -23,8 +23,18 @@ lean-management-system/
 │   ├── static/                 # CSS / JS 前端资源
 │   └── templates/              # Jinja2 页面模板（16 页统一 Linear/Vercel 风格）
 │
-├── lean-ops/                   # 运营数据与数据库
-│   └── data/leanops.db         # SQLite 生产数据库
+├── lean-ops/                   # 运营后端（FastAPI + SQLAlchemy 2.0 异步 ORM）
+│   ├── app/                    # API 路由（auth/dashboard/kaizen/fives/training/tpm/
+│   │                          #   projects/practices/maturity/admin/reports/wip 等 19 模块）
+│   ├── app/models/             # SQLAlchemy ORM 模型
+│   ├── app/schemas/            # Pydantic 请求/响应模型
+│   ├── app/services/           # 业务逻辑层
+│   ├── app/templates/          # Jinja2 页面模板
+│   ├── migrate_*.py            # 数据库迁移与种子脚本
+│   ├── scripts/                # 种子数据与工具脚本
+│   ├── tests/                  # pytest 测试
+│   ├── data/leanops.db         # SQLite 生产数据库
+│   └── Dockerfile / docker-compose.yml
 │
 ├── 01-精益工具知识库/           # 精益哲学、13 个核心工具、问题解决方法、行业应用
 ├── 02-精益培训/                 # 培训策略、材料、计划、模板、效果评估
@@ -32,7 +42,10 @@ lean-management-system/
 ├── 04-实施战略/                 # 5 阶段路线图、实施工具模板
 ├── 05-项目管理/                 # 项目章程、进度/风险/绩效管理模板
 ├── appendix/                   # 术语表、参考文献、模板说明
-├── docs/                       # 补充文档
+├── docs/                       # 补充文档（backend-merge-plan.md 后端合并方案、
+│                               #   wip-dashboard-design.md WIP 看板设计）
+├── convert_md_to_office.py     # 知识库 Markdown → Office(docx/xlsx/pptx) 生成器
+├── create_methodology_docs.py  # 世界级制造方法论文档/培训 PPT 生成器
 ├── CLAUDE.md                   # AI 助手导航索引
 └── README.md                   # 本文件
 ```
@@ -73,6 +86,7 @@ python app.py
 | 实施战略 | `/implementation` | 精益转型实施路线图 |
 | 精益 2.0 | `/lean20` | Industry 5.0 融合框架 |
 | 八大支柱 | `/pillars` | 精益运营支柱 |
+| 生产运维 WIP | `/wip` | 在制品水位看板（工单/工序/流转） |
 | 搜索 | `/search` | 全文检索 |
 
 ---
