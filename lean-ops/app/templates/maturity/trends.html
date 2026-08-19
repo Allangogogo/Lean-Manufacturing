@@ -1,128 +1,128 @@
-﻿{% extends "base.html" %}
-{% block page_id %}maturity{% endblock %}
-{% block page_title %}成熟度趋势分析{% endblock %}
-{% block content %}
-<div x-data="maturityTrends()" x-init="init()">
-
-  <div class="page-header">
-    <div class="page-header-info">
-      <h1>成熟度趋势分析</h1>
-      <p>历史评估趋势追踪，识别改进方向与薄弱环节</p>
-    </div>
-    <div class="page-header-actions">
-      <a href="/maturity" class="btn btn-secondary">
-        <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"/></svg>
-        返回列表
-      </a>
-    </div>
-  </div>
-
-  <div class="loading-spinner" x-show="loading"><div class="spinner"></div></div>
-
-  <div x-show="!loading" class="grid-2" style="margin-bottom: var(--space-6);">
-    <div class="card">
-      <div class="card-header"><div class="card-title">总分趋势</div></div>
-      <div x-show="trends.length > 0" x-html="trendLineChart()" style="display: flex; justify-content: center;"></div>
-      <div x-show="trends.length === 0" class="empty-state">
-        <div class="empty-state-desc">暂无趋势数据</div>
-      </div>
-    </div>
-    <div class="card">
-      <div class="card-header"><div class="card-title">各维度得分对比/div></div>
-      <div x-show="dimensionData.length > 0" x-html="dimensionBarChart()" style="display: flex; justify-content: center;"></div>
-      <div x-show="dimensionData.length === 0" class="empty-state">
-        <div class="empty-state-desc">加载最近评估以查看维度对比</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="table-container">
-    <div class="table-header"><div class="table-title">历史评估记录</div></div>
-    <table class="data-table" x-show="trends.length > 0">
-      <thead>
-        <tr><th>ID</th><th>评估日期</th><th>区域</th><th>总分</th><th>级别</th><th>操作</th></tr>
-      </thead>
-      <tbody>
-        <template x-for="t in trends" :key="t.assessment_id">
-          <tr>
-            <td style="color: var(--text-tertiary);" x-text="'#' + t.assessment_id"></td>
-            <td x-text="LeanOps.fmtDate(t.assessment_date)"></td>
-            <td x-text="t.area_name || '--'"></td>
-            <td>
-              <span x-text="t.total_score || '--'" style="font-weight: 600;"></span>
-            </td>
-            <td>
-              <span class="badge" :class="levelClass(t.overall_level)" x-text="t.overall_level || '--'"></span>
-            </td>
-            <td>
-              <a :href="'/maturity/' + t.assessment_id" class="btn btn-secondary btn-sm">鏌ョ湅</a>
-            </td>
-          </tr>
-        </template>
-      </tbody>
-    </table>
-    <div x-show="trends.length === 0" class="empty-state">
-      <div class="empty-state-icon"><svg width="48" height="48" viewBox="0 0 20 20" fill="currentColor"><path d="M 3h16v2H2V3zm0 4h16v2H2V7zm0 4h16v2H2v-2zm0 4h10v2H2v-2z"/></svg></div>
-      <div class="empty-state-title">暂无历史评估数据</div>
-      <div class="empty-state-desc">完成评估后，趋势数据将在此展示/div>
-    </div>
-  </div>
-
-</div>
-{% endblock %}
-{% block scripts %}
-<script>
-function maturityTrends() {
-  return {
-    trends: [], dimensionData: [], loading: true, latestDetail: null,
-    async init() {
-      try {
-        this.trends = await LeanOps.api('/maturity/trends');
-        if (this.trends.length > 0) {
-          const latestId = this.trends[this.trends.length - 1].assessment_id;
-          const res = await LeanOps.api('/maturity/assessments/' + latestId);
-          this.latestDetail = res.data || null;
-          if (this.latestDetail && this.latestDetail.dimensions) {
-            this.dimensionData = this.latestDetail.dimensions.map(d => ({
-              label: d.dimension_name.length > 6 ? d.dimension_name.substring(0, 6) : d.dimension_name,
-              fullName: d.dimension_name,
-              value: Math.round((d.score || 0) / (d.max_score || 100) * 100),
-              color: 'var(--color-primary-500)',
-            }));
-          }
-        }
-      } catch (e) {
-        LeanOps.toast(e.detail || '加载失败', 'error');
-      } finally { this.loading = false; }
-    },
-    levelClass(l) {
-      if (!l) return 'badge-gray';
-      if (l.includes('L5') || l.includes('World-class')) return 'badge-success';
-      if (l.includes('L4') || l.includes('Proactive')) return 'badge-primary';
-      if (l.includes('L3') || l.includes('Systematic')) return 'badge-info';
-      if (l.includes('L2') || l.includes('Developing')) return 'badge-warning';
-      return 'badge-gray';
-    },
-    trendLineChart() {
-      if (!this.trends.length) return '';
-      const data = this.trends.map(t => ({
-        label: t.assessment_date ? t.assessment_date.substring(5) : t.assessment_id,
-        value: parseFloat(t.total_score) || 0,
-      }));
-      return Charts.line(data, 400, 220);
-    },
-    dimensionBarChart() {
-      if (!this.dimensionData.length) return '';
-      const colors = ['var(--color-primary-500)', 'var(--color-success-500)', 'var(--color-warning-500)', 'var(--color-danger-500)', 'var(--color-accent-500)'];
-      const data = this.dimensionData.map((d, i) => ({ ...d, color: colors[i % colors.length] }));
-      return Charts.bars(data, 400, 220);
-    },
-  };
-}
-</script>
-{% endblock %}
-
-
-
-
-
+﻿{% extends "base.html" %}
+{% block page_id %}maturity{% endblock %}
+{% block page_title %}成熟度趋势分析{% endblock %}
+{% block content %}
+<div x-data="maturityTrends()" x-init="init()">
+
+  <div class="page-header">
+    <div class="page-header-info">
+      <h1>成熟度趋势分析</h1>
+      <p>历史评估趋势追踪，识别改进方向与薄弱环节</p>
+    </div>
+    <div class="page-header-actions">
+      <a href="/maturity" class="btn btn-secondary">
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"/></svg>
+        返回列表
+      </a>
+    </div>
+  </div>
+
+  <div class="loading-spinner" x-show="loading"><div class="spinner"></div></div>
+
+  <div x-show="!loading" class="grid-2" style="margin-bottom: var(--space-6);">
+    <div class="card">
+      <div class="card-header"><div class="card-title">总分趋势</div></div>
+      <div x-show="trends.length > 0" x-html="trendLineChart()" style="display: flex; justify-content: center;"></div>
+      <div x-show="trends.length === 0" class="empty-state">
+        <div class="empty-state-desc">暂无趋势数据</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">各维度得分对比</div></div>
+      <div x-show="dimensionData.length > 0" x-html="dimensionBarChart()" style="display: flex; justify-content: center;"></div>
+      <div x-show="dimensionData.length === 0" class="empty-state">
+        <div class="empty-state-desc">加载最近评估以查看维度对比</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="table-container">
+    <div class="table-header"><div class="table-title">历史评估记录</div></div>
+    <table class="data-table" x-show="trends.length > 0">
+      <thead>
+        <tr><th>ID</th><th>评估日期</th><th>区域</th><th>总分</th><th>级别</th><th>操作</th></tr>
+      </thead>
+      <tbody>
+        <template x-for="t in trends" :key="t.assessment_id">
+          <tr>
+            <td style="color: var(--text-tertiary);" x-text="'#' + t.assessment_id"></td>
+            <td x-text="LeanOps.fmtDate(t.assessment_date)"></td>
+            <td x-text="t.area_name || '--'"></td>
+            <td>
+              <span x-text="t.total_score || '--'" style="font-weight: 600;"></span>
+            </td>
+            <td>
+              <span class="badge" :class="levelClass(t.overall_level)" x-text="t.overall_level || '--'"></span>
+            </td>
+            <td>
+              <a :href="'/maturity/' + t.assessment_id" class="btn btn-secondary btn-sm">鏌ョ湅</a>
+            </td>
+          </tr>
+        </template>
+      </tbody>
+    </table>
+    <div x-show="trends.length === 0" class="empty-state">
+      <div class="empty-state-icon"><svg width="48" height="48" viewBox="0 0 20 20" fill="currentColor"><path d="M 3h16v2H2V3zm0 4h16v2H2V7zm0 4h16v2H2v-2zm0 4h10v2H2v-2z"/></svg></div>
+      <div class="empty-state-title">暂无历史评估数据</div>
+      <div class="empty-state-desc">完成评估后，趋势数据将在此展示</div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+function maturityTrends() {
+  return {
+    trends: [], dimensionData: [], loading: true, latestDetail: null,
+    async init() {
+      try {
+        this.trends = await LeanOps.api('/maturity/trends');
+        if (this.trends.length > 0) {
+          const latestId = this.trends[this.trends.length - 1].assessment_id;
+          const res = await LeanOps.api('/maturity/assessments/' + latestId);
+          this.latestDetail = res.data || null;
+          if (this.latestDetail && this.latestDetail.dimensions) {
+            this.dimensionData = this.latestDetail.dimensions.map(d => ({
+              label: d.dimension_name.length > 6 ? d.dimension_name.substring(0, 6) : d.dimension_name,
+              fullName: d.dimension_name,
+              value: Math.round((d.score || 0) / (d.max_score || 100) * 100),
+              color: 'var(--color-primary-500)',
+            }));
+          }
+        }
+      } catch (e) {
+        LeanOps.toast(e.detail || '加载失败', 'error');
+      } finally { this.loading = false; }
+    },
+    levelClass(l) {
+      if (!l) return 'badge-gray';
+      if (l.includes('L5') || l.includes('World-class')) return 'badge-success';
+      if (l.includes('L4') || l.includes('Proactive')) return 'badge-primary';
+      if (l.includes('L3') || l.includes('Systematic')) return 'badge-info';
+      if (l.includes('L2') || l.includes('Developing')) return 'badge-warning';
+      return 'badge-gray';
+    },
+    trendLineChart() {
+      if (!this.trends.length) return '';
+      const data = this.trends.map(t => ({
+        label: t.assessment_date ? t.assessment_date.substring(5) : t.assessment_id,
+        value: parseFloat(t.total_score) || 0,
+      }));
+      return Charts.line(data, 400, 220);
+    },
+    dimensionBarChart() {
+      if (!this.dimensionData.length) return '';
+      const colors = ['var(--color-primary-500)', 'var(--color-success-500)', 'var(--color-warning-500)', 'var(--color-danger-500)', 'var(--color-accent-500)'];
+      const data = this.dimensionData.map((d, i) => ({ ...d, color: colors[i % colors.length] }));
+      return Charts.bars(data, 400, 220);
+    },
+  };
+}
+</script>
+{% endblock %}
+
+
+
+
+

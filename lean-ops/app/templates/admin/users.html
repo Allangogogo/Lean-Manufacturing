@@ -1,351 +1,351 @@
-﻿{% extends "base.html" %}
-{% block page_id %}admin{% endblock %}
-{% block page_title %}鐢ㄦ埛绠＄悊{% endblock %}
-{% block content %}
-<div x-data="userManager()" x-init="init()">
-
-  <div class="page-header">
-    <div class="page-header-info">
-      <h1>鐢ㄦ埛绠＄悊</h1>
-      <p>管理系统用户、角色与权限</p>
-    </div>
-    <div class="page-header-actions">
-      <button class="btn btn-primary" @click="openCreateModal()">
-        <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path d="M 2v16m-8-8h16" stroke="currentColor" stroke-width="2" fill="none"/></svg>
-        鏂板缓鐢ㄦ埛
-      </button>
-    </div>
-  </div>
-
-  <div class="stat-grid" x-show="!loading">
-    <div class="stat-card">
-      <div class="stat-icon primary">
-        <svg width="22" height="22" viewBox="0 0 20 20" fill="currentColor"><path d="M 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/></svg>
-      </div>
-      <div class="stat-content">
-        <div class="stat-value" x-text="stats.total_users || 0"></div>
-        <div class="stat-label">总用户数</div>
-      </div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-icon warning">
-        <svg width="22" height="22" viewBox="0 0 20 20" fill="currentColor"><path d="M 4.804A7.968 7.968 0 005.5 4l-1.5 1.5v2c0 2.8 1.2 5.5 3.2 7.4L10 17l2.8-2.1c2-1.9 3.2-4.6 3.2-7.4v-2l-1.5-1.5A7.968 7.968 0 0011 4.804v.446a1 1 0 01-2 0v-.446z"/></svg>
-      </div>
-      <div class="stat-content">
-        <div class="stat-value" x-text="adminCount()"></div>
-        <div class="stat-label">绠＄悊鍛?/div>
-      </div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-icon success">
-        <svg width="22" height="22" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/></svg>
-      </div>
-      <div class="stat-content">
-        <div class="stat-value" x-text="stats.active_users || 0"></div>
-        <div class="stat-label">娲昏穬鐢ㄦ埛</div>
-      </div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-icon danger">
-        <svg width="22" height="22" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M 14.89A6 6 0 015.11 6.524l8.367 8.368zm1.414-1.414L6.524 5.11a6 6 0 018.367 8.367zM18 10a8 8 0 11-16 0 8 8 0 0116 0z"/></svg>
-      </div>
-      <div class="stat-content">
-        <div class="stat-value" x-text="disabledCount()"></div>
-        <div class="stat-label">绂佺敤鐢ㄦ埛</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="table-container">
-    <div class="table-header">
-      <div class="table-title">用户列表</div>
-      <div class="table-actions filter-bar">
-        <div class="search-input">
-          <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"/></svg>
-          <input type="text" class="form-input" placeholder="鎼滅储鐢ㄦ埛鍚?.." x-model="filter.keyword" @input.debounce.300ms="loadData()">
-        </div>
-        <select class="form-select" style="width: auto;" x-model="filter.role" @change="loadData()">
-          <option value="">鍏ㄩ儴瑙掕壊</option>
-          <option value="lean_mgr">精益经理</option>
-          <option value="manager">经理</option>
-          <option value="supervisor">主管</option>
-          <option value="worker">鍛樺伐</option>
-        </select>
-        <select class="form-select" style="width: auto;" x-model="filter.active" @change="loadData()">
-          <option value="">全部状态/option>
-          <option value="active">娲昏穬</option>
-          <option value="disabled">绂佺敤</option>
-        </select>
-      </div>
-    </div>
-
-    <div class="loading-spinner" x-show="loading"><div class="spinner"></div></div>
-
-    <table class="data-table" x-show="!loading && users.length > 0">
-      <thead>
-        <tr><th>用户</th><th>用户鍚?/th><th>角色</th><th>部门</th><th>状态/th><th>最后登录/th><th>操作</th></tr>
-      </thead>
-      <tbody>
-        <template x-for="u in users" :key="u.id">
-          <tr>
-            <td>
-              <div style="display: flex; align-items: center; gap: var(--space-2);">
-                <div class="avatar" style="background: var(--color-primary-100); color: var(--color-primary-700);" x-text="u.display_name ? u.display_name.charAt(0) : '?'"></div>
-                <span style="font-weight: 500;" x-text="u.display_name || '--'"></span>
-              </div>
-            </td>
-            <td style="color: var(--text-secondary);" x-text="u.username"></td>
-            <td x-html="roleBadge(u.role_code)"></td>
-            <td x-text="u.department_name || '--'"></td>
-            <td x-html="activeBadge(u.is_active)"></td>
-            <td x-text="u.last_login_at ? LeanOps.fmtDateTime(u.last_login_at) : '浠庢湭鐧诲綍'" style="color: var(--text-tertiary); font-size: var(--text-xs);"></td>
-            <td>
-              <div style="display: flex; gap: var(--space-1);">
-                <button class="btn btn-secondary btn-sm" @click="openEditModal(u)">缂栬緫</button>
-                <button class="btn btn-sm" :class="u.is_active ? 'btn-danger' : 'btn-success'" @click="toggleUser(u)">
-                  <span x-text="u.is_active ? '禁用' : '启用'"></span>
-                </button>
-              </div>
-            </td>
-          </tr>
-        </template>
-      </tbody>
-    </table>
-
-    <div class="empty-state" x-show="!loading && users.length === 0">
-      <div class="empty-state-icon"><svg width="48" height="48" viewBox="0 0 20 20" fill="currentColor"><path d="M 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/></svg></div>
-      <div class="empty-state-title">暂无用户</div>
-      <div class="empty-state-desc">创建一个新用户开始使用系统/div>
-    </div>
-
-    <div class="table-footer" x-show="!loading && users.length > 0">
-      <span x-text="'绗?' + pagination.page + ' / ' + pagination.total_pages + ' 椤?"></span>
-      <div class="pagination">
-        <button class="page-btn" :disabled="!pagination.has_prev" @click="changePage(pagination.page - 1)">
-          <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"/></svg>
-        </button>
-        <button class="page-btn" :disabled="!pagination.has_next" @click="changePage(pagination.page + 1)">
-          <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <div class="modal-overlay" x-show="showModal" @click.self="showModal = false" style="display: none;" x-transition>
-    <div class="modal">
-      <div class="modal-header">
-        <div class="modal-title" x-text="editingUser ? '缂栬緫鐢ㄦ埛' : '鏂板缓鐢ㄦ埛'"></div>
-        <button class="modal-close" @click="showModal = false">
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg>
-        </button>
-      </div>
-      <div class="modal-body">
-        <div class="form-group">
-          <label class="form-label">显示名称 <span class="required">*</span></label>
-          <input type="text" class="form-input" x-model="form.display_name" placeholder="例如：张三>
-        </div>
-        <div class="form-group">
-          <label class="form-label">鐢ㄦ埛鍚?<span class="required">*</span></label>
-          <input type="text" class="form-input" x-model="form.username" placeholder="鐧诲綍璐﹀彿" :disabled="editingUser">
-        </div>
-        <div class="form-group" x-show="!editingUser">
-          <label class="form-label">瀵嗙爜 <span class="required">*</span></label>
-          <input type="password" class="form-input" x-model="form.password" placeholder="至少6位>
-        </div>
-        <div class="form-group">
-          <label class="form-label">邮箱</label>
-          <input type="email" class="form-input" x-model="form.email" placeholder="email@factory.com">
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">瑙掕壊</label>
-            <select class="form-select" x-model="form.role_code">
-              <option value="worker">鍛樺伐</option>
-              <option value="supervisor">主管</option>
-              <option value="manager">经理</option>
-              <option value="lean_mgr">精益经理</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label class="form-label">閮ㄩ棬</label>
-            <select class="form-select" x-model="form.department_id">
-              <option value="">鏃?/option>
-              <template x-for="dept in departments" :key="dept.id">
-                <option :value="dept.id" x-text="dept.name || dept.dept_name"></option>
-              </template>
-            </select>
-          </div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" @click="showModal = false">鍙栨秷</button>
-        <button class="btn btn-primary" @click="submitUser()" :disabled="submitting">
-          <span x-text="submitting ? '提交中..' : (editingUser ? '保存' : '创建')"></span>
-        </button>
-      </div>
-    </div>
-  </div>
-
-</div>
-{% endblock %}
-{% block scripts %}
-<script>
-function userManager() {
-  return {
-    users: [], departments: [], stats: {}, loading: true, submitting: false,
-    showModal: false, editingUser: null,
-    filter: { keyword: '', role: '', active: '' },
-    form: { display_name: '', username: '', password: '', email: '', role_code: 'worker', department_id: '' },
-    pagination: { page: 1, page_size: 20, total: 0, total_pages: 0, has_next: false, has_prev: false },
-    async init() {
-      await Promise.all([this.loadStats(), this.loadData(), this.loadDepartments()]);
-    },
-    async loadStats() {
-      try { this.stats = await LeanOps.api('/admin/stats'); } catch (e) {}
-    },
-    async loadData() {
-      this.loading = true;
-      try {
-        const params = new URLSearchParams({ page: this.pagination.page, page_size: this.pagination.page_size });
-        if (this.filter.keyword) params.set('keyword', this.filter.keyword);
-        if (this.filter.role) params.set('role_code', this.filter.role);
-        const data = await LeanOps.api('/admin/users?' + params);
-        this.users = data.data || [];
-        this.pagination = data.pagination || {};
-      } catch (e) {
-        LeanOps.toast(e.detail || '加载失败', 'error');
-      } finally { this.loading = false; }
-    },
-    async loadDepartments() {
-      try { this.departments = await LeanOps.api('/admin/departments') || []; } catch (e) {}
-    },
-    changePage(p) { if (p >= 1) { this.pagination.page = p; this.loadData(); } },
-    adminCount() {
-      return this.users.filter(u => u.role_code === 'lean_mgr' || u.role_code === 'manager').length;
-    },
-    disabledCount() {
-      return this.users.filter(u => !u.is_active).length;
-    },
-    roleBadge(role) {
-      const m = {
-        lean_mgr: { label: '精益经理', class: 'badge-primary' },
-        manager: { label: '经理', class: 'badge-info' },
-        supervisor: { label: '主管', class: 'badge-warning' },
-        worker: { label: '鍛樺伐', class: 'badge-gray' },
-      };
-      const item = m[role] || { label: role, class: 'badge-gray' };
-      return '<span class="badge ' + item.class + '">' + item.label + '</span>';
-    },
-    activeBadge(isActive) {
-      return isActive
-        ? '<span class="badge badge-success">娲昏穬</span>'
-        : '<span class="badge badge-danger">绂佺敤</span>';
-    },
-    openCreateModal() {
-      this.editingUser = null;
-      this.form = { display_name: '', username: '', password: '', email: '', role_code: 'worker', department_id: '' };
-      this.showModal = true;
-    },
-    openEditModal(u) {
-      this.editingUser = u;
-      this.form = {
-        display_name: u.display_name || '',
-        username: u.username,
-        password: '',
-        email: u.email || '',
-        role_code: u.role_code || 'worker',
-        department_id: u.department_id || '',
-      };
-      this.showModal = true;
-    },
-    async submitUser() {
-      if (!this.form.display_name || !this.form.username) {
-        LeanOps.toast('请填写显示名称和用户名, 'warning');
-        return;
-      }
-      if (!this.editingUser && !this.form.password) {
-        LeanOps.toast('请填写密码, 'warning');
-        return;
-      }
-      this.submitting = true;
-      try {
-        if (this.editingUser) {
-          const body = {
-            display_name: this.form.display_name,
-            email: this.form.email || null,
-            role_code: this.form.role_code,
-          };
-          if (this.form.department_id) body.department_id = parseInt(this.form.department_id);
-          await LeanOps.api('/admin/users/' + this.editingUser.id, {
-            method: 'PUT',
-            body: JSON.stringify(body),
-            headers: { 'Content-Type': 'application/json' },
-          });
-          LeanOps.toast('鐢ㄦ埛宸叉洿鏂?, 'success');
-        } else {
-          const body = {
-            display_name: this.form.display_name,
-            username: this.form.username,
-            password: this.form.password,
-            email: this.form.email || null,
-            role_code: this.form.role_code,
-          };
-          if (this.form.department_id) body.department_id = parseInt(this.form.department_id);
-          await LeanOps.api('/admin/users', {
-            method: 'POST',
-            body: JSON.stringify(body),
-            headers: { 'Content-Type': 'application/json' },
-          });
-          LeanOps.toast('鐢ㄦ埛宸插垱寤?, 'success');
-        }
-        this.showModal = false;
-        await this.loadData();
-        await this.loadStats();
-      } catch (e) {
-        LeanOps.toast(e.detail || '鎿嶄綔澶辫触', 'error');
-      } finally { this.submitting = false; }
-    },
-    async toggleUser(u) {
-      const action = u.is_active ? '禁用' : '启用';
-      if (!confirm('确认' + action + '鐢ㄦ埛 ' + u.display_name + '？)) return;
-      try {
-        await LeanOps.api('/admin/users/' + u.id, {
-          method: 'PUT',
-          body: JSON.stringify({ is_active: !u.is_active }),
-          headers: { 'Content-Type': 'application/json' },
-        });
-        u.is_active = !u.is_active;
-        LeanOps.toast('鐢ㄦ埛宸? + action, 'success');
-        await this.loadStats();
-      } catch (e) {
-        LeanOps.toast(e.detail || '鎿嶄綔澶辫触', 'error');
-      }
-    },
-  };
-}
-</script>
-{% endblock %}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+﻿{% extends "base.html" %}
+{% block page_id %}admin{% endblock %}
+{% block page_title %}鐢ㄦ埛绠＄悊{% endblock %}
+{% block content %}
+<div x-data="userManager()" x-init="init()">
+
+  <div class="page-header">
+    <div class="page-header-info">
+      <h1>鐢ㄦ埛绠＄悊</h1>
+      <p>管理系统用户、角色与权限</p>
+    </div>
+    <div class="page-header-actions">
+      <button class="btn btn-primary" @click="openCreateModal()">
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path d="M 2v16m-8-8h16" stroke="currentColor" stroke-width="2" fill="none"/></svg>
+        新建用户
+      </button>
+    </div>
+  </div>
+
+  <div class="stat-grid" x-show="!loading">
+    <div class="stat-card">
+      <div class="stat-icon primary">
+        <svg width="22" height="22" viewBox="0 0 20 20" fill="currentColor"><path d="M 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/></svg>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value" x-text="stats.total_users || 0"></div>
+        <div class="stat-label">总用户数</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon warning">
+        <svg width="22" height="22" viewBox="0 0 20 20" fill="currentColor"><path d="M 4.804A7.968 7.968 0 005.5 4l-1.5 1.5v2c0 2.8 1.2 5.5 3.2 7.4L10 17l2.8-2.1c2-1.9 3.2-4.6 3.2-7.4v-2l-1.5-1.5A7.968 7.968 0 0011 4.804v.446a1 1 0 01-2 0v-.446z"/></svg>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value" x-text="adminCount()"></div>
+        <div class="stat-label">管理员</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon success">
+        <svg width="22" height="22" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/></svg>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value" x-text="stats.active_users || 0"></div>
+        <div class="stat-label">活跃用户</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon danger">
+        <svg width="22" height="22" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M 14.89A6 6 0 015.11 6.524l8.367 8.368zm1.414-1.414L6.524 5.11a6 6 0 018.367 8.367zM18 10a8 8 0 11-16 0 8 8 0 0116 0z"/></svg>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value" x-text="disabledCount()"></div>
+        <div class="stat-label">禁用用户</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="table-container">
+    <div class="table-header">
+      <div class="table-title">用户列表</div>
+      <div class="table-actions filter-bar">
+        <div class="search-input">
+          <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"/></svg>
+          <input type="text" class="form-input" placeholder="搜索用户名..." x-model="filter.keyword" @input.debounce.300ms="loadData()">
+        </div>
+        <select class="form-select" style="width: auto;" x-model="filter.role" @change="loadData()">
+          <option value="">全部角色</option>
+          <option value="lean_mgr">精益经理</option>
+          <option value="manager">经理</option>
+          <option value="supervisor">主管</option>
+          <option value="worker">员工</option>
+        </select>
+        <select class="form-select" style="width: auto;" x-model="filter.active" @change="loadData()">
+          <option value="">全部状态</option>
+          <option value="active">活跃</option>
+          <option value="disabled">禁用</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="loading-spinner" x-show="loading"><div class="spinner"></div></div>
+
+    <table class="data-table" x-show="!loading && users.length > 0">
+      <thead>
+        <tr><th>用户</th><th>用户名</th><th>角色</th><th>部门</th><th>状态</th><th>最后登录</th><th>操作</th></tr>
+      </thead>
+      <tbody>
+        <template x-for="u in users" :key="u.id">
+          <tr>
+            <td>
+              <div style="display: flex; align-items: center; gap: var(--space-2);">
+                <div class="avatar" style="background: var(--color-primary-100); color: var(--color-primary-700);" x-text="u.display_name ? u.display_name.charAt(0) : '?'"></div>
+                <span style="font-weight: 500;" x-text="u.display_name || '--'"></span>
+              </div>
+            </td>
+            <td style="color: var(--text-secondary);" x-text="u.username"></td>
+            <td x-html="roleBadge(u.role_code)"></td>
+            <td x-text="u.department_name || '--'"></td>
+            <td x-html="activeBadge(u.is_active)"></td>
+            <td x-text="u.last_login_at ? LeanOps.fmtDateTime(u.last_login_at) : '从未登录'" style="color: var(--text-tertiary); font-size: var(--text-xs);"></td>
+            <td>
+              <div style="display: flex; gap: var(--space-1);">
+                <button class="btn btn-secondary btn-sm" @click="openEditModal(u)">编辑</button>
+                <button class="btn btn-sm" :class="u.is_active ? 'btn-danger' : 'btn-success'" @click="toggleUser(u)">
+                  <span x-text="u.is_active ? '禁用' : '启用'"></span>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </template>
+      </tbody>
+    </table>
+
+    <div class="empty-state" x-show="!loading && users.length === 0">
+      <div class="empty-state-icon"><svg width="48" height="48" viewBox="0 0 20 20" fill="currentColor"><path d="M 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/></svg></div>
+      <div class="empty-state-title">暂无用户</div>
+      <div class="empty-state-desc">创建一个新用户开始使用系统</div>
+    </div>
+
+    <div class="table-footer" x-show="!loading && users.length > 0">
+      <span x-text="'第' + pagination.page + ' / ' + pagination.total_pages + ' 页"></span>
+      <div class="pagination">
+        <button class="page-btn" :disabled="!pagination.has_prev" @click="changePage(pagination.page - 1)">
+          <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"/></svg>
+        </button>
+        <button class="page-btn" :disabled="!pagination.has_next" @click="changePage(pagination.page + 1)">
+          <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" x-show="showModal" @click.self="showModal = false" style="display: none;" x-transition>
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title" x-text="editingUser ? '编辑用户' : '新建用户'"></div>
+        <button class="modal-close" @click="showModal = false">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">显示名称 <span class="required">*</span></label>
+          <input type="text" class="form-input" x-model="form.display_name" placeholder="例如：张三>
+        </div>
+        <div class="form-group">
+          <label class="form-label">用户名<span class="required">*</span></label>
+          <input type="text" class="form-input" x-model="form.username" placeholder="鐧诲綍璐﹀彿" :disabled="editingUser">
+        </div>
+        <div class="form-group" x-show="!editingUser">
+          <label class="form-label">密码 <span class="required">*</span></label>
+          <input type="password" class="form-input" x-model="form.password" placeholder="至少6位>
+        </div>
+        <div class="form-group">
+          <label class="form-label">邮箱</label>
+          <input type="email" class="form-input" x-model="form.email" placeholder="email@factory.com">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">角色</label>
+            <select class="form-select" x-model="form.role_code">
+              <option value="worker">员工</option>
+              <option value="supervisor">主管</option>
+              <option value="manager">经理</option>
+              <option value="lean_mgr">精益经理</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">閮ㄩ棬</label>
+            <select class="form-select" x-model="form.department_id">
+              <option value="">鏃?</option>
+              <template x-for="dept in departments" :key="dept.id">
+                <option :value="dept.id" x-text="dept.name || dept.dept_name"></option>
+              </template>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" @click="showModal = false">取消</button>
+        <button class="btn btn-primary" @click="submitUser()" :disabled="submitting">
+          <span x-text="submitting ? '提交中..' : (editingUser ? '保存' : '创建')"></span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+function userManager() {
+  return {
+    users: [], departments: [], stats: {}, loading: true, submitting: false,
+    showModal: false, editingUser: null,
+    filter: { keyword: '', role: '', active: '' },
+    form: { display_name: '', username: '', password: '', email: '', role_code: 'worker', department_id: '' },
+    pagination: { page: 1, page_size: 20, total: 0, total_pages: 0, has_next: false, has_prev: false },
+    async init() {
+      await Promise.all([this.loadStats(), this.loadData(), this.loadDepartments()]);
+    },
+    async loadStats() {
+      try { this.stats = await LeanOps.api('/admin/stats'); } catch (e) {}
+    },
+    async loadData() {
+      this.loading = true;
+      try {
+        const params = new URLSearchParams({ page: this.pagination.page, page_size: this.pagination.page_size });
+        if (this.filter.keyword) params.set('keyword', this.filter.keyword);
+        if (this.filter.role) params.set('role_code', this.filter.role);
+        const data = await LeanOps.api('/admin/users?' + params);
+        this.users = data.data || [];
+        this.pagination = data.pagination || {};
+      } catch (e) {
+        LeanOps.toast(e.detail || '加载失败', 'error');
+      } finally { this.loading = false; }
+    },
+    async loadDepartments() {
+      try { this.departments = await LeanOps.api('/admin/departments') || []; } catch (e) {}
+    },
+    changePage(p) { if (p >= 1) { this.pagination.page = p; this.loadData(); } },
+    adminCount() {
+      return this.users.filter(u => u.role_code === 'lean_mgr' || u.role_code === 'manager').length;
+    },
+    disabledCount() {
+      return this.users.filter(u => !u.is_active).length;
+    },
+    roleBadge(role) {
+      const m = {
+        lean_mgr: { label: '精益经理', class: 'badge-primary' },
+        manager: { label: '经理', class: 'badge-info' },
+        supervisor: { label: '主管', class: 'badge-warning' },
+        worker: { label: '员工', class: 'badge-gray' },
+      };
+      const item = m[role] || { label: role, class: 'badge-gray' };
+      return '<span class="badge ' + item.class + '">' + item.label + '</span>';
+    },
+    activeBadge(isActive) {
+      return isActive
+        ? '<span class="badge badge-success">活跃</span>'
+        : '<span class="badge badge-danger">禁用</span>';
+    },
+    openCreateModal() {
+      this.editingUser = null;
+      this.form = { display_name: '', username: '', password: '', email: '', role_code: 'worker', department_id: '' };
+      this.showModal = true;
+    },
+    openEditModal(u) {
+      this.editingUser = u;
+      this.form = {
+        display_name: u.display_name || '',
+        username: u.username,
+        password: '',
+        email: u.email || '',
+        role_code: u.role_code || 'worker',
+        department_id: u.department_id || '',
+      };
+      this.showModal = true;
+    },
+    async submitUser() {
+      if (!this.form.display_name || !this.form.username) {
+        LeanOps.toast('请填写显示名称和用户名, 'warning');
+        return;
+      }
+      if (!this.editingUser && !this.form.password) {
+        LeanOps.toast('请填写密码, 'warning');
+        return;
+      }
+      this.submitting = true;
+      try {
+        if (this.editingUser) {
+          const body = {
+            display_name: this.form.display_name,
+            email: this.form.email || null,
+            role_code: this.form.role_code,
+          };
+          if (this.form.department_id) body.department_id = parseInt(this.form.department_id);
+          await LeanOps.api('/admin/users/' + this.editingUser.id, {
+            method: 'PUT',
+            body: JSON.stringify(body),
+            headers: { 'Content-Type': 'application/json' },
+          });
+          LeanOps.toast('用户已更新, 'success');
+        } else {
+          const body = {
+            display_name: this.form.display_name,
+            username: this.form.username,
+            password: this.form.password,
+            email: this.form.email || null,
+            role_code: this.form.role_code,
+          };
+          if (this.form.department_id) body.department_id = parseInt(this.form.department_id);
+          await LeanOps.api('/admin/users', {
+            method: 'POST',
+            body: JSON.stringify(body),
+            headers: { 'Content-Type': 'application/json' },
+          });
+          LeanOps.toast('用户已创建, 'success');
+        }
+        this.showModal = false;
+        await this.loadData();
+        await this.loadStats();
+      } catch (e) {
+        LeanOps.toast(e.detail || '操作失败', 'error');
+      } finally { this.submitting = false; }
+    },
+    async toggleUser(u) {
+      const action = u.is_active ? '禁用' : '启用';
+      if (!confirm('确认' + action + '鐢ㄦ埛 ' + u.display_name + '？)) return;
+      try {
+        await LeanOps.api('/admin/users/' + u.id, {
+          method: 'PUT',
+          body: JSON.stringify({ is_active: !u.is_active }),
+          headers: { 'Content-Type': 'application/json' },
+        });
+        u.is_active = !u.is_active;
+        LeanOps.toast('用户已 + action, 'success');
+        await this.loadStats();
+      } catch (e) {
+        LeanOps.toast(e.detail || '操作失败', 'error');
+      }
+    },
+  };
+}
+</script>
+{% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,119 +1,119 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-{% from "partials/_head.html" import head %}{{ head(module_info.get('name', module_name)) }}
-</head>
-<body class="min-h-screen">
-<div class="flex min-h-screen">
-{% set active_nav = '' %}
-{% include "partials/_sidebar.html" %}
-<div class="flex-1 ml-56">
-<header class="bg-white border-b border-[var(--border)] px-8 py-3 flex items-center justify-between sticky top-0 z-30">
-    <div class="flex items-center gap-3">
-        <!-- Breadcrumb inline -->
-        <a href="/" class="text-sm text-[var(--text-tertiary)] hover:text-[var(--accent)]">首页</a>
-        <span class="text-[var(--text-tertiary)]">/</span>
-        <h1 class="text-base font-semibold">{{ module_info.get('name', module_name) }}</h1>
-    </div>
-    <div class="flex items-center gap-3">
-        <form action="/search" method="get" class="relative">
-            <input type="text" name="q" placeholder="搜索..."
-                class="w-48 pl-8 pr-3 py-1.5 text-sm border border-[var(--border)] rounded-lg outline-none focus:border-[var(--accent)] bg-[var(--surface)]">
-            <svg class="absolute left-2.5 top-2 h-4 w-4 text-[var(--text-tertiary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-            </svg>
-        </form>
-    </div>
-</header>
-<main class="p-8 space-y-6">
-
-    <!-- Module Header -->
-    <section class="flex items-center justify-between">
-        <div>
-            <div class="flex items-center gap-3 mb-2">
-                <h2 class="text-xl font-bold text-[var(--text-primary)]">{{ module_info.get('name', module_name) }}</h2>
-            </div>
-            <p class="text-sm text-[var(--text-secondary)]">{{ module_info.get('description', '') }}</p>
-        </div>
-        <div class="flex items-center gap-3">
-            <span class="pill bg-[#f4f4f5] text-[var(--text-secondary)]">{{ module.total_files }} 个文件</span>
-            <span class="pill bg-[#f4f4f5] text-[var(--text-secondary)]">{{ module.subdirs|length }} 个子目录</span>
-        </div>
-    </section>
-
-    <!-- Module Navigation Tabs -->
-    <section class="card p-4">
-        <div class="flex flex-wrap gap-2">
-            {% for mk, mdata in all_modules.items() %}
-            {% set minfo = module_defs.get(mk, {}) %}
-            <a href="/module/{{ mk }}"
-               class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs transition-colors
-                      {% if mk == module_name %}bg-[var(--accent)] text-white font-medium{% else %}text-[var(--text-secondary)] hover:bg-[#f4f4f5]{% endif %}">
-                <span>{{ minfo.get('short_name', mk) }}</span>
-                <span class="text-[10px] {% if mk == module_name %}text-white/60{% else %}text-[var(--text-tertiary)]{% endif %} mono">{{ mdata.total_files }}</span>
-            </a>
-            {% endfor %}
-        </div>
-    </section>
-
-    <!-- Root Files (if any) -->
-    {% if module.root_files %}
-    <section class="space-y-3">
-        <h3 class="text-sm font-semibold text-[var(--text-primary)]">根目录文件</h3>
-        <div class="space-y-2">
-            {% for file in module.root_files %}
-            <div class="card p-4 flex items-center justify-between">
-                <div class="flex items-center gap-3 min-w-0">
-                    <span class="pill bg-[#f4f4f5] text-[var(--text-secondary)] mono">{{ file.type_label }}</span>
-                    <div class="min-w-0">
-                        <a href="/file/{{ file.path }}" class="text-sm font-medium text-[var(--text-primary)] hover:text-[var(--accent)] truncate block">{{ file.name }}</a>
-                        <p class="text-xs text-[var(--text-tertiary)] mono">{{ file.size_formatted }} · {{ file.modified }}</p>
-                    </div>
-                </div>
-                <a href="/download/{{ file.path }}" class="shrink-0 ml-3 text-xs font-medium text-[var(--accent)] border border-[var(--border)] rounded-lg px-3 py-1.5 hover:bg-[#f4f4f5] transition-colors">下载</a>
-            </div>
-            {% endfor %}
-        </div>
-    </section>
-    {% endif %}
-
-    <!-- Subdirectories -->
-    {% for sub_name, sub_data in module.subdirs.items() %}
-    <section class="space-y-3" x-data="{ open: true }">
-        <button @click="open = !open" class="flex items-center gap-2 w-full text-left group">
-            <svg class="w-4 h-4 text-[var(--text-tertiary)] transition-transform" :class="{'rotate-90': open}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M 5l7 7-7 7"/>
-            </svg>
-            <span class="text-sm font-semibold text-[var(--text-primary)] group-hover:text-[var(--accent)] transition-colors">{{ sub_name }}</span>
-            <span class="pill bg-[#f4f4f5] text-[var(--text-tertiary)]">{{ sub_data.count }} 份</span>
-        </button>
-        <div x-show="open" x-transition class="space-y-2 pl-6">
-            {% for file in sub_data.files %}
-            <div class="card p-4 flex items-center justify-between">
-                <div class="flex items-center gap-3 min-w-0">
-                    <span class="pill bg-[#f4f4f5] text-[var(--text-secondary)] mono">{{ file.type_label }}</span>
-                    <div class="min-w-0">
-                        <a href="/file/{{ file.path }}" class="text-sm font-medium text-[var(--text-primary)] hover:text-[var(--accent)] truncate block">{{ file.name }}</a>
-                        <p class="text-xs text-[var(--text-tertiary)] mono">{{ file.size_formatted }} · {{ file.modified }}</p>
-                    </div>
-                </div>
-                <a href="/download/{{ file.path }}" class="shrink-0 ml-3 text-xs font-medium text-[var(--accent)] border border-[var(--border)] rounded-lg px-3 py-1.5 hover:bg-[#f4f4f5] transition-colors">下载</a>
-            </div>
-            {% endfor %}
-        </div>
-    </section>
-    {% endfor %}
-
-    <!-- Empty State -->
-    {% if not module.subdirs and not module.root_files %}
-    <section class="card p-12 text-center">
-        <h3 class="text-sm font-medium text-[var(--text-primary)] mb-2">暂无文件</h3>
-        <p class="text-xs text-[var(--text-tertiary)]">该模块尚未添加任何文件</p>
-    </section>
-    {% endif %}
-
-</main>
-</div>
-</div>
-</body>
-</html>
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+{% from "partials/_head.html" import head %}{{ head(module_info.get('name', module_name)) }}
+</head>
+<body class="min-h-screen">
+<div class="flex min-h-screen">
+{% set active_nav = '' %}
+{% include "partials/_sidebar.html" %}
+<div class="flex-1 ml-56">
+<header class="bg-white border-b border-[var(--border)] px-8 py-3 flex items-center justify-between sticky top-0 z-30">
+    <div class="flex items-center gap-3">
+        <!-- Breadcrumb inline -->
+        <a href="/" class="text-sm text-[var(--text-tertiary)] hover:text-[var(--accent)]">首页</a>
+        <span class="text-[var(--text-tertiary)]">/</span>
+        <h1 class="text-base font-semibold">{{ module_info.get('name', module_name) }}</h1>
+    </div>
+    <div class="flex items-center gap-3">
+        <form action="/search" method="get" class="relative">
+            <input type="text" name="q" placeholder="搜索..."
+                class="w-48 pl-8 pr-3 py-1.5 text-sm border border-[var(--border)] rounded-lg outline-none focus:border-[var(--accent)] bg-[var(--surface)]">
+            <svg class="absolute left-2.5 top-2 h-4 w-4 text-[var(--text-tertiary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+        </form>
+    </div>
+</header>
+<main class="p-8 space-y-6">
+
+    <!-- Module Header -->
+    <section class="flex items-center justify-between">
+        <div>
+            <div class="flex items-center gap-3 mb-2">
+                <h2 class="text-xl font-bold text-[var(--text-primary)]">{{ module_info.get('name', module_name) }}</h2>
+            </div>
+            <p class="text-sm text-[var(--text-secondary)]">{{ module_info.get('description', '') }}</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <span class="pill bg-[var(--color-primary-50)] text-[var(--text-secondary)]">{{ module.total_files }} 个文件</span>
+            <span class="pill bg-[var(--color-primary-50)] text-[var(--text-secondary)]">{{ module.subdirs|length }} 个子目录</span>
+        </div>
+    </section>
+
+    <!-- Module Navigation Tabs -->
+    <section class="card p-4">
+        <div class="flex flex-wrap gap-2">
+            {% for mk, mdata in all_modules.items() %}
+            {% set minfo = module_defs.get(mk, {}) %}
+            <a href="/module/{{ mk }}"
+               class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs transition-colors
+                      {% if mk == module_name %}bg-[var(--accent)] text-white font-medium{% else %}text-[var(--text-secondary)] hover:bg-[var(--color-primary-50)]{% endif %}">
+                <span>{{ minfo.get('short_name', mk) }}</span>
+                <span class="text-[10px] {% if mk == module_name %}text-white/60{% else %}text-[var(--text-tertiary)]{% endif %} mono">{{ mdata.total_files }}</span>
+            </a>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- Root Files (if any) -->
+    {% if module.root_files %}
+    <section class="space-y-3">
+        <h3 class="text-sm font-semibold text-[var(--text-primary)]">根目录文件</h3>
+        <div class="space-y-2">
+            {% for file in module.root_files %}
+            <div class="card p-4 flex items-center justify-between">
+                <div class="flex items-center gap-3 min-w-0">
+                    <span class="pill bg-[var(--color-primary-50)] text-[var(--text-secondary)] mono">{{ file.type_label }}</span>
+                    <div class="min-w-0">
+                        <a href="/file/{{ file.path }}" class="text-sm font-medium text-[var(--text-primary)] hover:text-[var(--accent)] truncate block">{{ file.name }}</a>
+                        <p class="text-xs text-[var(--text-tertiary)] mono">{{ file.size_formatted }} · {{ file.modified }}</p>
+                    </div>
+                </div>
+                <a href="/download/{{ file.path }}" class="shrink-0 ml-3 text-xs font-medium text-[var(--accent)] border border-[var(--border)] rounded-lg px-3 py-1.5 hover:bg-[var(--color-primary-50)] transition-colors">下载</a>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- Subdirectories -->
+    {% for sub_name, sub_data in module.subdirs.items() %}
+    <section class="space-y-3" x-data="{ open: true }">
+        <button @click="open = !open" class="flex items-center gap-2 w-full text-left group">
+            <svg class="w-4 h-4 text-[var(--text-tertiary)] transition-transform" :class="{'rotate-90': open}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M 5l7 7-7 7"/>
+            </svg>
+            <span class="text-sm font-semibold text-[var(--text-primary)] group-hover:text-[var(--accent)] transition-colors">{{ sub_name }}</span>
+            <span class="pill bg-[var(--color-primary-50)] text-[var(--text-tertiary)]">{{ sub_data.count }} 份</span>
+        </button>
+        <div x-show="open" x-transition class="space-y-2 pl-6">
+            {% for file in sub_data.files %}
+            <div class="card p-4 flex items-center justify-between">
+                <div class="flex items-center gap-3 min-w-0">
+                    <span class="pill bg-[var(--color-primary-50)] text-[var(--text-secondary)] mono">{{ file.type_label }}</span>
+                    <div class="min-w-0">
+                        <a href="/file/{{ file.path }}" class="text-sm font-medium text-[var(--text-primary)] hover:text-[var(--accent)] truncate block">{{ file.name }}</a>
+                        <p class="text-xs text-[var(--text-tertiary)] mono">{{ file.size_formatted }} · {{ file.modified }}</p>
+                    </div>
+                </div>
+                <a href="/download/{{ file.path }}" class="shrink-0 ml-3 text-xs font-medium text-[var(--accent)] border border-[var(--border)] rounded-lg px-3 py-1.5 hover:bg-[var(--color-primary-50)] transition-colors">下载</a>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+    {% endfor %}
+
+    <!-- Empty State -->
+    {% if not module.subdirs and not module.root_files %}
+    <section class="card p-12 text-center">
+        <h3 class="text-sm font-medium text-[var(--text-primary)] mb-2">暂无文件</h3>
+        <p class="text-xs text-[var(--text-tertiary)]">该模块尚未添加任何文件</p>
+    </section>
+    {% endif %}
+
+</main>
+</div>
+</div>
+</body>
+</html>
