@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+{% from "partials/_head.html" import head %}{{ head('成熟度评估') }}
+</head>
+<body class="min-h-screen">
+<div class="flex min-h-screen">
+{% set active_nav = 'assessment' %}
+{% include "partials/_sidebar.html" %}
+<div class="flex-1 ml-56">
+<header class="bg-white border-b border-[var(--border)] px-8 py-3 flex items-center justify-between sticky top-0 z-30">
+    <div class="flex items-center gap-3">
+        <h1 class="text-base font-semibold">成熟度评估</h1>
+        <span class="text-[var(--text-tertiary)] text-sm">五级模型 · 工厂整体 · 局部工序</span>
+    </div>
+    <div class="flex items-center gap-3">
+        <form action="/search" method="get" class="relative">
+            <input type="text" name="q" placeholder="搜索..."
+                class="w-48 pl-8 pr-3 py-1.5 text-sm border border-[var(--border)] rounded-lg outline-none focus:border-[var(--accent)] bg-[var(--surface)]">
+            <svg class="absolute left-2.5 top-2 h-4 w-4 text-[var(--text-tertiary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+        </form>
+    </div>
+</header>
+<main class="p-8 space-y-6">
+
+    <!-- Maturity Model Levels -->
+    <section class="space-y-3">
+        <div class="flex items-center justify-between">
+            <h2 class="text-sm font-semibold text-[var(--text-primary)]">五级成熟度模型</h2>
+            <a href="/file/03-成熟度评估/01-评估框架/01-精益成熟度模型(5级).md" class="text-xs text-[var(--text-secondary)] hover:text-[var(--accent)]">查看模型定义 →</a>
+        </div>
+        <div class="card p-6 space-y-3">
+            <!-- Level 5 -->
+            <div class="flex items-center gap-4">
+                <div class="w-12 text-right shrink-0">
+                    <span class="text-sm font-bold mono text-[var(--text-primary)]">L5</span>
+                </div>
+                <div class="flex-1">
+                    <div class="h-10 rounded-lg flex items-center px-4 bg-[var(--accent)] text-white" style="width:100%">
+                        <span class="text-sm font-medium">卓越级 — 持续改善的精益文化</span>
+                    </div>
+                </div>
+                <span class="text-xs text-[var(--text-tertiary)] shrink-0 w-20 text-right">目标 36月+</span>
+            </div>
+            <!-- Level 4 -->
+            <div class="flex items-center gap-4">
+                <div class="w-12 text-right shrink-0">
+                    <span class="text-sm font-bold mono text-[var(--text-primary)]">L4</span>
+                </div>
+                <div class="flex-1">
+                    <div class="h-10 rounded-lg flex items-center px-4 bg-[var(--accent)] opacity-80 text-white" style="width:85%">
+                        <span class="text-sm font-medium">优化级 — 系统化精益运营</span>
+                    </div>
+                </div>
+                <span class="text-xs text-[var(--text-tertiary)] shrink-0 w-20 text-right">目标 24月</span>
+            </div>
+            <!-- Level 3 -->
+            <div class="flex items-center gap-4">
+                <div class="w-12 text-right shrink-0">
+                    <span class="text-sm font-bold mono text-[var(--text-primary)]">L3</span>
+                </div>
+                <div class="flex-1">
+                    <div class="h-10 rounded-lg flex items-center px-4 bg-[var(--accent)] opacity-60 text-white" style="width:65%">
+                        <span class="text-sm font-medium">定义级 — 标准化流程建立</span>
+                    </div>
+                </div>
+                <span class="text-xs text-[var(--text-tertiary)] shrink-0 w-20 text-right">目标 12月</span>
+            </div>
+            <!-- Level 2 - Current -->
+            <div class="flex items-center gap-4">
+                <div class="w-12 text-right shrink-0">
+                    <span class="text-sm font-bold mono text-[var(--warning)]">L2</span>
+                </div>
+                <div class="flex-1">
+                    <div class="h-10 rounded-lg flex items-center px-4 bg-[var(--accent)] opacity-40 text-[var(--text-primary)] border-2 border-[var(--warning)]" style="width:45%">
+                        <span class="text-sm font-medium">规范级 — 当前水平</span>
+                    </div>
+                </div>
+                <span class="text-xs text-[var(--warning)] font-medium shrink-0 w-20 text-right">当前位置</span>
+            </div>
+            <!-- Level 1 -->
+            <div class="flex items-center gap-4">
+                <div class="w-12 text-right shrink-0">
+                    <span class="text-sm font-bold mono text-[var(--text-tertiary)]">L1</span>
+                </div>
+                <div class="flex-1">
+                    <div class="h-10 rounded-lg flex items-center px-4 bg-[#f0f0f0] text-[var(--text-secondary)]" style="width:25%">
+                        <span class="text-sm font-medium">初始级</span>
+                    </div>
+                </div>
+                <span class="text-xs text-[var(--text-tertiary)] shrink-0 w-20 text-right"></span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Assessment Framework -->
+    {% if module.subdirs.get('01-评估框架') %}
+    <section class="space-y-3">
+        <h2 class="text-sm font-semibold text-[var(--text-primary)]">评估框架</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {% for file in module.subdirs['01-评估框架'].files %}
+            {% if file.ext == '.md' and 'README' not in file.name %}
+            <div class="card p-5">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="pill bg-[#f4f4f5] text-[var(--text-secondary)]">框架</span>
+                    <span class="text-xs text-[var(--text-tertiary)] mono">{{ file.size_formatted }}</span>
+                </div>
+                <h4 class="text-sm font-medium text-[var(--text-primary)] mb-3 truncate">{{ file.name }}</h4>
+                <div class="flex gap-2">
+                    <a href="/file/{{ file.path }}" class="flex-1 text-center text-xs font-medium text-[var(--text-secondary)] bg-[#f4f4f5] rounded-lg px-3 py-2 hover:bg-[#e8e8e8] transition-colors">查看</a>
+                    <a href="/download/{{ file.path }}" class="flex-1 text-center text-xs font-medium text-[var(--accent)] border border-[var(--border)] rounded-lg px-3 py-2 hover:bg-[#f4f4f5] transition-colors">下载</a>
+                </div>
+            </div>
+            {% endif %}
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- Factory-Wide Assessment -->
+    {% if module.subdirs.get('02-工厂整体评估') %}
+    <section class="space-y-3">
+        <h2 class="text-sm font-semibold text-[var(--text-primary)]">工厂整体评估</h2>
+        <div class="card overflow-hidden divide-y divide-[var(--border)]">
+            {% for file in module.subdirs['02-工厂整体评估'].files %}
+            {% if file.ext == '.md' and 'README' not in file.name %}
+            <div class="flex items-center justify-between px-5 py-4 hover:bg-[#fafafa] transition-colors">
+                <div class="flex items-center gap-3 min-w-0">
+                    <div class="min-w-0">
+                        <a href="/file/{{ file.path }}" class="text-sm font-medium text-[var(--text-primary)] hover:text-[var(--accent)] block truncate">{{ file.name }}</a>
+                        <p class="text-xs text-[var(--text-tertiary)] mono">{{ file.size_formatted }}</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 shrink-0 ml-3">
+                    <a href="/file/{{ file.path }}" class="text-xs text-[var(--text-secondary)] hover:text-[var(--accent)] px-2 py-1 rounded hover:bg-[#f4f4f5]">查看</a>
+                    <a href="/download/{{ file.path }}" class="text-xs text-[var(--text-secondary)] hover:text-[var(--accent)] px-2 py-1 rounded hover:bg-[#f4f4f5]">下载</a>
+                </div>
+            </div>
+            {% endif %}
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- Process Assessment (Local) -->
+    {% if module.subdirs.get('03-局部评估') %}
+    <section class="space-y-3">
+        <div>
+            <h2 class="text-sm font-semibold text-[var(--text-primary)]">工序级评估</h2>
+            <p class="text-xs text-[var(--text-tertiary)] mt-1">针对制造各工序的精益成熟度评估表</p>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {% for file in module.subdirs['03-局部评估'].files %}
+            {% if file.ext == '.md' and 'README' not in file.name and '模板' not in file.name %}
+            <div class="card p-5">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="pill bg-[#f4f4f5] text-[var(--text-secondary)]">工序</span>
+                    <span class="text-xs text-[var(--text-tertiary)] mono">{{ file.size_formatted }}</span>
+                </div>
+                <h4 class="text-sm font-medium text-[var(--text-primary)] mb-3 truncate">{{ file.name }}</h4>
+                <div class="flex gap-2">
+                    <a href="/file/{{ file.path }}" class="flex-1 text-center text-xs font-medium text-[var(--text-secondary)] bg-[#f4f4f5] rounded-lg px-3 py-2 hover:bg-[#e8e8e8] transition-colors">查看</a>
+                    <a href="/download/{{ file.path }}" class="flex-1 text-center text-xs font-medium text-[var(--accent)] border border-[var(--border)] rounded-lg px-3 py-2 hover:bg-[#f4f4f5] transition-colors">下载</a>
+                </div>
+            </div>
+            {% endif %}
+            {% endfor %}
+            <!-- Generic Template -->
+            {% for file in module.subdirs['03-局部评估'].files %}
+            {% if '模板' in file.name %}
+            <div class="card p-5 border-dashed">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="pill bg-[#f4f4f5] text-[var(--text-tertiary)]">模板</span>
+                    <span class="text-xs text-[var(--text-tertiary)] mono">{{ file.size_formatted }}</span>
+                </div>
+                <h4 class="text-sm font-medium text-[var(--text-primary)] mb-1 truncate">{{ file.name }}</h4>
+                <p class="text-xs text-[var(--text-tertiary)] mb-3">通用评估模板，可用于任意工序</p>
+                <div class="flex gap-2">
+                    <a href="/file/{{ file.path }}" class="flex-1 text-center text-xs font-medium text-[var(--text-secondary)] bg-[#f4f4f5] rounded-lg px-3 py-2 hover:bg-[#e8e8e8] transition-colors">查看</a>
+                    <a href="/download/{{ file.path }}" class="flex-1 text-center text-xs font-medium text-[var(--accent)] border border-[var(--border)] rounded-lg px-3 py-2 hover:bg-[#f4f4f5] transition-colors">下载</a>
+                </div>
+            </div>
+            {% endif %}
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- Assessment Reports -->
+    {% if module.subdirs.get('04-评估报告') %}
+    <section class="space-y-3">
+        <h2 class="text-sm font-semibold text-[var(--text-primary)]">评估报告</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {% for file in module.subdirs['04-评估报告'].files %}
+            {% if file.ext == '.md' and 'README' not in file.name %}
+            <div class="card p-5">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="pill bg-[#f4f4f5] text-[var(--text-secondary)]">报告</span>
+                    <span class="text-xs text-[var(--text-tertiary)] mono">{{ file.size_formatted }}</span>
+                </div>
+                <h4 class="text-sm font-medium text-[var(--text-primary)] mb-3 truncate">{{ file.name }}</h4>
+                <div class="flex gap-2">
+                    <a href="/file/{{ file.path }}" class="flex-1 text-center text-xs font-medium text-[var(--text-secondary)] bg-[#f4f4f5] rounded-lg px-3 py-2 hover:bg-[#e8e8e8] transition-colors">查看</a>
+                    <a href="/download/{{ file.path }}" class="flex-1 text-center text-xs font-medium text-[var(--accent)] border border-[var(--border)] rounded-lg px-3 py-2 hover:bg-[#f4f4f5] transition-colors">下载</a>
+                </div>
+            </div>
+            {% endif %}
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- Radar Chart -->
+    <section class="space-y-3">
+        <h2 class="text-sm font-semibold text-[var(--text-primary)]">评估雷达图</h2>
+        <div class="card p-8">
+            <div class="text-center">
+                <div class="relative w-64 h-64 mx-auto mb-6">
+                    <svg viewBox="0 0 200 200" class="w-full h-full">
+                        <polygon points="100,10 190,70 160,170 40,170 10,70" fill="none" stroke="#e8e8e8" stroke-width="1"/>
+                        <polygon points="100,30 170,75 145,155 55,155 30,75" fill="none" stroke="#e8e8e8" stroke-width="1"/>
+                        <polygon points="100,50 150,80 130,140 70,140 50,80" fill="none" stroke="#e8e8e8" stroke-width="1"/>
+                        <polygon points="100,70 130,85 115,125 85,125 70,85" fill="none" stroke="#e8e8e8" stroke-width="1"/>
+                        <polygon points="100,90 110,95 105,110 95,110 90,95" fill="none" stroke="#e8e8e8" stroke-width="1"/>
+                        <line x1="100" y1="100" x2="100" y2="10" stroke="#d4d4d4" stroke-width="1"/>
+                        <line x1="100" y1="100" x2="190" y2="70" stroke="#d4d4d4" stroke-width="1"/>
+                        <line x1="100" y1="100" x2="160" y2="170" stroke="#d4d4d4" stroke-width="1"/>
+                        <line x1="100" y1="100" x2="40" y2="170" stroke="#d4d4d4" stroke-width="1"/>
+                        <line x1="100" y1="100" x2="10" y2="70" stroke="#d4d4d4" stroke-width="1"/>
+                        <polygon points="100,55 145,82 135,140 65,140 55,82" fill="rgba(24,24,27,0.1)" stroke="#18181b" stroke-width="2"/>
+                        <circle cx="100" cy="55" r="4" fill="#18181b"/>
+                        <circle cx="145" cy="82" r="4" fill="#18181b"/>
+                        <circle cx="135" cy="140" r="4" fill="#18181b"/>
+                        <circle cx="65" cy="140" r="4" fill="#18181b"/>
+                        <circle cx="55" cy="82" r="4" fill="#18181b"/>
+                        <text x="100" y="5" text-anchor="middle" class="text-[9px] fill-gray-700 font-medium">领导力</text>
+                        <text x="195" y="70" text-anchor="start" class="text-[9px] fill-gray-700 font-medium">战略</text>
+                        <text x="165" y="180" text-anchor="start" class="text-[9px] fill-gray-700 font-medium">流程</text>
+                        <text x="35" y="180" text-anchor="end" class="text-[9px] fill-gray-700 font-medium">人员</text>
+                        <text x="5" y="70" text-anchor="end" class="text-[9px] fill-gray-700 font-medium">成果</text>
+                    </svg>
+                </div>
+                <p class="text-sm text-[var(--text-secondary)]">评估雷达图示例 — 展示五维度成熟度分布</p>
+                <p class="text-xs text-[var(--text-tertiary)] mt-1">使用 <a href="/file/03-成熟度评估/04-评估报告/02-雷达图分析模板.md" class="text-[var(--accent)] hover:underline">雷达图分析模板</a> 生成实际评估图表</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Lean 2.0 Maturity Radar -->
+    <section class="space-y-3">
+        <div class="card p-8 bg-[var(--accent)] text-white border-0">
+            <div class="flex items-center gap-4 mb-6">
+                <div>
+                    <h3 class="text-lg font-bold">Lean 2.0 Maturity Radar</h3>
+                    <p class="text-sm text-white/60">Industry 5.0 Extended Dimensions — 5维综合评估</p>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-3 mb-6">
+                <div class="bg-white/10 rounded-lg p-3 text-center">
+                    <div class="text-sm font-semibold">Operations</div>
+                    <div class="text-xs text-white/60">运营精益 O</div>
+                    <div class="text-xs text-white/40 mt-1 mono">Weight 30%</div>
+                </div>
+                <div class="bg-white/10 rounded-lg p-3 text-center">
+                    <div class="text-sm font-semibold">Digital</div>
+                    <div class="text-xs text-white/60">数字精益 D</div>
+                    <div class="text-xs text-white/40 mt-1 mono">Weight 25%</div>
+                </div>
+                <div class="bg-white/10 rounded-lg p-3 text-center">
+                    <div class="text-sm font-semibold">Green</div>
+                    <div class="text-xs text-white/60">绿色精益 G</div>
+                    <div class="text-xs text-white/40 mt-1 mono">Weight 20%</div>
+                </div>
+                <div class="bg-white/10 rounded-lg p-3 text-center">
+                    <div class="text-sm font-semibold">Resilience</div>
+                    <div class="text-xs text-white/60">韧性 R</div>
+                    <div class="text-xs text-white/40 mt-1 mono">Weight 15%</div>
+                </div>
+                <div class="bg-white/10 rounded-lg p-3 text-center">
+                    <div class="text-sm font-semibold">Human</div>
+                    <div class="text-xs text-white/60">人本 H</div>
+                    <div class="text-xs text-white/40 mt-1 mono">Weight 10%</div>
+                </div>
+            </div>
+            <div class="flex items-center justify-between">
+                <p class="text-sm text-white/70">从传统4维度升级为I5.0五维度，含交互式雷达图、行业对标、改善优先级推荐。</p>
+                <a href="/lean20" class="shrink-0 inline-flex items-center gap-2 bg-white text-[var(--accent)] font-semibold px-5 py-2.5 rounded-lg hover:bg-white/90 transition-colors text-sm">
+                    进入 Lean 2.0 Radar
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M 7l5 5m0 0l-5 5m5-5H6"/></svg>
+                </a>
+            </div>
+        </div>
+    </section>
+
+</main>
+</div>
+</div>
+</body>
+</html>

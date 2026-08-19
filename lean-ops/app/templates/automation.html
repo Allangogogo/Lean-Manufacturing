@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+{% from "partials/_head.html" import head %}{{ head('自动化成熟度') }}
+</head>
+<body class="min-h-screen" x-data="automationDashboard()">
+<div class="flex min-h-screen">
+{% set active_nav = 'automation' %}
+{% include "partials/_sidebar.html" %}
+<div class="flex-1 ml-56">
+    <header class="bg-white border-b border-[var(--border)] px-8 py-3 flex items-center justify-between sticky top-0 z-30">
+        <div class="flex items-center gap-3">
+            <h1 class="text-base font-semibold">Automation Maturity</h1>
+            <span class="text-xs text-[var(--text-tertiary)] mono">制造自动化成熟度 &amp; ROI</span>
+        </div>
+        <div class="flex items-center gap-3">
+            <button @click="startAssessment()" class="pill bg-[var(--accent)] text-white px-3 py-1.5 hover:bg-[var(--accent-hover)] transition-colors">New Assessment</button>
+        </div>
+    </header>
+    <main class="p-8 space-y-6">
+
+        <!-- Hero: Composite Score + Radar -->
+        <div class="card p-6 fade-in">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Left: Score -->
+                <div class="lg:col-span-1">
+                    <p class="text-[10px] font-semibold text-[var(--text-tertiary)] uppercase tracking-wider mb-2">Automation Maturity</p>
+                    <div class="stat-num" style="font-size: 48px;" x-text="latest.composite_score ? latest.composite_score.toFixed(1) : '--'"></div>
+                    <div class="text-sm text-[var(--text-secondary)] mt-2" x-text="levelLabel(latest.maturity_level)"></div>
+                    <div class="mt-4">
+                        <div class="flex items-center justify-between text-[10px] text-[var(--text-tertiary)] mono mb-1">
+                            <span>Overall Progress</span>
+                            <span x-text="latest.composite_score ? (latest.composite_score / 5 * 100).toFixed(0) + '%' : '0%'"></span>
+                        </div>
+                        <div class="bar" style="height: 6px;">
+                            <div :style="'width:' + (latest.composite_score ? (latest.composite_score / 5 * 100) : 0) + '%; background: var(--accent)'"></div>
+                        </div>
+                    </div>
+                    <p class="text-[10px] text-[var(--text-tertiary)] mono mt-3" x-text="latest.assessed_at ? 'Assessed: ' + latest.assessed_at.substring(0,10) : 'No completed assessment'"></p>
+                </div>
+                <!-- Right: Radar Chart -->
+                <div class="lg:col-span-2 flex items-center justify-center">
+                    <div class="w-full max-w-md" style="height: 300px;">
+                        <canvas id="radarChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- No data state -->
+        <div x-show="!latest.composite_score && !loading" class="card p-12 text-center">
+            <h3 class="text-lg font-semibold mb-2">No Automation Assessment Yet</h3>
+            <p class="text-sm text-[var(--text-secondary)] mb-6 max-w-md mx-auto">Start your first automation maturity assessment to see the 5-dimension radar and ROI tracking.</p>
+            <button @click="startAssessment()" class="pill bg-[var(--accent)] text-white px-4 py-2 hover:bg-[var(--accent-hover)] transition-colors">Start Assessment</button>
+        </div>
+
+        <!-- 5 Dimension Cards -->
+        <div x-show="latest.composite_score" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+            <template x-for="(dim, idx) in dimensions" :key="dim.code">
+                <div class="card p-5 fade-in">
+                    <div class="flex items-center gap-2 mb-3">
+                        <div class="w-7 h-7 rounded-md flex items-center justify-center text-xs font-bold text-white"
+                             :style="'background:' + dim.color" x-text="dim.icon"></div>
+                        <div>
+                            <h4 class="font-semibold text-sm leading-tight" x-text="dim.name"></h4>
+                            <p class="text-[10px] text-[var(--text-tertiary)] mono" x-text="'w' + (dim.weight * 100).toFixed(0) + '%'"></p>
+                        </div>
+                    </div>
+                    <div class="stat-num" style="font-size: 24px;" x-text="dim.score ? dim.score.toFixed(1) : '0.0'"></div>
+                    <div class="text-[10px] text-[var(--text-tertiary)] mt-1" x-text="dim.levelDesc"></div>
+                    <div class="bar mt-2">
+                        <div :style="'width:' + (dim.score ? dim.score / 5 * 100 : 0) + '%; background:' + dim.color"></div>
+                    </div>
+                </div>
+            </template>
+        </div>
+
+        <!-- Two columns: Checklist + Projects -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+            <!-- Left: Checklist Assessment -->
+            <div class="card overflow-hidden">
+                <div class="p-5 border-b border-[var(--border)]">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-sm font-semibold">Assessment Checklist</h3>
+                            <p class="text-xs text-[var(--text-tertiary)] mt-0.5">25 items across 5 dimensions</p>
+                        </div>
+                        <template x-if="currentAssessment">
+                            <div class="flex items-center gap-2">
+                                <span class="pill bg-[#f4f4f5] text-[var(--text-secondary)] mono" x-text="checklistProgress() + '/25'"></span>
+                                <button @click="completeAssessment()" class="pill bg-[var(--accent)] text-white px-2.5 py-1 hover:bg-[var(--accent-hover)] transition-colors"
+                                        :disabled="currentAssessment.is_completed">
+                                    <span x-text="currentAssessment.is_completed ? 'Done' : 'Complete'"></span>
+                                </button>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+                <div class="max-h-96 overflow-y-auto">
+                    <template x-if="currentAssessment && currentAssessment.items">
+                        <template x-for="item in currentAssessment.items" :key="item.id">
+                            <div class="flex items-center gap-3 px-5 py-3 border-b border-[var(--border)] hover:bg-[#fafafa] transition-colors">
+                                <input type="checkbox" :checked="item.is_checked" @change="toggleCheckItem(item)"
+                                       :disabled="currentAssessment.is_completed"
+                                       class="w-4 h-4 rounded border-[var(--border)] focus:ring-[var(--accent)]">
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm" :class="item.is_checked ? 'line-through text-[var(--text-tertiary)]' : 'text-[var(--text-primary)]'"
+                                       x-text="item.item_text"></p>
+                                </div>
+                                <span class="pill mono text-[9px]"
+                                      :style="'background:' + dimColor(item.dimension) + '15; color:' + dimColor(item.dimension)"
+                                      x-text="item.dimension.toUpperCase()"></span>
+                            </div>
+                        </template>
+                    </template>
+                    <div x-show="!currentAssessment" class="p-8 text-center text-[var(--text-tertiary)]">
+                        <p>No active assessment. Click "New Assessment" to start.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Automation Projects -->
+            <div class="card overflow-hidden">
+                <div class="p-5 border-b border-[var(--border)]">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-sm font-semibold">Automation Projects</h3>
+                            <p class="text-xs text-[var(--text-tertiary)] mt-0.5">ROI tracking &amp; PDCA cycles</p>
+                        </div>
+                        <button @click="showProjectForm = true" class="pill bg-[var(--accent)] text-white px-2.5 py-1 hover:bg-[var(--accent-hover)] transition-colors">+ Add</button>
+                    </div>
+                </div>
+                <div class="max-h-96 overflow-y-auto">
+                    <template x-for="proj in projects" :key="proj.id">
+                        <div class="px-5 py-4 border-b border-[var(--border)] hover:bg-[#fafafa] transition-colors">
+                            <div class="flex items-center justify-between mb-2">
+                                <h4 class="font-semibold text-sm" x-text="proj.project_name"></h4>
+                                <div class="flex items-center gap-1.5">
+                                    <span class="pill mono text-[9px]"
+                                          :class="priorityBadge(proj.priority)"
+                                          x-text="proj.priority"></span>
+                                    <span class="pill mono text-[9px]"
+                                          :class="statusBadge(proj.status)"
+                                          x-text="proj.status"></span>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-3 gap-2 text-xs text-[var(--text-tertiary)] mono">
+                                <div>Inv: <span class="text-[var(--text-primary)]" x-text="'¥' + formatNum(proj.investment)"></span></div>
+                                <div>ROI: <span :class="proj.expected_roi > 0 ? 'text-[var(--positive)]' : ''" x-text="(proj.expected_roi || 0).toFixed(1) + '%'"></span></div>
+                                <div>Payback: <span class="text-[var(--text-primary)]" x-text="(proj.payback_months || 0).toFixed(1) + 'mo'"></span></div>
+                            </div>
+                            <!-- PDCA Phase Bar -->
+                            <div class="mt-2 flex items-center gap-1">
+                                <template x-for="phase in ['plan','do','check','act']" :key="phase">
+                                    <div class="flex-1 h-1 rounded-full transition-all"
+                                         :class="pdcaPhaseClass(phase, proj.pdca_phase)"></div>
+                                </template>
+                                <span class="text-[9px] text-[var(--text-tertiary)] mono ml-1" x-text="proj.pdca_phase ? proj.pdca_phase.toUpperCase() : 'PLAN'"></span>
+                            </div>
+                            <!-- Review button -->
+                            <div class="mt-2 flex items-center justify-between">
+                                <button @click="openReviewModal(proj)" class="text-xs text-[var(--info)] hover:underline font-medium">
+                                    PDCA Review
+                                </button>
+                                <span class="text-[9px] text-[var(--text-tertiary)] mono" x-text="(proj.reviews || []).length + ' reviews'"></span>
+                            </div>
+                        </div>
+                    </template>
+                    <div x-show="projects.length === 0" class="p-8 text-center text-[var(--text-tertiary)]">
+                        <p>No projects yet. Add your first automation project.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ROI Summary -->
+        <div x-show="roiSummary.total_investment > 0" class="card p-6">
+            <h3 class="text-sm font-semibold mb-4">ROI Summary</h3>
+            <div class="grid grid-cols-2 lg:grid-cols-5 gap-4">
+                <div>
+                    <p class="text-[10px] text-[var(--text-tertiary)] uppercase tracking-wider mono">Total Investment</p>
+                    <p class="stat-num mt-1" style="font-size: 22px;" x-text="'¥' + formatNum(roiSummary.total_investment)"></p>
+                </div>
+                <div>
+                    <p class="text-[10px] text-[var(--text-tertiary)] uppercase tracking-wider mono">Expected Benefit/yr</p>
+                    <p class="stat-num mt-1" style="font-size: 22px; color: var(--positive);" x-text="'¥' + formatNum(roiSummary.total_expected_benefit)"></p>
+                </div>
+                <div>
+                    <p class="text-[10px] text-[var(--text-tertiary)] uppercase tracking-wider mono">Avg Expected ROI</p>
+                    <p class="stat-num mt-1" style="font-size: 22px;" x-text="(roiSummary.avg_expected_roi || 0).toFixed(1) + '%'"></p>
+                </div>
+                <div>
+                    <p class="text-[10px] text-[var(--text-tertiary)] uppercase tracking-wider mono">By Status</p>
+                    <div class="flex flex-wrap gap-1 mt-1">
+                        <template x-for="(count, status) in roiSummary.projects_by_status" :key="status">
+                            <span class="pill bg-[#f4f4f5] text-[var(--text-secondary)] mono" x-text="status + ': ' + count"></span>
+                        </template>
+                    </div>
+                </div>
+                <div>
+                    <p class="text-[10px] text-[var(--text-tertiary)] uppercase tracking-wider mono">By Priority</p>
+                    <div class="flex flex-wrap gap-1 mt-1">
+                        <template x-for="(count, pri) in roiSummary.projects_by_priority" :key="pri">
+                            <span class="pill bg-[#f4f4f5] text-[var(--text-secondary)] mono" x-text="pri + ': ' + count"></span>
+                        </template>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Project Form Modal -->
+        <div x-show="showProjectForm" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+            <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
+                <div class="p-6 border-b border-[var(--border)]">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-base font-semibold">New Automation Project</h3>
+                        <button @click="showProjectForm = false" class="text-[var(--text-tertiary)] hover:text-[var(--text-primary)]">&times;</button>
+                    </div>
+                </div>
+                <div class="p-6 space-y-4">
+                    <div>
+                        <label class="block text-xs font-medium text-[var(--text-secondary)] mb-1 uppercase tracking-wider">Project Name *</label>
+                        <input x-model="newProject.project_name" type="text" class="w-full border border-[var(--border)] rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[var(--accent)] focus:border-[var(--accent)]">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-medium text-[var(--text-secondary)] mb-1 uppercase tracking-wider">Category *</label>
+                            <select x-model="newProject.category" class="w-full border border-[var(--border)] rounded-lg px-3 py-2 text-sm">
+                                <option value="quality">AI Vision Inspection</option>
+                                <option value="tooling">Quick Die Change</option>
+                                <option value="feeding">Auto Feeding</option>
+                                <option value="heat_treatment">Heat Treatment AI</option>
+                                <option value="logistics">AGV/AMR</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-[var(--text-secondary)] mb-1 uppercase tracking-wider">Priority</label>
+                            <select x-model="newProject.priority" class="w-full border border-[var(--border)] rounded-lg px-3 py-2 text-sm">
+                                <option value="P1">P1 - Critical</option>
+                                <option value="P2">P2 - High</option>
+                                <option value="P3">P3 - Medium</option>
+                                <option value="P4">P4 - Low</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-medium text-[var(--text-secondary)] mb-1 uppercase tracking-wider">Investment (CNY) *</label>
+                            <input x-model.number="newProject.investment_amount" type="number" class="w-full border border-[var(--border)] rounded-lg px-3 py-2 text-sm mono">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-[var(--text-secondary)] mb-1 uppercase tracking-wider">Expected Benefit/yr *</label>
+                            <input x-model.number="newProject.expected_annual_benefit" type="number" class="w-full border border-[var(--border)] rounded-lg px-3 py-2 text-sm mono">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-medium text-[var(--text-secondary)] mb-1 uppercase tracking-wider">Start Date</label>
+                            <input x-model="newProject.start_date" type="date" class="w-full border border-[var(--border)] rounded-lg px-3 py-2 text-sm mono">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-[var(--text-secondary)] mb-1 uppercase tracking-wider">Target Date</label>
+                            <input x-model="newProject.target_date" type="date" class="w-full border border-[var(--border)] rounded-lg px-3 py-2 text-sm mono">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-[var(--text-secondary)] mb-1 uppercase tracking-wider">Owner</label>
+                        <input x-model="newProject.owner" type="text" class="w-full border border-[var(--border)] rounded-lg px-3 py-2 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-[var(--text-secondary)] mb-1 uppercase tracking-wider">Notes</label>
+                        <textarea x-model="newProject.notes" rows="2" class="w-full border border-[var(--border)] rounded-lg px-3 py-2 text-sm"></textarea>
+                    </div>
+                </div>
+                <div class="p-6 border-t border-[var(--border)] flex justify-end gap-3">
+                    <button @click="showProjectForm = false" class="pill border border-[var(--border)] text-[var(--text-secondary)] px-4 py-2 hover:border-[#d4d4d4]">Cancel</button>
+                    <button @click="createProject()" class="pill bg-[var(--accent)] text-white px-4 py-2 hover:bg-[var(--accent-hover)] transition-colors">Create Project</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- PDCA Review Modal -->
+        <div x-show="showReviewForm" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+            <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
+                <div class="p-6 border-b border-[var(--border)]">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-base font-semibold">PDCA Review</h3>
+                        <button @click="showReviewForm = false" class="text-[var(--text-tertiary)] hover:text-[var(--text-primary)]">&times;</button>
+                    </div>
+                    <p class="text-xs text-[var(--text-tertiary)] mt-1" x-text="reviewProject ? reviewProject.project_name : ''"></p>
+                </div>
+                <div class="p-6 space-y-4">
+                    <!-- Past reviews list -->
+                    <div x-show="reviewProject && (reviewProject.reviews || []).length > 0" class="mb-4">
+                        <p class="text-[10px] font-semibold text-[var(--text-tertiary)] uppercase tracking-wider mb-2">Previous Reviews</p>
+                        <div class="space-y-2 max-h-40 overflow-y-auto">
+                            <template x-for="rev in (reviewProject ? reviewProject.reviews : [])" :key="rev.id">
+                                <div class="p-2 rounded-lg bg-[#fafafa] text-xs">
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-medium mono" x-text="rev.pdca_phase ? rev.pdca_phase.toUpperCase() : '' + ' - Cycle ' + rev.pdca_cycle"></span>
+                                        <span class="text-[var(--text-tertiary)] mono" x-text="rev.review_date"></span>
+                                    </div>
+                                    <p class="text-[var(--text-secondary)] mt-1" x-text="rev.findings"></p>
+                                    <div x-show="rev.next_actions" class="mt-1 text-[var(--info)]" x-text="'Action: ' + rev.next_actions"></div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-[var(--text-secondary)] mb-1 uppercase tracking-wider">Findings *</label>
+                        <textarea x-model="newReview.findings" rows="3" class="w-full border border-[var(--border)] rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[var(--accent)] focus:border-[var(--accent)]" placeholder="What did we learn?"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-[var(--text-secondary)] mb-1 uppercase tracking-wider">Next Actions</label>
+                        <textarea x-model="newReview.next_actions" rows="2" class="w-full border border-[var(--border)] rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[var(--accent)] focus:border-[var(--accent)]" placeholder="What needs to be done next?"></textarea>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-medium text-[var(--text-secondary)] mb-1 uppercase tracking-wider">Actual Benefit (CNY)</label>
+                            <input x-model.number="newReview.actual_benefit" type="number" class="w-full border border-[var(--border)] rounded-lg px-3 py-2 text-sm mono">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-[var(--text-secondary)] mb-1 uppercase tracking-wider">Completion %</label>
+                            <input x-model.number="newReview.completion_pct" type="number" min="0" max="100" class="w-full border border-[var(--border)] rounded-lg px-3 py-2 text-sm mono">
+                        </div>
+                    </div>
+                </div>
+                <div class="p-6 border-t border-[var(--border)] flex justify-end gap-3">
+                    <button @click="showReviewForm = false" class="pill border border-[var(--border)] text-[var(--text-secondary)] px-4 py-2 hover:border-[#d4d4d4]">Cancel</button>
+                    <button @click="submitReview()" class="pill bg-[var(--accent)] text-white px-4 py-2 hover:bg-[var(--accent-hover)] transition-colors">Submit Review</button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+</div>
+</div>
+
+<script>
+const API_BASE = '/api/v1/automation';
+
+function automationDashboard() {
+    return {
+        loading: true,
+        latest: {},
+        dimensions: [
+            { code: 'quality',        name: 'AI视觉质检',     icon: 'Q', weight: 0.30, score: 0, levelDesc: '-', color: '#18181b' },
+            { code: 'tooling',        name: '快速换模自动化', icon: 'T', weight: 0.25, score: 0, levelDesc: '-', color: '#3f3f46' },
+            { code: 'feeding',        name: '自动上料系统',   icon: 'F', weight: 0.20, score: 0, levelDesc: '-', color: '#52525b' },
+            { code: 'heat_treatment', name: '热处理AI优化',   icon: 'H', weight: 0.15, score: 0, levelDesc: '-', color: '#71717a' },
+            { code: 'logistics',      name: 'AGV物料搬运',    icon: 'L', weight: 0.10, score: 0, levelDesc: '-', color: '#a1a1aa' },
+        ],
+        currentAssessment: null,
+        projects: [],
+        roiSummary: { total_investment: 0, total_expected_benefit: 0, avg_expected_roi: 0, projects_by_status: {}, projects_by_priority: {}, top_roi_projects: [] },
+        showProjectForm: false,
+        showReviewForm: false,
+        reviewProject: null,
+        newProject: { project_name: '', category: 'quality', priority: 'P1', investment_amount: 0, expected_annual_benefit: 0, start_date: '', target_date: '', owner: '', notes: '' },
+        newReview: { findings: '', next_actions: '', actual_benefit: 0, completion_pct: 0 },
+        radarChart: null,
+
+        async init() {
+            await Promise.all([
+                this.loadLatest(),
+                this.loadProjects(),
+                this.loadROISummary(),
+                this.loadLatestAssessment(),
+            ]);
+            this.loading = false;
+        },
+
+        async loadLatest() {
+            try {
+                const res = await fetch(API_BASE + '/latest');
+                const data = await res.json();
+                if (data.composite_score) {
+                    this.latest = data;
+                    await this.loadRadar(data.id);
+                }
+            } catch(e) { console.error('loadLatest', e); }
+        },
+
+        async loadRadar(assessmentId) {
+            try {
+                const res = await fetch(API_BASE + '/radar/' + assessmentId);
+                const data = await res.json();
+                data.points.forEach((p, i) => {
+                    if (this.dimensions[i]) {
+                        this.dimensions[i].score = p.score;
+                        this.dimensions[i].levelDesc = p.level_desc;
+                    }
+                });
+                this.$nextTick(() => this.renderRadar(data));
+            } catch(e) { console.error('loadRadar', e); }
+        },
+
+        renderRadar(data) {
+            const ctx = document.getElementById('radarChart');
+            if (!ctx) return;
+            if (this.radarChart) this.radarChart.destroy();
+            this.radarChart = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: data.points.map(p => p.name),
+                    datasets: [{
+                        label: 'Automation Maturity',
+                        data: data.points.map(p => p.score),
+                        borderColor: '#18181b',
+                        backgroundColor: 'rgba(24,24,27,0.08)',
+                        borderWidth: 2,
+                        pointBackgroundColor: '#18181b',
+                        pointRadius: 4,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            beginAtZero: true,
+                            max: 5,
+                            ticks: { stepSize: 1, color: '#999', backdropColor: 'transparent', font: { size: 10 } },
+                            grid: { color: 'rgba(0,0,0,0.08)' },
+                            pointLabels: { color: '#1a1a1a', font: { size: 11, weight: '600' } },
+                        }
+                    },
+                    plugins: { legend: { display: false } },
+                }
+            });
+        },
+
+        async loadLatestAssessment() {
+            try {
+                const res = await fetch(API_BASE + '/assessments?limit=1');
+                const data = await res.json();
+                if (data.length > 0) {
+                    const detail = await fetch(API_BASE + '/assessments/' + data[0].id);
+                    this.currentAssessment = await detail.json();
+                }
+            } catch(e) { console.error('loadLatestAssessment', e); }
+        },
+
+        async startAssessment() {
+            try {
+                const res = await fetch(API_BASE + '/assessments', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ assessor_name: 'Lean Manager' }),
+                });
+                const data = await res.json();
+                const detail = await fetch(API_BASE + '/assessments/' + data.id);
+                this.currentAssessment = await detail.json();
+            } catch(e) { console.error('startAssessment', e); }
+        },
+
+        async toggleCheckItem(item) {
+            item.is_checked = !item.is_checked;
+        },
+
+        checklistProgress() {
+            if (!this.currentAssessment || !this.currentAssessment.items) return 0;
+            return this.currentAssessment.items.filter(i => i.is_checked).length;
+        },
+
+        async completeAssessment() {
+            if (!this.currentAssessment || this.currentAssessment.is_completed) return;
+            const dimCounts = {};
+            this.currentAssessment.items.forEach(item => {
+                if (!dimCounts[item.dimension]) dimCounts[item.dimension] = { checked: 0, total: 0 };
+                dimCounts[item.dimension].total++;
+                if (item.is_checked) dimCounts[item.dimension].checked++;
+            });
+            const scores = {};
+            for (const [dim, counts] of Object.entries(dimCounts)) {
+                scores[dim + '_score'] = (counts.checked / counts.total * 5).toFixed(2);
+            }
+            try {
+                await fetch(API_BASE + '/assessments/' + this.currentAssessment.id, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(scores),
+                });
+                await fetch(API_BASE + '/assessments/' + this.currentAssessment.id + '/complete', { method: 'POST' });
+                await this.loadLatest();
+                await this.loadLatestAssessment();
+            } catch(e) { console.error('completeAssessment', e); }
+        },
+
+        async loadProjects() {
+            try {
+                const res = await fetch(API_BASE + '/projects');
+                this.projects = await res.json();
+            } catch(e) { console.error('loadProjects', e); }
+        },
+
+        async loadROISummary() {
+            try {
+                const res = await fetch(API_BASE + '/roi-summary');
+                this.roiSummary = await res.json();
+            } catch(e) { console.error('loadROISummary', e); }
+        },
+
+        async createProject() {
+            try {
+                await fetch(API_BASE + '/projects', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(this.newProject),
+                });
+                this.showProjectForm = false;
+                this.newProject = { project_name: '', category: 'quality', priority: 'P1', investment_amount: 0, expected_annual_benefit: 0, start_date: '', target_date: '', owner: '', notes: '' };
+                await this.loadProjects();
+                await this.loadROISummary();
+            } catch(e) { console.error('createProject', e); }
+        },
+
+        openReviewModal(proj) {
+            this.reviewProject = proj;
+            this.newReview = { findings: '', next_actions: '', actual_benefit: 0, completion_pct: 0 };
+            this.showReviewForm = true;
+            this.loadProjectReviews(proj);
+        },
+
+        async loadProjectReviews(proj) {
+            try {
+                const res = await fetch(API_BASE + '/projects/' + proj.id + '/reviews');
+                const data = await res.json();
+                proj.reviews = data;
+            } catch(e) { console.error('loadProjectReviews', e); }
+        },
+
+        async submitReview() {
+            if (!this.reviewProject || !this.newReview.findings) return;
+            try {
+                await fetch(API_BASE + '/projects/' + this.reviewProject.id + '/review', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(this.newReview),
+                });
+                this.showReviewForm = false;
+                await this.loadProjects();
+                await this.loadROISummary();
+            } catch(e) { console.error('submitReview', e); }
+        },
+
+        levelLabel(level) {
+            const labels = { 1: 'L1 - Manual', 2: 'L2 - Semi-Auto', 3: 'L3 - Automated', 4: 'L4 - Intelligent', 5: 'L5 - Adaptive' };
+            return labels[level] || 'Not Assessed';
+        },
+
+        formatNum(n) {
+            if (!n) return '0';
+            if (n >= 10000) return (n / 10000).toFixed(1) + 'w';
+            return n.toLocaleString();
+        },
+
+        dimColor(dim) {
+            const map = {
+                quality: '#18181b', tooling: '#3f3f46', feeding: '#52525b',
+                heat_treatment: '#71717a', logistics: '#a1a1aa',
+            };
+            return map[dim] || '#6b7280';
+        },
+
+        priorityBadge(pri) {
+            const map = {
+                P1: 'bg-[#fee2e2] text-[#991b1b]',
+                P2: 'bg-[#fed7aa] text-[#9a3412]',
+                P3: 'bg-[#fef3c7] text-[#92400e]',
+                P4: 'bg-[#f4f4f5] text-[var(--text-secondary)]'
+            };
+            return map[pri] || 'bg-[#f4f4f5] text-[var(--text-secondary)]';
+        },
+
+        statusBadge(status) {
+            const map = {
+                planned: 'bg-[#dbeafe] text-[#1e40af]',
+                in_progress: 'bg-[#fef3c7] text-[#92400e]',
+                completed: 'bg-[#dcfce7] text-[#166534]',
+                on_hold: 'bg-[#f4f4f5] text-[var(--text-secondary)]'
+            };
+            return map[status] || 'bg-[#f4f4f5] text-[var(--text-secondary)]';
+        },
+
+        pdcaPhaseClass(phase, current) {
+            const order = ['plan', 'do', 'check', 'act'];
+            const idx = order.indexOf(current || 'plan');
+            const phaseIdx = order.indexOf(phase);
+            if (phaseIdx < idx) return 'bg-[var(--positive)]';
+            if (phaseIdx === idx) return 'bg-[var(--accent)]';
+            return 'bg-[#e8e8e8]';
+        },
+    };
+}
+</script>
+</body>
+</html>

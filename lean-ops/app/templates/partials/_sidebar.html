@@ -1,69 +1,69 @@
-<!-- Shared Sidebar Component: use Jinja2 include with active_nav variable -->
-<aside class="w-56 bg-white border-r border-[var(--border)] flex flex-col fixed h-screen z-40">
-    <div class="px-5 py-5 border-b border-[var(--border)]">
-        <a href="/" class="flex items-center gap-2.5">
-            <div class="w-8 h-8 bg-[var(--accent)] rounded-lg flex items-center justify-center">
-                <span class="text-white font-bold text-sm">L</span>
-            </div>
-            <div>
-                <div class="text-sm font-bold text-[var(--text-primary)]">精益运营</div>
-                <div class="text-[10px] text-[var(--text-tertiary)] mono">v2.0</div>
-            </div>
-        </a>
-    </div>
-    <nav class="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
-        <div class="text-[10px] font-semibold text-[var(--text-tertiary)] uppercase tracking-wider px-3 mb-2">概览</div>
-        <a href="/" class="sidebar-link {{ 'active' if active_nav == 'dashboard' else '' }}">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M 6h16M4 12h16M4 18h7"/></svg>
-            仪表盘
-        </a>
-        <div class="text-[10px] font-semibold text-[var(--text-tertiary)] uppercase tracking-wider px-3 mb-2 mt-5">评估</div>
-        <a href="/lean20" class="sidebar-link {{ 'active' if active_nav == 'lean20' else '' }}">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-            Lean 2.0 雷达
-        </a>
-        <a href="/pillars" class="sidebar-link {{ 'active' if active_nav == 'pillars' else '' }}">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
-            价值支柱
-        </a>
-        <a href="/automation" class="sidebar-link {{ 'active' if active_nav == 'automation' else '' }}">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M 10V3L4 14h7v7l9-11h-7z"/></svg>
-            自动化成熟度
-        </a>
-        <a href="/assessment" class="sidebar-link {{ 'active' if active_nav == 'assessment' else '' }}">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
-            传统评估
-        </a>
-        <div class="text-[10px] font-semibold text-[var(--text-tertiary)] uppercase tracking-wider px-3 mb-2 mt-5">执行</div>
-        <a href="/projects" class="sidebar-link {{ 'active' if active_nav == 'projects' else '' }}">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M 17v-2a4 4 0 00-4-4H3m18 6V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2z"/></svg>
-            项目看板
-        </a>
-        <a href="/tpm" class="sidebar-link {{ 'active' if active_nav == 'tpm' else '' }}">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-            TPM 设备
-        </a>
-        <a href="/fives-kaizen" class="sidebar-link {{ 'active' if active_nav == 'fives' else '' }}">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
-            5S & Kaizen
-        </a>
-        <a href="/training-page" class="sidebar-link {{ 'active' if active_nav == 'training' else '' }}">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M 14l9-5-9-5-9 5 9 5z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/></svg>
-            培训管理
-        </a>
-        <a href="/best-practices" class="sidebar-link {{ 'active' if active_nav == 'best-practices' else '' }}">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
-            最佳实践
-        </a>
-        <a href="/implementation" class="sidebar-link {{ 'active' if active_nav == 'implementation' else '' }}">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M 66l6-6m0 0l6-6m-6 6V6"/></svg>
-            实施追踪
-        </a>
-    </nav>
-    <div class="px-4 py-3 border-t border-[var(--border)]">
-        <div class="flex items-center gap-2 text-xs text-[var(--text-tertiary)]">
-            <div class="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
-            <span>系统运行中</span>
-        </div>
-    </div>
-</aside>
+<!-- Shared Sidebar Component: use Jinja2 include with active_nav variable -->
+<aside class="w-56 bg-white border-r border-[var(--border)] flex flex-col fixed h-screen z-40">
+    <div class="px-5 py-5 border-b border-[var(--border)]">
+        <a href="/" class="flex items-center gap-2.5">
+            <div class="w-8 h-8 bg-[var(--accent)] rounded-lg flex items-center justify-center">
+                <span class="text-white font-bold text-sm">L</span>
+            </div>
+            <div>
+                <div class="text-sm font-bold text-[var(--text-primary)]">精益运营</div>
+                <div class="text-[10px] text-[var(--text-tertiary)] mono">v2.0</div>
+            </div>
+        </a>
+    </div>
+    <nav class="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
+        <div class="text-[10px] font-semibold text-[var(--text-tertiary)] uppercase tracking-wider px-3 mb-2">概览</div>
+        <a href="/" class="sidebar-link {{ 'active' if active_nav == 'dashboard' else '' }}">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M 6h16M4 12h16M4 18h7"/></svg>
+            仪表盘
+        </a>
+        <div class="text-[10px] font-semibold text-[var(--text-tertiary)] uppercase tracking-wider px-3 mb-2 mt-5">评估</div>
+        <a href="/lean20" class="sidebar-link {{ 'active' if active_nav == 'lean20' else '' }}">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+            Lean 2.0 雷达
+        </a>
+        <a href="/pillars" class="sidebar-link {{ 'active' if active_nav == 'pillars' else '' }}">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+            价值支柱
+        </a>
+        <a href="/automation" class="sidebar-link {{ 'active' if active_nav == 'automation' else '' }}">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M 10V3L4 14h7v7l9-11h-7z"/></svg>
+            自动化成熟度
+        </a>
+        <a href="/assessment" class="sidebar-link {{ 'active' if active_nav == 'assessment' else '' }}">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+            传统评估
+        </a>
+        <div class="text-[10px] font-semibold text-[var(--text-tertiary)] uppercase tracking-wider px-3 mb-2 mt-5">执行</div>
+        <a href="/projects" class="sidebar-link {{ 'active' if active_nav == 'projects' else '' }}">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M 17v-2a4 4 0 00-4-4H3m18 6V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2z"/></svg>
+            项目看板
+        </a>
+        <a href="/tpm" class="sidebar-link {{ 'active' if active_nav == 'tpm' else '' }}">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            TPM 设备
+        </a>
+        <a href="/fives" class="sidebar-link {{ 'active' if active_nav == 'fives' else '' }}">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
+            5S & Kaizen
+        </a>
+        <a href="/training" class="sidebar-link {{ 'active' if active_nav == 'training' else '' }}">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M 14l9-5-9-5-9 5 9 5z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/></svg>
+            培训管理
+        </a>
+        <a href="/practices" class="sidebar-link {{ 'active' if active_nav == 'best-practices' else '' }}">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
+            最佳实践
+        </a>
+        <a href="/implementation" class="sidebar-link {{ 'active' if active_nav == 'implementation' else '' }}">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M 66l6-6m0 0l6-6m-6 6V6"/></svg>
+            实施追踪
+        </a>
+    </nav>
+    <div class="px-4 py-3 border-t border-[var(--border)]">
+        <div class="flex items-center gap-2 text-xs text-[var(--text-tertiary)]">
+            <div class="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+            <span>系统运行中</span>
+        </div>
+    </div>
+</aside>
