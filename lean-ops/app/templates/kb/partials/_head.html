@@ -1,0 +1,63 @@
+<!-- Shared head block: use Jinja2 from import to call head(page_title) macro -->
+{% macro head(page_title='精益运营平台') %}
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ page_title }}</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/kb-style.css">
+<style>
+    :root {
+        --bg: #fafafa;
+        --surface: #ffffff;
+        --border: #e8e8e8;
+        --text-primary: #1a1a1a;
+        --text-secondary: #666;
+        --text-tertiary: #999;
+        --accent: #18181b;
+        --accent-hover: #27272a;
+        --positive: #16a34a;
+        --warning: #ea580c;
+        --negative: #dc2626;
+        --info: #2563eb;
+    }
+    * { font-family: 'Inter', 'Microsoft YaHei', system-ui, sans-serif; }
+    .mono { font-family: 'JetBrains Mono', monospace; }
+    body { background: var(--bg); color: var(--text-primary); }
+    [x-cloak] { display: none !important; }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; transition: border-color 0.15s ease; }
+    .card:hover { border-color: #d4d4d4; }
+    .sidebar-link { display: flex; align-items: center; gap: 10px; padding: 7px 12px; border-radius: 8px; font-size: 13px; font-weight: 500; color: var(--text-secondary); transition: all 0.12s ease; }
+    .sidebar-link:hover { background: #f4f4f5; color: var(--text-primary); }
+    .sidebar-link.active { background: var(--accent); color: white; }
+    .pill { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 500; }
+    .bar { height: 4px; border-radius: 2px; background: #f0f0f0; overflow: hidden; }
+    .bar > div { height: 100%; border-radius: 2px; transition: width 0.3s ease; }
+    .tab { padding: 6px 14px; border-radius: 8px; font-size: 13px; font-weight: 500; color: var(--text-secondary); cursor: pointer; transition: all 0.12s; }
+    .tab:hover { color: var(--text-primary); }
+    .tab.active { background: var(--accent); color: white; }
+    .stat-num { font-size: 28px; font-weight: 700; letter-spacing: -0.02em; line-height: 1; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .fade-in { animation: fadeIn 0.3s ease-out; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #d4d4d4; border-radius: 3px; }
+    /* Markdown rendering */
+    .markdown-body h1 { font-size: 1.5rem; font-weight: 700; margin-top: 1.5rem; margin-bottom: 0.75rem; color: #1a1a1a; }
+    .markdown-body h2 { font-size: 1.25rem; font-weight: 600; margin-top: 1.25rem; margin-bottom: 0.5rem; color: #27272a; border-bottom: 1px solid #e8e8e8; padding-bottom: 0.25rem; }
+    .markdown-body h3 { font-size: 1.1rem; font-weight: 600; margin-top: 1rem; margin-bottom: 0.5rem; color: #3f3f46; }
+    .markdown-body p { margin-bottom: 0.75rem; line-height: 1.7; color: #52525b; }
+    .markdown-body ul, .markdown-body ol { margin-bottom: 0.75rem; padding-left: 1.5rem; }
+    .markdown-body li { margin-bottom: 0.25rem; color: #52525b; }
+    .markdown-body code { font-family: 'JetBrains Mono', monospace; font-size: 0.875em; background: #f4f4f5; padding: 2px 6px; border-radius: 4px; }
+    .markdown-body pre { background: #18181b; color: #f4f4f5; padding: 1rem; border-radius: 8px; overflow-x: auto; margin-bottom: 0.75rem; }
+    .markdown-body pre code { background: transparent; padding: 0; }
+    .markdown-body blockquote { border-left: 3px solid #d4d4d4; padding-left: 1rem; color: #71717a; font-style: italic; margin-bottom: 0.75rem; }
+    .markdown-body table { width: 100%; border-collapse: collapse; margin-bottom: 0.75rem; }
+    .markdown-body th, .markdown-body td { border: 1px solid #e8e8e8; padding: 6px 12px; text-align: left; }
+    .markdown-body th { background: #f4f4f5; font-weight: 600; }
+</style>
+{% endmacro %}
