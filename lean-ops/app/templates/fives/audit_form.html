@@ -1,310 +1,310 @@
-﻿{% extends "base.html" %}
-{% block page_id %}fives{% endblock %}
-{% block page_title %}5S审核评分{% endblock %}
-{% block content %}
-<div x-data="auditForm()" x-init="init()">
-
-  <!-- Page Header -->
-  <div class="page-header" x-show="audit.id">
-    <div class="page-header-info">
-      <h1 x-text="'5S 审核 - ' + audit.area_name"></h1>
-      <p>
-        <span x-text="typeMap[audit.audit_type]"></span>
-        <span style="margin: 0 8px; color: var(--text-tertiary);">·</span>
-        <span x-text="'审核人：' + (audit.auditor_name || '-')"></span>
-        <span style="margin: 0 8px; color: var(--text-tertiary);">·</span>
-        <span x-text="LeanOps.fmtDate(audit.scheduled_date)"></span>
-      </p>
-    </div>
-    <div class="page-header-actions">
-      <a href="/fives" class="btn btn-secondary">
-        <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"/></svg>
-        返回列表
-      </a>
-    </div>
-  </div>
-
-  <div class="loading-spinner" x-show="loading"><div class="spinner"></div></div>
-
-  <div x-show="!loading && audit.id">
-
-    <!-- Audit Summary -->
-    <div class="card" style="margin-bottom: var(--space-5);">
-      <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--space-3);">
-        <div style="display: flex; align-items: center; gap: var(--space-4);">
-          <div>
-            <div class="detail-label">状态</div>
-            <div x-html="LeanOps.statusBadge(audit.status, {scheduled:{label:'待执行',class:'badge-warning'},in_progress:{label:'进行中',class:'badge-primary'},completed:{label:'已完成',class:'badge-success'}})"></div>
-          </div>
-          <div>
-            <div class="detail-label">审核类型</div>
-            <div class="detail-value" x-text="typeMap[audit.audit_type]"></div>
-          </div>
-          <div>
-            <div class="detail-label">审核人</div>
-            <div class="detail-value" x-text="audit.auditor_name"></div>
-          </div>
-          <div>
-            <div class="detail-label">总分</div>
-            <div class="detail-value" style="font-size: var(--text-xl); font-weight: 700;" :style="'color: ' + scoreColor(computedScore)">
-              <span x-show="audit.score !== null" x-text="audit.score + ' / ' + audit.max_score"></span>
-              <span x-show="audit.score === null" x-text="computedScore + ' / ' + audit.max_score" style="font-weight: 600;"></span>
-            </div>
-          </div>
-        </div>
-        <div x-show="audit.status !== 'completed'" style="display: flex; gap: var(--space-2);">
-          <button class="btn btn-primary" @click="saveScores()" :disabled="saving">
-            <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path d="M 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z"/></svg>
-            保存评分
-          </button>
-          <button class="btn btn-success" @click="completeAudit()" :disabled="saving">
-            <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
-            完成审核
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Scoring Sections by 5S Category -->
-    <div style="display: flex; flex-direction: column; gap: var(--space-5); margin-bottom: var(--space-6);">
-      <template x-for="cat in categories" :key="cat.key">
-        <div class="card">
-          <div class="card-header">
-            <div class="card-title" style="display: flex; align-items: center; gap: var(--space-3);">
-              <div style="width: 32px; height: 32px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: var(--text-sm);" :style="'background: ' + cat.color + '20; color: ' + cat.color">
-                <span x-text="cat.icon"></span>
-              </div>
-              <span x-text="cat.label"></span>
-              <span style="font-size: var(--text-xs); color: var(--text-tertiary); font-weight: 400;" x-text="cat.score + ' / ' + cat.maxScore + ' 分'"></span>
-            </div>
-          </div>
-          <div class="card-body">
-            <template x-for="item in getItemsByCategory(cat.key)" :key="item.id">
-              <div style="padding: var(--space-3) 0; border-bottom: 1px solid var(--border-color);" :style="getItemsByCategory(cat.key).indexOf(item) === getItemsByCategory(cat.key).length - 1 ? 'border-bottom: none' : ''">
-                <div style="display: flex; align-items: flex-start; gap: var(--space-4); flex-wrap: wrap;">
-                  <div style="flex: 1; min-width: 200px;">
-                    <div style="font-size: var(--text-sm); font-weight: 500; color: var(--text-primary); margin-bottom: 2px;" x-text="item.item_name"></div>
-                    <div style="font-size: var(--text-xs); color: var(--text-tertiary); margin-bottom: var(--space-2);" x-text="item.description"></div>
-                    <div style="font-size: var(--text-xs); color: var(--text-tertiary);" x-text="'权重: ' + item.weight + '  |  满分: ' + item.max_score"></div>
-                  </div>
-                  <div style="display: flex; align-items: center; gap: var(--space-2);">
-                    <label style="font-size: var(--text-sm); color: var(--text-secondary); white-space: nowrap;">评分:</label>
-                    <div style="display: flex; align-items: center; gap: 2px;" x-show="audit.status !== 'completed'">
-                      <template x-for="n in [1,2,3,4,5]" :key="n">
-                        <button style="width: 32px; height: 32px; border: 1px solid var(--border-color-strong); border-radius: var(--radius-sm); cursor: pointer; font-size: var(--text-xs); font-weight: 600; transition: all var(--transition-fast); background: var(--bg-surface); color: var(--text-secondary);"
-                                :style="item.score >= n ? 'background: var(--color-primary-500); border-color: var(--color-primary-500); color: white;' : ''"
-                                @click="item.score = n"
-                                x-text="n"></button>
-                      </template>
-                    </div>
-                    <div x-show="audit.status === 'completed'" style="display: flex; align-items: baseline; gap: var(--space-1);">
-                      <span style="font-size: var(--text-lg); font-weight: 700;" :style="'color: ' + scoreColor(item.score)" x-text="item.score !== null ? item.score : '-'"></span>
-                      <span style="font-size: var(--text-xs); color: var(--text-tertiary);" x-text="'/' + item.max_score"></span>
-                    </div>
-                  </div>
-                </div>
-                <div style="margin-top: var(--space-2);">
-                  <input type="text" class="form-input" style="padding: var(--space-1) var(--space-2); font-size: var(--text-xs);" x-model="item.remarks" :disabled="audit.status === 'completed'" placeholder="备注（可选）...">
-                </div>
-              </div>
-            </template>
-          </div>
-        </div>
-      </template>
-    </div>
-
-    <!-- Improvements -->
-    <div class="card">
-      <div class="card-header">
-        <div class="card-title">改善项</div>
-        <button x-show="audit.status !== 'completed'" class="btn btn-secondary btn-sm" @click="showImpModal = true">
-          <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor"><path d="M 2v16m-8-8h16" stroke="currentColor" stroke-width="2" fill="none"/></svg>
-          添加改善项
-        </button>
-      </div>
-      <div x-show="(audit.improvements || []).length > 0" style="display: flex; flex-direction: column; gap: var(--space-3);">
-        <template x-for="imp in audit.improvements" :key="imp.id">
-          <div style="padding: var(--space-3); border: 1px solid var(--border-color); border-radius: var(--radius-md);">
-            <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-3);">
-              <div style="flex: 1;">
-                <div style="font-size: var(--text-sm); font-weight: 500; color: var(--text-primary);" x-text="imp.item_description"></div>
-                <div style="display: flex; align-items: center; gap: var(--space-3); margin-top: var(--space-1); font-size: var(--text-xs); color: var(--text-tertiary);">
-                  <span x-show="imp.assigned_to_name">负责人: <span x-text="imp.assigned_to_name" style="color: var(--text-secondary);"></span></span>
-                  <span x-show="imp.due_date">截止: <span x-text="LeanOps.fmtDate(imp.due_date)" style="color: var(--text-secondary);"></span></span>
-                </div>
-              </div>
-              <div style="display: flex; align-items: center; gap: var(--space-2);">
-                <span x-html="LeanOps.statusBadge(imp.status, {open:{label:'待处理',class:'badge-warning'},in_progress:{label:'处理中',class:'badge-primary'},completed:{label:'已完成',class:'badge-success'}})"></span>
-                <button x-show="imp.status !== 'completed'" class="btn btn-sm btn-success" @click="updateImprovement(imp.id, 'completed')">完成</button>
-              </div>
-            </div>
-          </div>
-        </template>
-      </div>
-      <div x-show="!(audit.improvements || []).length" class="empty-state" style="padding: var(--space-8) var(--space-4);">
-        <div class="empty-state-icon">
-          <svg width="36" height="36" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"/></svg>
-        </div>
-        <div class="empty-state-title">暂无改善项</div>
-        <div class="empty-state-desc">审核中发现的问题可添加为改善项跟踪处理</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Add Improvement Modal -->
-  <div class="modal-overlay" x-show="showImpModal" @click.away="showImpModal = false">
-    <div class="modal">
-      <div class="modal-header">
-        <div class="modal-title">添加改善项</div>
-        <button class="modal-close" @click="showImpModal = false">
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg>
-        </button>
-      </div>
-      <div class="modal-body">
-        <div class="form-group">
-          <label class="form-label">问题描述 <span class="required">*</span></label>
-          <textarea class="form-textarea" x-model="impForm.item_description" rows="3" placeholder="描述发现的问题..."></textarea>
-        </div>
-        <div class="form-group">
-          <label class="form-label">截止日期</label>
-          <input type="date" class="form-input" x-model="impForm.due_date">
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" @click="showImpModal = false">取消</button>
-        <button class="btn btn-primary" @click="addImprovement()">添加</button>
-      </div>
-    </div>
-  </div>
-
-</div>
-{% endblock %}
-{% block scripts %}
-<script>
-function auditForm() {
-  const auditId = window.location.pathname.split('/').pop();
-  return {
-    audit: { items: [], improvements: [] },
-    loading: true, saving: false,
-    showImpModal: false,
-    impForm: { item_description: '', due_date: '' },
-    typeMap: { daily: '日常审核', weekly: '周审核', monthly: '月度审核' },
-    sCategories: {
-      sort: { key: 'sort', label: '整理 (Seiri)', icon: '1S', color: '#2563eb', score: 0, maxScore: 0 },
-      straighten: { key: 'straighten', label: '整顿 (Seiton)', icon: '2S', color: '#7c3aed', score: 0, maxScore: 0 },
-      shine: { key: 'shine', label: '清扫 (Seiso)', icon: '3S', color: '#0891b2', score: 0, maxScore: 0 },
-      standardize: { key: 'standardize', label: '清洁 (Seiketsu)', icon: '4S', color: '#16a34a', score: 0, maxScore: 0 },
-      sustain: { key: 'sustain', label: '素养 (Shitsuke)', icon: '5S', color: '#d97706', score: 0, maxScore: 0 },
-    },
-    get categories() {
-      const cats = Object.values(this.sCategories);
-      cats.forEach(c => { c.score = 0; c.maxScore = 0; });
-      (this.audit.items || []).forEach(item => {
-        const cat = this.sCategories[item.s_category];
-        if (cat) {
-          cat.score += parseFloat(item.score || 0);
-          cat.maxScore += parseFloat(item.max_score || 5);
-        }
-      });
-      return cats.filter(c => c.maxScore > 0);
-    },
-    getItemsByCategory(key) {
-      return (this.audit.items || []).filter(i => i.s_category === key);
-    },
-    get computedScore() {
-      const scored = (this.audit.items || []).filter(i => i.score !== null && i.score !== undefined);
-      if (scored.length === 0) return 0;
-      const total = scored.reduce((s, i) => s + parseFloat(i.score || 0), 0);
-      return Math.round(total * 10) / 10;
-    },
-
-    async init() {
-      try {
-        const data = await LeanOps.api('/fives/audits/' + auditId);
-        this.audit = data.data || { items: [], improvements: [] };
-      } catch (e) {
-        LeanOps.toast('加载失败', 'error');
-      } finally { this.loading = false; }
-    },
-
-    async saveScores() {
-      const items = (this.audit.items || [])
-        .filter(i => i.score !== null && i.score !== undefined)
-        .map(i => ({
-          id: i.id,
-          score: parseFloat(i.score),
-          remarks: i.remarks || null,
-        }));
-      if (items.length === 0) {
-        LeanOps.toast('请至少对一项进行评分', 'warning');
-        return;
-      }
-      this.saving = true;
-      try {
-        await LeanOps.api('/fives/audits/' + auditId + '/scores', {
-          method: 'PUT',
-          body: JSON.stringify({ items }),
-        });
-        await this.init();
-        LeanOps.toast('评分已保存', 'success');
-      } catch (e) {
-        LeanOps.toast(e.detail || '保存失败', 'error');
-      } finally { this.saving = false; }
-    },
-
-    async completeAudit() {
-      if (!confirm('确认完成审核？完成后将不可再修改评分。')) return;
-      this.saving = true;
-      try {
-        await LeanOps.api('/fives/audits/' + auditId + '/complete', { method: 'POST' });
-        await this.init();
-        LeanOps.toast('审核已完成', 'success');
-      } catch (e) {
-        LeanOps.toast(e.detail || '完成失败', 'error');
-      } finally { this.saving = false; }
-    },
-
-    async addImprovement() {
-      if (!this.impForm.item_description.trim()) {
-        LeanOps.toast('请填写问题描述', 'warning');
-        return;
-      }
-      try {
-        await LeanOps.api('/fives/audits/' + auditId + '/improvements', {
-          method: 'POST',
-          body: JSON.stringify({
-            item_description: this.impForm.item_description,
-            due_date: this.impForm.due_date || null,
-          }),
-        });
-        this.showImpModal = false;
-        this.impForm = { item_description: '', due_date: '' };
-        await this.init();
-        LeanOps.toast('改善项已添加', 'success');
-      } catch (e) {
-        LeanOps.toast(e.detail || '添加失败', 'error');
-      }
-    },
-
-    async updateImprovement(id, status) {
-      try {
-        await LeanOps.api('/fives/improvements/' + id, {
-          method: 'PUT',
-          body: JSON.stringify({ status }),
-        });
-        await this.init();
-        LeanOps.toast('状态已更新', 'success');
-      } catch (e) {
-        LeanOps.toast(e.detail || '更新失败', 'error');
-      }
-    },
-
-    scoreColor(s) {
-      if (s >= 80) return 'var(--color-success-600)';
-      if (s >= 60) return 'var(--color-warning-600)';
-      return 'var(--color-danger-600)';
-    },
-  };
-}
-</script>
-{% endblock %}
+﻿{% extends "base.html" %}
+{% block page_id %}fives{% endblock %}
+{% block page_title %}5S审核评分{% endblock %}
+{% block content %}
+<div x-data="auditForm()" x-init="init()">
+
+  <!-- Page Header -->
+  <div class="page-header" x-show="audit.id">
+    <div class="page-header-info">
+      <h1 x-text="'5S 审核 - ' + audit.area_name"></h1>
+      <p>
+        <span x-text="typeMap[audit.audit_type]"></span>
+        <span style="margin: 0 8px; color: var(--text-tertiary);">·</span>
+        <span x-text="'审核人：' + (audit.auditor_name || '-')"></span>
+        <span style="margin: 0 8px; color: var(--text-tertiary);">·</span>
+        <span x-text="LeanOps.fmtDate(audit.scheduled_date)"></span>
+      </p>
+    </div>
+    <div class="page-header-actions">
+      <a href="/fives" class="btn btn-secondary">
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"/></svg>
+        返回列表
+      </a>
+    </div>
+  </div>
+
+  <div class="loading-spinner" x-show="loading"><div class="spinner"></div></div>
+
+  <div x-show="!loading && audit.id">
+
+    <!-- Audit Summary -->
+    <div class="card" style="margin-bottom: var(--space-5);">
+      <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--space-3);">
+        <div style="display: flex; align-items: center; gap: var(--space-4);">
+          <div>
+            <div class="detail-label">状态</div>
+            <div x-html="LeanOps.statusBadge(audit.status, {scheduled:{label:'待执行',class:'badge-warning'},in_progress:{label:'进行中',class:'badge-primary'},completed:{label:'已完成',class:'badge-success'}})"></div>
+          </div>
+          <div>
+            <div class="detail-label">审核类型</div>
+            <div class="detail-value" x-text="typeMap[audit.audit_type]"></div>
+          </div>
+          <div>
+            <div class="detail-label">审核人</div>
+            <div class="detail-value" x-text="audit.auditor_name"></div>
+          </div>
+          <div>
+            <div class="detail-label">总分</div>
+            <div class="detail-value" style="font-size: var(--text-xl); font-weight: 700;" :style="'color: ' + scoreColor(computedScore)">
+              <span x-show="audit.score !== null" x-text="audit.score + ' / ' + audit.max_score"></span>
+              <span x-show="audit.score === null" x-text="computedScore + ' / ' + audit.max_score" style="font-weight: 600;"></span>
+            </div>
+          </div>
+        </div>
+        <div x-show="audit.status !== 'completed'" style="display: flex; gap: var(--space-2);">
+          <button class="btn btn-primary" @click="saveScores()" :disabled="saving">
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path d="M 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z"/></svg>
+            保存评分
+          </button>
+          <button class="btn btn-success" @click="completeAudit()" :disabled="saving">
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
+            完成审核
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scoring Sections by 5S Category -->
+    <div style="display: flex; flex-direction: column; gap: var(--space-5); margin-bottom: var(--space-6);">
+      <template x-for="cat in categories" :key="cat.key">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title" style="display: flex; align-items: center; gap: var(--space-3);">
+              <div style="width: 32px; height: 32px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: var(--text-sm);" :style="'background: ' + cat.color + '20; color: ' + cat.color">
+                <span x-text="cat.icon"></span>
+              </div>
+              <span x-text="cat.label"></span>
+              <span style="font-size: var(--text-xs); color: var(--text-tertiary); font-weight: 400;" x-text="cat.score + ' / ' + cat.maxScore + ' 分'"></span>
+            </div>
+          </div>
+          <div class="card-body">
+            <template x-for="item in getItemsByCategory(cat.key)" :key="item.id">
+              <div style="padding: var(--space-3) 0; border-bottom: 1px solid var(--border-color);" :style="getItemsByCategory(cat.key).indexOf(item) === getItemsByCategory(cat.key).length - 1 ? 'border-bottom: none' : ''">
+                <div style="display: flex; align-items: flex-start; gap: var(--space-4); flex-wrap: wrap;">
+                  <div style="flex: 1; min-width: 200px;">
+                    <div style="font-size: var(--text-sm); font-weight: 500; color: var(--text-primary); margin-bottom: 2px;" x-text="item.item_name"></div>
+                    <div style="font-size: var(--text-xs); color: var(--text-tertiary); margin-bottom: var(--space-2);" x-text="item.description"></div>
+                    <div style="font-size: var(--text-xs); color: var(--text-tertiary);" x-text="'权重: ' + item.weight + '  |  满分: ' + item.max_score"></div>
+                  </div>
+                  <div style="display: flex; align-items: center; gap: var(--space-2);">
+                    <label style="font-size: var(--text-sm); color: var(--text-secondary); white-space: nowrap;">评分:</label>
+                    <div style="display: flex; align-items: center; gap: 2px;" x-show="audit.status !== 'completed'">
+                      <template x-for="n in [1,2,3,4,5]" :key="n">
+                        <button style="width: 32px; height: 32px; border: 1px solid var(--border-color-strong); border-radius: var(--radius-sm); cursor: pointer; font-size: var(--text-xs); font-weight: 600; transition: all var(--transition-fast); background: var(--bg-surface); color: var(--text-secondary);"
+                                :style="item.score >= n ? 'background: var(--color-primary-500); border-color: var(--color-primary-500); color: white;' : ''"
+                                @click="item.score = n"
+                                x-text="n"></button>
+                      </template>
+                    </div>
+                    <div x-show="audit.status === 'completed'" style="display: flex; align-items: baseline; gap: var(--space-1);">
+                      <span style="font-size: var(--text-lg); font-weight: 700;" :style="'color: ' + scoreColor(item.score)" x-text="item.score !== null ? item.score : '-'"></span>
+                      <span style="font-size: var(--text-xs); color: var(--text-tertiary);" x-text="'/' + item.max_score"></span>
+                    </div>
+                  </div>
+                </div>
+                <div style="margin-top: var(--space-2);">
+                  <input type="text" class="form-input" style="padding: var(--space-1) var(--space-2); font-size: var(--text-xs);" x-model="item.remarks" :disabled="audit.status === 'completed'" placeholder="备注（可选）...">
+                </div>
+              </div>
+            </template>
+          </div>
+        </div>
+      </template>
+    </div>
+
+    <!-- Improvements -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">改善项</div>
+        <button x-show="audit.status !== 'completed'" class="btn btn-secondary btn-sm" @click="showImpModal = true">
+          <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor"><path d="M 2v16m-8-8h16" stroke="currentColor" stroke-width="2" fill="none"/></svg>
+          添加改善项
+        </button>
+      </div>
+      <div x-show="(audit.improvements || []).length > 0" style="display: flex; flex-direction: column; gap: var(--space-3);">
+        <template x-for="imp in audit.improvements" :key="imp.id">
+          <div style="padding: var(--space-3); border: 1px solid var(--border-color); border-radius: var(--radius-md);">
+            <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-3);">
+              <div style="flex: 1;">
+                <div style="font-size: var(--text-sm); font-weight: 500; color: var(--text-primary);" x-text="imp.item_description"></div>
+                <div style="display: flex; align-items: center; gap: var(--space-3); margin-top: var(--space-1); font-size: var(--text-xs); color: var(--text-tertiary);">
+                  <span x-show="imp.assigned_to_name">负责人: <span x-text="imp.assigned_to_name" style="color: var(--text-secondary);"></span></span>
+                  <span x-show="imp.due_date">截止: <span x-text="LeanOps.fmtDate(imp.due_date)" style="color: var(--text-secondary);"></span></span>
+                </div>
+              </div>
+              <div style="display: flex; align-items: center; gap: var(--space-2);">
+                <span x-html="LeanOps.statusBadge(imp.status, {open:{label:'待处理',class:'badge-warning'},in_progress:{label:'处理中',class:'badge-primary'},completed:{label:'已完成',class:'badge-success'}})"></span>
+                <button x-show="imp.status !== 'completed'" class="btn btn-sm btn-success" @click="updateImprovement(imp.id, 'completed')">完成</button>
+              </div>
+            </div>
+          </div>
+        </template>
+      </div>
+      <div x-show="!(audit.improvements || []).length" class="empty-state" style="padding: var(--space-8) var(--space-4);">
+        <div class="empty-state-icon">
+          <svg width="36" height="36" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"/></svg>
+        </div>
+        <div class="empty-state-title">暂无改善项</div>
+        <div class="empty-state-desc">审核中发现的问题可添加为改善项跟踪处理</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Improvement Modal -->
+  <div class="modal-overlay" x-show="showImpModal" @click.away="showImpModal = false">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">添加改善项</div>
+        <button class="modal-close" @click="showImpModal = false">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">问题描述 <span class="required">*</span></label>
+          <textarea class="form-textarea" x-model="impForm.item_description" rows="3" placeholder="描述发现的问题..."></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">截止日期</label>
+          <input type="date" class="form-input" x-model="impForm.due_date">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" @click="showImpModal = false">取消</button>
+        <button class="btn btn-primary" @click="addImprovement()">添加</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+function auditForm() {
+  const auditId = window.location.pathname.split('/').pop();
+  return {
+    audit: { items: [], improvements: [] },
+    loading: true, saving: false,
+    showImpModal: false,
+    impForm: { item_description: '', due_date: '' },
+    typeMap: { daily: '日常审核', weekly: '周审核', monthly: '月度审核' },
+    sCategories: {
+      sort: { key: 'sort', label: '整理 (Seiri)', icon: '1S', color: '#4BACC6', score: 0, maxScore: 0 },
+      straighten: { key: 'straighten', label: '整顿 (Seiton)', icon: '2S', color: '#7c3aed', score: 0, maxScore: 0 },
+      shine: { key: 'shine', label: '清扫 (Seiso)', icon: '3S', color: '#0891b2', score: 0, maxScore: 0 },
+      standardize: { key: 'standardize', label: '清洁 (Seiketsu)', icon: '4S', color: '#16a34a', score: 0, maxScore: 0 },
+      sustain: { key: 'sustain', label: '素养 (Shitsuke)', icon: '5S', color: '#d97706', score: 0, maxScore: 0 },
+    },
+    get categories() {
+      const cats = Object.values(this.sCategories);
+      cats.forEach(c => { c.score = 0; c.maxScore = 0; });
+      (this.audit.items || []).forEach(item => {
+        const cat = this.sCategories[item.s_category];
+        if (cat) {
+          cat.score += parseFloat(item.score || 0);
+          cat.maxScore += parseFloat(item.max_score || 5);
+        }
+      });
+      return cats.filter(c => c.maxScore > 0);
+    },
+    getItemsByCategory(key) {
+      return (this.audit.items || []).filter(i => i.s_category === key);
+    },
+    get computedScore() {
+      const scored = (this.audit.items || []).filter(i => i.score !== null && i.score !== undefined);
+      if (scored.length === 0) return 0;
+      const total = scored.reduce((s, i) => s + parseFloat(i.score || 0), 0);
+      return Math.round(total * 10) / 10;
+    },
+
+    async init() {
+      try {
+        const data = await LeanOps.api('/fives/audits/' + auditId);
+        this.audit = data.data || { items: [], improvements: [] };
+      } catch (e) {
+        LeanOps.toast('加载失败', 'error');
+      } finally { this.loading = false; }
+    },
+
+    async saveScores() {
+      const items = (this.audit.items || [])
+        .filter(i => i.score !== null && i.score !== undefined)
+        .map(i => ({
+          id: i.id,
+          score: parseFloat(i.score),
+          remarks: i.remarks || null,
+        }));
+      if (items.length === 0) {
+        LeanOps.toast('请至少对一项进行评分', 'warning');
+        return;
+      }
+      this.saving = true;
+      try {
+        await LeanOps.api('/fives/audits/' + auditId + '/scores', {
+          method: 'PUT',
+          body: JSON.stringify({ items }),
+        });
+        await this.init();
+        LeanOps.toast('评分已保存', 'success');
+      } catch (e) {
+        LeanOps.toast(e.detail || '保存失败', 'error');
+      } finally { this.saving = false; }
+    },
+
+    async completeAudit() {
+      if (!confirm('确认完成审核？完成后将不可再修改评分。')) return;
+      this.saving = true;
+      try {
+        await LeanOps.api('/fives/audits/' + auditId + '/complete', { method: 'POST' });
+        await this.init();
+        LeanOps.toast('审核已完成', 'success');
+      } catch (e) {
+        LeanOps.toast(e.detail || '完成失败', 'error');
+      } finally { this.saving = false; }
+    },
+
+    async addImprovement() {
+      if (!this.impForm.item_description.trim()) {
+        LeanOps.toast('请填写问题描述', 'warning');
+        return;
+      }
+      try {
+        await LeanOps.api('/fives/audits/' + auditId + '/improvements', {
+          method: 'POST',
+          body: JSON.stringify({
+            item_description: this.impForm.item_description,
+            due_date: this.impForm.due_date || null,
+          }),
+        });
+        this.showImpModal = false;
+        this.impForm = { item_description: '', due_date: '' };
+        await this.init();
+        LeanOps.toast('改善项已添加', 'success');
+      } catch (e) {
+        LeanOps.toast(e.detail || '添加失败', 'error');
+      }
+    },
+
+    async updateImprovement(id, status) {
+      try {
+        await LeanOps.api('/fives/improvements/' + id, {
+          method: 'PUT',
+          body: JSON.stringify({ status }),
+        });
+        await this.init();
+        LeanOps.toast('状态已更新', 'success');
+      } catch (e) {
+        LeanOps.toast(e.detail || '更新失败', 'error');
+      }
+    },
+
+    scoreColor(s) {
+      if (s >= 80) return 'var(--color-success-600)';
+      if (s >= 60) return 'var(--color-warning-600)';
+      return 'var(--color-danger-600)';
+    },
+  };
+}
+</script>
+{% endblock %}

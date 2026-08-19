@@ -1,25 +1,25 @@
 ﻿/* ============================================================
-   LeanOps Design System v2.0
+   LeanOps Design System v2.1
    精益运营管理系统 — 专业设计体系
    ============================================================ */
 
 /* ---------- Design Tokens ---------- */
 :root {
   /* Brand Colors */
-  --color-primary: #2563eb;
-  --color-primary-50: #eff6ff;
-  --color-primary-100: #dbeafe;
-  --color-primary-200: #bfdbfe;
-  --color-primary-500: #3b82f6;
-  --color-primary-600: #2563eb;
-  --color-primary-700: #1d4ed8;
-  --color-primary-800: #1e40af;
-  --color-primary-900: #1e3a8a;
+  --color-primary: #18181b;
+  --color-primary-50: #f4f4f5;
+  --color-primary-100: #e4e4e7;
+  --color-primary-200: #d4d4d8;
+  --color-primary-500: #3f3f46;
+  --color-primary-600: #18181b;
+  --color-primary-700: #09090b;
+  --color-primary-800: #09090b;
+  --color-primary-900: #09090b;
 
   /* Accent */
-  --color-accent: #0ea5e9;
-  --color-accent-500: #0ea5e9;
-  --color-accent-600: #0284c7;
+  --color-accent: #4BACC6;
+  --color-accent-500: #4BACC6;
+  --color-accent-600: #3D9BB3;
 
   /* Semantic Colors */
   --color-success: #16a34a;
@@ -66,7 +66,7 @@
   --bg-surface-hover: #f8fafc;
   --bg-sidebar: #0f172a;
   --bg-sidebar-hover: #1e293b;
-  --bg-sidebar-active: #2563eb;
+  --bg-sidebar-active: #4BACC6;
   --bg-topbar: #ffffff;
   --bg-overlay: rgba(0, 0, 0, 0.4);
 
@@ -141,7 +141,7 @@
   --bg-surface-hover: #334155;
   --bg-sidebar: #020617;
   --bg-sidebar-hover: #1e293b;
-  --bg-sidebar-active: #2563eb;
+  --bg-sidebar-active: #4BACC6;
   --bg-topbar: #1e293b;
 
   --text-primary: #f1f5f9;
